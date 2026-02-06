@@ -1,0 +1,583 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		4DAB8B9E2F360EEB00391C68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DAB8B862F360EEA00391C68 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4DAB8B8D2F360EEA00391C68;
+			remoteInfo = BrailleTranslatorApp;
+		};
+		4DAB8BA82F360EEB00391C68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DAB8B862F360EEA00391C68 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4DAB8B8D2F360EEA00391C68;
+			remoteInfo = BrailleTranslatorApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4DAB8B8E2F360EEA00391C68 /* BrailleTranslatorApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrailleTranslatorApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DAB8B9D2F360EEB00391C68 /* BrailleTranslatorAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BrailleTranslatorAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DAB8BA72F360EEB00391C68 /* BrailleTranslatorAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BrailleTranslatorAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4DAB8B902F360EEA00391C68 /* BrailleTranslatorApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BrailleTranslatorApp;
+			sourceTree = "<group>";
+		};
+		4DAB8BA02F360EEB00391C68 /* BrailleTranslatorAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BrailleTranslatorAppTests;
+			sourceTree = "<group>";
+		};
+		4DAB8BAA2F360EEB00391C68 /* BrailleTranslatorAppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BrailleTranslatorAppUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4DAB8B8B2F360EEA00391C68 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DAB8B9A2F360EEB00391C68 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DAB8BA42F360EEB00391C68 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4DAB8B852F360EEA00391C68 = {
+			isa = PBXGroup;
+			children = (
+				4DAB8B902F360EEA00391C68 /* BrailleTranslatorApp */,
+				4DAB8BA02F360EEB00391C68 /* BrailleTranslatorAppTests */,
+				4DAB8BAA2F360EEB00391C68 /* BrailleTranslatorAppUITests */,
+				4DAB8B8F2F360EEA00391C68 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4DAB8B8F2F360EEA00391C68 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DAB8B8E2F360EEA00391C68 /* BrailleTranslatorApp.app */,
+				4DAB8B9D2F360EEB00391C68 /* BrailleTranslatorAppTests.xctest */,
+				4DAB8BA72F360EEB00391C68 /* BrailleTranslatorAppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4DAB8B8D2F360EEA00391C68 /* BrailleTranslatorApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DAB8BB12F360EEB00391C68 /* Build configuration list for PBXNativeTarget "BrailleTranslatorApp" */;
+			buildPhases = (
+				4DAB8B8A2F360EEA00391C68 /* Sources */,
+				4DAB8B8B2F360EEA00391C68 /* Frameworks */,
+				4DAB8B8C2F360EEA00391C68 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4DAB8B902F360EEA00391C68 /* BrailleTranslatorApp */,
+			);
+			name = BrailleTranslatorApp;
+			packageProductDependencies = (
+			);
+			productName = BrailleTranslatorApp;
+			productReference = 4DAB8B8E2F360EEA00391C68 /* BrailleTranslatorApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4DAB8B9C2F360EEB00391C68 /* BrailleTranslatorAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DAB8BB42F360EEB00391C68 /* Build configuration list for PBXNativeTarget "BrailleTranslatorAppTests" */;
+			buildPhases = (
+				4DAB8B992F360EEB00391C68 /* Sources */,
+				4DAB8B9A2F360EEB00391C68 /* Frameworks */,
+				4DAB8B9B2F360EEB00391C68 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4DAB8B9F2F360EEB00391C68 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4DAB8BA02F360EEB00391C68 /* BrailleTranslatorAppTests */,
+			);
+			name = BrailleTranslatorAppTests;
+			packageProductDependencies = (
+			);
+			productName = BrailleTranslatorAppTests;
+			productReference = 4DAB8B9D2F360EEB00391C68 /* BrailleTranslatorAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		4DAB8BA62F360EEB00391C68 /* BrailleTranslatorAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DAB8BB72F360EEB00391C68 /* Build configuration list for PBXNativeTarget "BrailleTranslatorAppUITests" */;
+			buildPhases = (
+				4DAB8BA32F360EEB00391C68 /* Sources */,
+				4DAB8BA42F360EEB00391C68 /* Frameworks */,
+				4DAB8BA52F360EEB00391C68 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4DAB8BA92F360EEB00391C68 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4DAB8BAA2F360EEB00391C68 /* BrailleTranslatorAppUITests */,
+			);
+			name = BrailleTranslatorAppUITests;
+			packageProductDependencies = (
+			);
+			productName = BrailleTranslatorAppUITests;
+			productReference = 4DAB8BA72F360EEB00391C68 /* BrailleTranslatorAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4DAB8B862F360EEA00391C68 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					4DAB8B8D2F360EEA00391C68 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					4DAB8B9C2F360EEB00391C68 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 4DAB8B8D2F360EEA00391C68;
+					};
+					4DAB8BA62F360EEB00391C68 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 4DAB8B8D2F360EEA00391C68;
+					};
+				};
+			};
+			buildConfigurationList = 4DAB8B892F360EEA00391C68 /* Build configuration list for PBXProject "BrailleTranslatorApp" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4DAB8B852F360EEA00391C68;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 4DAB8B8F2F360EEA00391C68 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4DAB8B8D2F360EEA00391C68 /* BrailleTranslatorApp */,
+				4DAB8B9C2F360EEB00391C68 /* BrailleTranslatorAppTests */,
+				4DAB8BA62F360EEB00391C68 /* BrailleTranslatorAppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4DAB8B8C2F360EEA00391C68 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DAB8B9B2F360EEB00391C68 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DAB8BA52F360EEB00391C68 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4DAB8B8A2F360EEA00391C68 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DAB8B992F360EEB00391C68 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DAB8BA32F360EEB00391C68 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4DAB8B9F2F360EEB00391C68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4DAB8B8D2F360EEA00391C68 /* BrailleTranslatorApp */;
+			targetProxy = 4DAB8B9E2F360EEB00391C68 /* PBXContainerItemProxy */;
+		};
+		4DAB8BA92F360EEB00391C68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4DAB8B8D2F360EEA00391C68 /* BrailleTranslatorApp */;
+			targetProxy = 4DAB8BA82F360EEB00391C68 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		4DAB8BAF2F360EEB00391C68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		4DAB8BB02F360EEB00391C68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4DAB8BB22F360EEB00391C68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.giseung.BrailleTranslatorApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4DAB8BB32F360EEB00391C68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.giseung.BrailleTranslatorApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4DAB8BB52F360EEB00391C68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.giseung.BrailleTranslatorAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BrailleTranslatorApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BrailleTranslatorApp";
+			};
+			name = Debug;
+		};
+		4DAB8BB62F360EEB00391C68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.giseung.BrailleTranslatorAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BrailleTranslatorApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BrailleTranslatorApp";
+			};
+			name = Release;
+		};
+		4DAB8BB82F360EEB00391C68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.giseung.BrailleTranslatorAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BrailleTranslatorApp;
+			};
+			name = Debug;
+		};
+		4DAB8BB92F360EEB00391C68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K6YYVL2C5Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.giseung.BrailleTranslatorAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BrailleTranslatorApp;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4DAB8B892F360EEA00391C68 /* Build configuration list for PBXProject "BrailleTranslatorApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DAB8BAF2F360EEB00391C68 /* Debug */,
+				4DAB8BB02F360EEB00391C68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4DAB8BB12F360EEB00391C68 /* Build configuration list for PBXNativeTarget "BrailleTranslatorApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DAB8BB22F360EEB00391C68 /* Debug */,
+				4DAB8BB32F360EEB00391C68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4DAB8BB42F360EEB00391C68 /* Build configuration list for PBXNativeTarget "BrailleTranslatorAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DAB8BB52F360EEB00391C68 /* Debug */,
+				4DAB8BB62F360EEB00391C68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4DAB8BB72F360EEB00391C68 /* Build configuration list for PBXNativeTarget "BrailleTranslatorAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DAB8BB82F360EEB00391C68 /* Debug */,
+				4DAB8BB92F360EEB00391C68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4DAB8B862F360EEA00391C68 /* Project object */;
+}
