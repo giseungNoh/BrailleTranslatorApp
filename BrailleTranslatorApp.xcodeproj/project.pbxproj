@@ -45,6 +45,21 @@
 			path = BrailleTranslatorAppUITests;
 			sourceTree = "<group>";
 		};
+		4DAB8BBB2F36116600391C68 /* Presentation */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		4DAB8BBC2F36118000391C68 /* Domain */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		4DAB8BBD2F36119B00391C68 /* Data */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Data;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +90,9 @@
 		4DAB8B852F360EEA00391C68 = {
 			isa = PBXGroup;
 			children = (
+				4DAB8BBD2F36119B00391C68 /* Data */,
+				4DAB8BBC2F36118000391C68 /* Domain */,
+				4DAB8BBB2F36116600391C68 /* Presentation */,
 				4DAB8B902F360EEA00391C68 /* BrailleTranslatorApp */,
 				4DAB8BA02F360EEB00391C68 /* BrailleTranslatorAppTests */,
 				4DAB8BAA2F360EEB00391C68 /* BrailleTranslatorAppUITests */,
@@ -109,6 +127,9 @@
 			);
 			fileSystemSynchronizedGroups = (
 				4DAB8B902F360EEA00391C68 /* BrailleTranslatorApp */,
+				4DAB8BBB2F36116600391C68 /* Presentation */,
+				4DAB8BBC2F36118000391C68 /* Domain */,
+				4DAB8BBD2F36119B00391C68 /* Data */,
 			);
 			name = BrailleTranslatorApp;
 			packageProductDependencies = (
