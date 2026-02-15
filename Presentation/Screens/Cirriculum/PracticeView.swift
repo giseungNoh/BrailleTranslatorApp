@@ -7,33 +7,67 @@
 
 import SwiftUI
 
+import SwiftUI
+import SwiftData
+
 struct PracticeView: View {
-    let day: Int
+    @Bindable var item: LearningItem
 
     var body: some View {
         VStack(spacing: 0) {
-            CommonNavigationBar(title: "연습 \(day)일차")
+            CommonNavigationBar(title: "연습 \(item.day)일차")
 
             VStack(alignment: .leading, spacing: 16) {
-                Text("\(day)일차 연습 화면")
+                Text("\(item.day)일차 연습 화면: \(item.title)")
                     .font(.title2)
                     .bold()
                     .foregroundColor(.appTextColor)
 
-                Text("여기에 \(day)일차에 대한 연습 콘텐츠를 추가할 수 있습니다.")
+                Text("부제: \(item.subtitle)")
                     .font(.body)
                     .foregroundColor(.appTextSubColor)
 
+                Text("여기에 \(item.day)일차에 대한 연습 콘텐츠를 추가할 수 있습니다.")
+                    .font(.body)
+                    .foregroundColor(.appTextSubColor)
+                    .padding(.vertical)
+
                 Spacer()
+                
+                // 완료 버튼 (체크박스 스타일)
+                Button(action: {
+                    item.isCompleted.toggle()
+                }) {
+                    HStack {
+                        Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                            .font(.title)
+                            .foregroundColor(item.isCompleted ? .green : .gray)
+                        Text(item.isCompleted ? "학습 완료" : "학습 완료하기")
+                            .font(.headline)
+                            .foregroundColor(.appTextColor)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    .shadow(radius: 2)
+                }
+                .padding(.bottom, 30)
             }
             .padding(20)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Color.appMainColor)
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 #Preview {
-    PracticeView(day: 1)
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: LearningItem.self, configurations: config)
+    let item = LearningItem(day: 1, title: "Test", subtitle: "Subtitle")
+    
+    return PracticeView(item: item)
+        .modelContainer(container)
 }
 

@@ -3,15 +3,23 @@
 //  BrailleTranslatorApp
 //
 //  Created by juks86 on 2/6/26.
-//
+
 
 import SwiftUI
+import SwiftData
 
 struct CirriculumView: View {
-    @StateObject private var viewModel = CirriculumViewModel()
+    @Query(sort: \LearningItem.day, order: .forward) var items: [LearningItem]
     @State private var searchText: String = ""
-    @State private var selectedDay: Int?
-
+    
+    // Computed properties for progress
+    private var totalCount: Int { items.count }
+    private var completedCount: Int { items.filter { $0.isCompleted }.count }
+    private var progress: Double {
+        guard totalCount > 0 else { return 0 }
+        return Double(completedCount) / Double(totalCount)
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -23,7 +31,7 @@ struct CirriculumView: View {
                         Text("커리큘럼 검색")
                             .font(.headline)
                             .foregroundColor(.appTextColor)
-                            .padding(.leading,5)
+                            .padding(.leading, 5)
 
                         // 검색 바
                         HStack(spacing: 15) {
@@ -48,16 +56,16 @@ struct CirriculumView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
 
-                                Text("\(viewModel.totalCount)일 중 \(viewModel.completedCount)일차")
+                                Text("\(totalCount)일 중 \(completedCount)일차")
                                     .font(.title)
                                     .bold()
                                     .foregroundColor(.appTextColor)
 
                                 HStack(spacing: 12) {
-                                    ProgressView(value: viewModel.progress)
+                                    ProgressView(value: progress)
                                         .tint(.appSubColor)
 
-                                    Text("\(Int(viewModel.progress * 100))%")
+                                    Text("\(Int(progress * 100))%")
                                         .font(.subheadline)
                                         .foregroundColor(.appTextSubColor)
                                 }
@@ -73,25 +81,16 @@ struct CirriculumView: View {
                             .padding(.top, 20)
                             .font(.title2)
 
-                        // 1일차 ~ 20일차 카드 리스트 (섹션 구분, 뷰모델 데이터 사용)
+                        // 1일차 ~ 20일차 카드 리스트 (섹션 구분)
                         VStack(alignment: .leading, spacing: 20) {
-                            ForEach(viewModel.sections) { section in
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text(section.title)
-                                        .font(.title3)
-                                        .bold()
-                                        .foregroundColor(.appTextColor)
-
-                                    ForEach(section.days) { day in
-                                        NavigationLink {
-                                            PracticeView(day: day.day)
-                                        } label: {
-                                            CurriculumDayRow(day: day)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                            }
+                            // Section 1: 감각 깨우기 (1주차)
+                            CurriculumSectionView(title: "Section 1: 감각 깨우기 (1주차)", items: items.filter { (1...7).contains($0.day) })
+                            
+                            // Section 2: 한글 점자의 기초 (2주차)
+                            CurriculumSectionView(title: "Section 2: 한글 점자의 기초 (2주차)", items: items.filter { (8...14).contains($0.day) })
+                            
+                            // Section 3: 실전 규칙과 약자 (3주차)
+                            CurriculumSectionView(title: "Section 3: 실전 규칙과 약자 (3주차)", items: items.filter { (15...20).contains($0.day) })
                         }
                         .padding(.top, 8)
                     }
@@ -106,17 +105,43 @@ struct CirriculumView: View {
     }
 }
 
+// MARK: - 섹션 뷰
+private struct CurriculumSectionView: View {
+    let title: String
+    let items: [LearningItem]
+    
+    var body: some View {
+        if !items.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(title)
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(.appTextColor)
+                
+                ForEach(items) { item in
+                    NavigationLink {
+                        PracticeView(item: item)
+                    } label: {
+                        CurriculumDayRow(item: item)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
 // MARK: - 일차별 카드 행 뷰 (뷰모델 데이터 사용)
 
 private struct CurriculumDayRow: View {
-    let day: CirriculumViewModel.CurriculumDay
+    let item: LearningItem
 
     private var statusColor: Color {
-        switch day.status {
-        case .completed: return .green
-        case .inProgress: return .orange
-        case .notStarted: return .blue
-        }
+        return item.isCompleted ? .green : .gray
+    }
+    
+    private var statusLabel: String {
+        return item.isCompleted ? "완료" : "학습 전"
     }
 
     var body: some View {
@@ -124,7 +149,7 @@ private struct CurriculumDayRow: View {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     // 상태 배지
-                    Text(day.status.label)
+                    Text(statusLabel)
                         .font(.caption2)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 8)
@@ -134,7 +159,10 @@ private struct CurriculumDayRow: View {
                         .cornerRadius(7)
 
                     // 일차 + 제목
-                    Text("\(day.day)일차: \(day.title)")
+                    // LearningItem has title and subtitle.
+                    // The design had "Title: Subtitle" or similar.
+                    // Display: "1일차: Title (Subtitle)"
+                    Text("\(item.day)일차: \(item.title) (\(item.subtitle))")
                         .font(.headline)
                         .foregroundColor(.appTextColor)
                 }
@@ -146,7 +174,7 @@ private struct CurriculumDayRow: View {
                     .accessibilityHidden(true)
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(day.day)일차, \(day.title), \(day.status.label)")
+            .accessibilityLabel("\(item.day)일차, \(item.title), \(statusLabel)")
             .accessibilityHint("연습 화면으로 이동")
             .accessibilityAddTraits(.isButton)
         }
