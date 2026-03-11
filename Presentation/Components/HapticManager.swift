@@ -40,13 +40,14 @@ final class HapticManager {
     }
     
     // 1. 점이 있는 곳 (Heavy): 묵직한 진동 (High Intensity, Low Sharpness)
-    func playHeavyDotFeedback() {
+    func playHeavyDotFeedback(intensity: Float = 1.0) {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
         
         // 묵직한 느낌: 강도는 세고, 날카로움은 낮게
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0)
+        // intensity: 0.0 ~ 1.0
+        let hapticIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
         let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.4)
-        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [hapticIntensity, sharpness], relativeTime: 0)
         
         do {
             let pattern = try CHHapticPattern(events: [event], parameters: [])
@@ -58,20 +59,40 @@ final class HapticManager {
     }
     
     // 2. 점이 없는 빈 공간 (Soft): 부드러운 진동 (Low Intensity, Low Sharpness)
-    func playSoftDotFeedback() {
+    func playSoftDotFeedback(intensity: Float = 0.5) {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
         
         // 부드러운 느낌: 강도 약하게, 날카로움 낮게
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.5) // 살짝 느낌은 나야 하므로 0.5
+        let hapticIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
         let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.2)
-        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [hapticIntensity, sharpness], relativeTime: 0)
         
         do {
             let pattern = try CHHapticPattern(events: [event], parameters: [])
             let player = try engine?.makePlayer(with: pattern)
             try player?.start(atTime: 0)
         } catch {
-            print("Failed to play soft haptic: \(error)")
+            print("Failed to play soft dot feedback: \(error.localizedDescription)")
+        }
+    }
+    
+    // 가이드 점 (줄바꿈 안내) 피드백
+    func playGuideDotFeedback() {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+        
+        // 부드럽게 두 번 울리는 효과
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0)
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.3)
+
+        let event1 = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+        let event2 = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0.1)
+        
+        do {
+            let pattern = try CHHapticPattern(events: [event1, event2], parameters: [])
+            let player = try engine?.makePlayer(with: pattern)
+            try player?.start(atTime: 0)
+        } catch {
+            print("Failed to play guide dot feedback: \(error.localizedDescription)")
         }
     }
     

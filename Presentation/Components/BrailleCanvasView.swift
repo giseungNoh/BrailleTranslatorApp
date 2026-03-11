@@ -1,19 +1,69 @@
 import SwiftUI
 import UIKit
 
-struct BrailleCanvasView: UIViewRepresentable {
-    var text: String
+struct BrailleCanvasView: View {
+    let text: String
+    @Binding var isInteracting: Bool
+    
+    init(text: String, isInteracting: Binding<Bool> = .constant(false)) {
+        self.text = text
+        self._isInteracting = isInteracting
+    }
+    
+    var body: some View {
+        BrailleTouchCanvasViewRepresentable(text: text, isInteracting: $isInteracting)
+            .background(Color.clear)
+    }
+}
+
+struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
+    let text: String
+    @Binding var isInteracting: Bool
+    
+    // UserDefaults 변경 감지 (설정 즉시 반영)
+    @AppStorage("cellsPerLine") private var cellsPerLine: Int = 4
+    @AppStorage("activeDotIntensity") private var activeDotIntensity: Double = 1.0
+    @AppStorage("inactiveDotIntensity") private var inactiveDotIntensity: Double = 0.5
+    @AppStorage("isInactiveDotFeedbackEnabled") private var isInactiveDotFeedbackEnabled: Bool = true
     
     func makeUIView(context: Context) -> BrailleTouchCanvasView {
         let view = BrailleTouchCanvasView()
+        
+        view.onTouchStateChanged = { isTouching in
+            // 메인 스레드에서 상태 업데이트 보장
+            DispatchQueue.main.async {
+                self.isInteracting = isTouching
+            }
+        }
+        
+        updateSettings(for: view)
+        view.updateText(text)
         return view
     }
     
     func updateUIView(_ uiView: BrailleTouchCanvasView, context: Context) {
-        // 텍스트 변경 시 업데이트
-        // 레이아웃 다시 계산 등을 위해 메인 큐에서 실행
-        DispatchQueue.main.async {
-            uiView.updateText(text)
-        }
+        // 설정 업데이트
+        updateSettings(for: uiView)
+        
+        // 텍스트 업데이트
+        uiView.updateText(text)
+    }
+    
+    private func updateSettings(for view: BrailleTouchCanvasView) {
+        // 뷰의 settings 객체에 값 주입
+        view.settings.cellsPerLine = cellsPerLine
+        view.settings.activeDotIntensity = activeDotIntensity
+        view.settings.inactiveDotIntensity = inactiveDotIntensity
+        view.settings.isInactiveDotFeedbackEnabled = isInactiveDotFeedbackEnabled
+        
+        // 설정 변경 알림 (레이아웃 갱신 트리거)
+        // 새로운 Settings 객체 생성해서 할당하여 didSet 트리거
+        let newSettings = BrailleSettings()
+        newSettings.cellsPerLine = cellsPerLine
+        newSettings.activeDotIntensity = activeDotIntensity
+        newSettings.inactiveDotIntensity = inactiveDotIntensity
+        newSettings.isInactiveDotFeedbackEnabled = isInactiveDotFeedbackEnabled
+        
+        view.settings = newSettings
     }
 }

@@ -21,19 +21,19 @@ class BrailleCellView: UIView {
     
     var char: String? // 표시할 글자 (예: "안")
     
-    // 점의 물리적 크기 및 레이아웃 상수 (포인트 단위, 1pt ≒ 1/160 inch ?? iOS 포인트 기준)
-    // iOS에서 1cm ≒ 38~40 points
-    // 가로 2.5cm ≒ 100pt, 세로 4.0cm ≒ 160pt 로 설정하면 너무 큼.
-    // 화면 밀도에 따라 다르지만 대략적인 비율로 접근.
-    // 사용자가 제시한 가로 2.5cm, 세로 4.0cm는 '실제 물리적 터치 영역' 기준.
-    // 뷰 크기: Width 75pt, Height 110pt 정도로 설정 (약 2.5cm x 3.8cm)
+    // 기본 크기 상수 (Scale = 1.0 기준)
+    private let baseDotRadius: CGFloat = 6.0
+    private let baseTouchRadius: CGFloat = 16.0
+    private let baseHSpacing: CGFloat = 28.0
+    private let baseVSpacing: CGFloat = 26.0
     
-    private let dotRadius: CGFloat = 6.0 // 시각적 반지름 (지름 12pt ≒ 4mm)
-    private let touchRadius: CGFloat = 16.0 // 터치 인식 반지름 (지름 32pt ≒ 11mm, 넉넉하게)
-    private let hSpacing: CGFloat = 28.0 // 좌우 열 간격
-    private let vSpacing: CGFloat = 26.0 // 상하 점 간격
+    // 외부에서 주입받을 스케일 값
+    var scale: CGFloat = 1.0 {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
     
-    // 각 점의 중심 좌표를 저장할 배열
     private var dotCenters: [CGPoint] = []
     
     override init(frame: CGRect) {
@@ -49,9 +49,14 @@ class BrailleCellView: UIView {
     override func draw(_ rect: CGRect) {
         guard let context = UIGraphicsGetCurrentContext() else { return }
         
+        // 스케일 적용된 치수 계산
+        let dotRadius = baseDotRadius * scale
+        let hSpacing = baseHSpacing * scale
+        let vSpacing = baseVSpacing * scale
+        
         // 1. 카드 배경 그리기 (둥근 사각형)
         let cardRect = rect.insetBy(dx: 4, dy: 4) // 여백
-        let path = UIBezierPath(roundedRect: cardRect, cornerRadius: 12)
+        let path = UIBezierPath(roundedRect: cardRect, cornerRadius: 12 * scale) // Corner radius도 스케일링
         
         context.saveGState()
         // 그림자
@@ -65,9 +70,9 @@ class BrailleCellView: UIView {
         path.lineWidth = 1
         path.stroke()
         
-        // 뷰의 중앙을 기준으로 점 배치 계산 (상단으로 조금 올림, 아래에 글자 공간 확보)
+        // 뷰의 중앙을 기준으로 점 배치 계산
         let centerX = rect.width / 2
-        let centerY = (rect.height / 2) - 10 
+        let centerY = (rect.height / 2) - (10 * scale) // 텍스트 공간 확보도 스케일링
         
         // 왼쪽 열 X, 오른쪽 열 X
         let leftX = centerX - (hSpacing / 2)
@@ -107,15 +112,16 @@ class BrailleCellView: UIView {
         
         // 3. 글자 그리기 (하단 중앙)
         if let char = char {
+            let fontSize: CGFloat = 18 * scale
             let attributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 18, weight: .bold),
+                .font: UIFont.systemFont(ofSize: fontSize, weight: .bold),
                 .foregroundColor: UIColor.black
             ]
             let string = NSAttributedString(string: char, attributes: attributes)
             let size = string.size()
             let textRect = CGRect(
                 x: centerX - (size.width / 2),
-                y: rect.height - 30, // 하단 배치
+                y: rect.height - (30 * scale), // 하단 배치
                 width: size.width,
                 height: size.height
             )
@@ -125,6 +131,8 @@ class BrailleCellView: UIView {
     
     // 외부(Canvas)에서 터치 좌표를 받아, 이 셀 내부의 어떤 점에 해당하는지 판별
     func getDotIndex(at point: CGPoint) -> Int? {
+        let touchRadius = baseTouchRadius * scale
+        
         // point는 이 뷰의 로컬 좌표계 기준이어야 함
         for (index, center) in dotCenters.enumerated() {
             let distance = hypot(point.x - center.x, point.y - center.y)
@@ -140,14 +148,34 @@ class BrailleCellView: UIView {
 // 여러 개의 Cell을 담고 터치 이벤트를 총괄하는 UIKit 뷰
 class BrailleTouchCanvasView: UIView {
     
+    // 설정 주입
+    var settings: BrailleSettings = BrailleSettings() {
+        didSet {
+            // 설정 변경 시 레이아웃 재배치 및 다시 그리기
+            layoutCells()
+        }
+    }
+    
     private var text: String = ""
     private var cells: [BrailleCellView] = []
+    
+    // 스크롤 잠금 제어를 위한 콜백
+    var onTouchStateChanged: ((Bool) -> Void)?
     
     // 마지막으로 피드백을 준 점의 식별자
     private var lastFeedbackID: String?
     // 마지막으로 터치했던 셀의 인덱스 (경계선 감지용)
     private var lastCellIndex: Int?
     
+    // 가이드 점 (줄바꿈 안내) 영역 저장
+    private var guideDots: [CGRect] = []
+    
+    private var contentSize: CGSize = .zero
+    
+    override var intrinsicContentSize: CGSize {
+        return contentSize
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -171,31 +199,97 @@ class BrailleTouchCanvasView: UIView {
     
     // 텍스트를 받아서 셀을 배치하는 메서드
     func updateText(_ newText: String) {
+        guard self.text != newText else { return } // 텍스트가 같으면 리로드 방지 (터치 시 깜빡임 해결)
         self.text = newText
         layoutCells()
     }
-    
+
+    private var lastRenderedText: String?
+    private var lastRenderedScale: CGFloat?
+
     private func layoutCells() {
+        let cellsPerLine = settings.cellsPerLine
+        
+        // 텍스트와 설정 개수가 이전과 동일하면 레이아웃 생략 (불필요한 리로드 및 랜덤 점자 변경 방지)
+        let currentStateStr = "\(text)_\(cellsPerLine)"
+        if currentStateStr == lastRenderedText {
+            return
+        }
+        
+        // 상태 업데이트
+        lastRenderedText = currentStateStr
+        
         // 기존 셀 제거
         cells.forEach { $0.removeFromSuperview() }
         cells.removeAll()
+        guideDots.removeAll()
         
-        // 레이아웃 설정
-        let cellWidth: CGFloat = 75.0  // 약 2.6cm
-        let cellHeight: CGFloat = 110.0 // 약 3.8cm
-        let padding: CGFloat = 12.0
+        // 화면 너비에 맞춰 자동 줄바꿈.
+        let defaultWidth = UIScreen.main.bounds.width - 48
+        let containerWidth = max(self.bounds.width, defaultWidth)
         
-        // 화면 너비에 맞춰 자동 줄바꿈
-        let containerWidth = self.bounds.width > 0 ? self.bounds.width : UIScreen.main.bounds.width - 48
+        // --- 디자인상 원본 1.0 비율일 때의 기본 레이아웃 수치 ---
+        let baseCellWidth: CGFloat = 75.0
+        let baseCellHeight: CGFloat = 110.0
+        let basePadding: CGFloat = 12.0
+        let baseGuideDotPadding: CGFloat = 20.0
+        let baseGuideDotSize: CGFloat = 6.0
         
-        var currentX: CGFloat = padding
+        // --- 목표: 화면 너비(containerWidth)에 cellsPerLine 개수가 딱 맞게 들어가도록 Scale 계산 ---
+        // 공식: 시작 가이드 여백(2) + 시작 가이드 점(1) + (셀 너비 * 개수) + (셀 패딩 * (개수-1)) + 끝 가이드 여백(2) + 끝 가이드 점(1) = containerWidth
+        // (가이드 점 여백은 점 양쪽에 있으므로 2번씩 들어감, 총 4번)
+        // 위 공식에서 모든 기본값을 더한 전체 논리적 너비를 구한 뒤, 실제 화면 너비와 나눠서 scale을 구한다.
+        
+        let requiredBaseWidth = (baseGuideDotPadding * 4) + // 좌우 양쪽 가이드 점의 양옆 패딩 
+                                (baseGuideDotSize * 2) +    // 좌우 가이드 점 크기
+                                (baseCellWidth * CGFloat(cellsPerLine)) +  // 셀 전체 너비
+                                (basePadding * CGFloat(max(0, cellsPerLine - 1))) // 셀 사이 패딩
+                                
+        // 최종적으로 화면에 꽉 차게 그릴 비율 (Scale)
+        let scale = containerWidth / requiredBaseWidth
+        
+        // 화면에 맞춰 스케일된 최종 수치 계산
+        let cellWidth: CGFloat = baseCellWidth * scale
+        let cellHeight: CGFloat = baseCellHeight * scale
+        let padding: CGFloat = basePadding * scale
+        let guideDotPadding: CGFloat = baseGuideDotPadding * scale
+        let guideDotSize: CGFloat = baseGuideDotSize * scale
+        
+        let startX = guideDotPadding + guideDotSize + guideDotPadding
+        var currentX: CGFloat = startX
         var currentY: CGFloat = padding
+        var maxX: CGFloat = 0
+        
+        // 줄바꿈 발생 여부 확인을 위한 변수
+        var currentRowY: CGFloat = currentY
+        
+        if !text.isEmpty {
+            // 첫 번째 줄 시작 가이드 점 (맨 앞)
+            let startGuideDotX = guideDotPadding
+            let startGuideDotY = currentY + (cellHeight / 2) - (guideDotSize / 2)
+            guideDots.append(CGRect(x: startGuideDotX, y: startGuideDotY, width: guideDotSize, height: guideDotSize))
+        }
         
         for char in text {
-            // 줄바꿈 체크
-            if currentX + cellWidth + padding > containerWidth {
-                currentX = padding
+            // 줄바꿈 체크 (다음 글자를 그리고 가이드점까지 그릴 수 있는지 확인, 최소 1글자 보장)
+            if currentX > startX && currentX + cellWidth + guideDotPadding + guideDotSize > containerWidth {
+                // 이전 줄의 끝에 가이드 점 추가 (마지막 점자 바로 옆)
+                let guideDotX = currentX - padding + guideDotPadding
+                let guideDotY = currentRowY + (cellHeight / 2) - (guideDotSize / 2)
+                guideDots.append(CGRect(x: guideDotX, y: guideDotY, width: guideDotSize, height: guideDotSize))
+                
+                if guideDotX + guideDotSize + guideDotPadding > maxX {
+                    maxX = guideDotX + guideDotSize + guideDotPadding
+                }
+                
+                currentX = startX
                 currentY += cellHeight + padding
+                currentRowY = currentY
+                
+                // 새로운 줄의 시작 가이드 점 추가
+                let startGuideDotX = guideDotPadding
+                let startGuideDotY = currentY + (cellHeight / 2) - (guideDotSize / 2)
+                guideDots.append(CGRect(x: startGuideDotX, y: startGuideDotY, width: guideDotSize, height: guideDotSize))
             }
             
             let cell = BrailleCellView(frame: CGRect(x: currentX, y: currentY, width: cellWidth, height: cellHeight))
@@ -204,17 +298,54 @@ class BrailleTouchCanvasView: UIView {
             let mockPattern = (0..<6).map { _ in Bool.random() }
             cell.dotsState = mockPattern
             cell.char = String(char) // 글자 표시
+            cell.scale = scale // 스케일 전달
             
             self.addSubview(cell)
             cells.append(cell)
             
             // 다음 위치 계산
             currentX += cellWidth + padding
+            
+            if currentX > maxX {
+                maxX = currentX
+            }
+        }
+        
+        // 마지막 줄에도 가이드 점 추가 (마지막 점자 바로 옆)
+        if !text.isEmpty {
+            let guideDotX = currentX - padding + guideDotPadding
+            let guideDotY = currentRowY + (cellHeight / 2) - (guideDotSize / 2)
+            guideDots.append(CGRect(x: guideDotX, y: guideDotY, width: guideDotSize, height: guideDotSize))
+            
+            if guideDotX + guideDotSize + guideDotPadding > maxX {
+                maxX = guideDotX + guideDotSize + guideDotPadding
+            }
+        }
+        
+        // 컨텐츠 크기 계산
+        let totalHeight = currentY + cellHeight + padding
+        let totalWidth = maxX > 0 ? maxX : containerWidth // 최소한 padding 정도는 확보
+        
+        self.contentSize = CGSize(width: totalWidth, height: totalHeight) // 너비를 내용에 맞게 조절
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsDisplay() // 가이드 점 그리기 위해
+    }
+    
+    // 가이드 점 그리기
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        
+        context.setFillColor(UIColor.systemGray4.cgColor)
+        for dotRect in guideDots {
+            context.fillEllipse(in: dotRect)
         }
     }
     
     // MARK: - Touch Handling
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        onTouchStateChanged?(true) // 터치 시작: 스크롤 잠금
         handleTouch(touches)
     }
     
@@ -223,7 +354,14 @@ class BrailleTouchCanvasView: UIView {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        onTouchStateChanged?(false) // 터치 종료: 스크롤 해제
         lastFeedbackID = nil // 터치 끝나면 초기화
+        lastCellIndex = nil
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        onTouchStateChanged?(false) // 터치 취소: 스크롤 해제
+        lastFeedbackID = nil
         lastCellIndex = nil
     }
     
@@ -231,24 +369,29 @@ class BrailleTouchCanvasView: UIView {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         
+        // 1. 가이드 점 확인 (우측 여백)
+        for (index, dotRect) in guideDots.enumerated() {
+            // 터치 영역을 좀 더 넓게 잡음
+            let touchArea = dotRect.insetBy(dx: -20, dy: -20)
+            if touchArea.contains(location) {
+                let feedbackID = "guide-\(index)"
+                if lastFeedbackID != feedbackID {
+                    HapticManager.shared.playGuideDotFeedback()
+                    lastFeedbackID = feedbackID
+                }
+                return
+            }
+        }
+        
         var isTouchInsideAnyCell = false
         
-        // 어느 셀 위에 있는지 찾기
+        // 2. 어느 셀 위에 있는지 찾기
         for (cellIndex, cell) in cells.enumerated() {
             // 셀의 프레임 내부인지 확인
             if cell.frame.contains(location) {
                 isTouchInsideAnyCell = true
                 
-                // 1. 셀 경계 진입 (Border Feedback)
-                // 다른 셀로 이동했거나, 처음 셀에 진입했을 때 경계선 느낌(Sharp)을 줌
-//                if lastCellIndex != cellIndex {
-//                    HapticManager.shared.playSharpBorderFeedback()
-//                    lastCellIndex = cellIndex
-//                    // 셀이 바뀌었으므로 점 피드백 ID도 리셋해서 바로 점 느낌을 받을 수 있게 함
-//                    lastFeedbackID = nil
-//                }
-                
-                // 2. 점(Dot) 피드백 확인
+                // 점(Dot) 피드백 확인
                 let localPoint = touch.location(in: cell)
                 if let dotIndex = cell.getDotIndex(at: localPoint) {
                     let feedbackID = "\(cellIndex)-\(dotIndex)"
@@ -256,18 +399,18 @@ class BrailleTouchCanvasView: UIView {
                     if lastFeedbackID != feedbackID {
                         if cell.dotsState[dotIndex] {
                             // 점이 있는 곳 (Heavy)
-                            HapticManager.shared.playHeavyDotFeedback()
+                            HapticManager.shared.playHeavyDotFeedback(intensity: Float(settings.activeDotIntensity))
                         } else {
                             // 점이 없는 빈 곳 (Soft)
-                            HapticManager.shared.playSoftDotFeedback()
+                            if settings.isInactiveDotFeedbackEnabled {
+                                HapticManager.shared.playSoftDotFeedback(intensity: Float(settings.inactiveDotIntensity))
+                            }
                         }
                         lastFeedbackID = feedbackID
                     }
                 } else {
                     // 셀 안이지만 점 위는 아님 (점 사이 공간)
-                    // 필요하다면 여기서도 미세한 질감을 줄 수 있음 (User requested 'Border' is handled by cell entry)
-                    // 점을 벗어났으므로 ID 리셋
-                    lastFeedbackID = nil
+                    // lastFeedbackID = nil // 여기서 nil로 만들면 점 사이를 지나갈 때마다 리셋되어 드드득 거릴 수 있음. 유지하는 편이 나음.
                 }
                 return // 한 번에 하나의 셀만 처리
             }
