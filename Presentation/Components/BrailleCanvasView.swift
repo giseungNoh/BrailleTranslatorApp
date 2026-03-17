@@ -3,21 +3,24 @@ import UIKit
 
 struct BrailleCanvasView: View {
     let text: String
+    var useAbbreviations: Bool = true
     @Binding var isInteracting: Bool
-    
-    init(text: String, isInteracting: Binding<Bool> = .constant(false)) {
+
+    init(text: String, useAbbreviations: Bool = true, isInteracting: Binding<Bool> = .constant(false)) {
         self.text = text
+        self.useAbbreviations = useAbbreviations
         self._isInteracting = isInteracting
     }
-    
+
     var body: some View {
-        BrailleTouchCanvasViewRepresentable(text: text, isInteracting: $isInteracting)
+        BrailleTouchCanvasViewRepresentable(text: text, useAbbreviations: useAbbreviations, isInteracting: $isInteracting)
             .background(Color.clear)
     }
 }
 
 struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
     let text: String
+    var useAbbreviations: Bool = true
     @Binding var isInteracting: Bool
     
     // UserDefaults 변경 감지 (설정 즉시 반영)
@@ -37,15 +40,14 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
         }
         
         updateSettings(for: view)
+        view.useAbbreviations = useAbbreviations
         view.updateText(text)
         return view
     }
-    
+
     func updateUIView(_ uiView: BrailleTouchCanvasView, context: Context) {
-        // 설정 업데이트
         updateSettings(for: uiView)
-        
-        // 텍스트 업데이트
+        uiView.useAbbreviations = useAbbreviations
         uiView.updateText(text)
     }
     

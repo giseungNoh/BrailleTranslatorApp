@@ -12,6 +12,7 @@ struct TranslatorView: View {
     @StateObject private var viewModel = TranslatorViewModel()
     @FocusState private var isFocused: Bool
     @State private var isBrailleInteracting: Bool = false
+    @State private var useAbbreviations: Bool = true
     
     // MARK: - Body
     var body: some View {
@@ -107,6 +108,19 @@ struct TranslatorView: View {
                                         .font(.caption)
                                         .foregroundColor(.red)
                                         .transition(.opacity)
+                                } else {
+                                    Button {
+                                        useAbbreviations.toggle()
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: useAbbreviations ? "checkmark.circle.fill" : "circle")
+                                                .foregroundColor(useAbbreviations ? .appSubColor : .gray)
+                                            Text("약자")
+                                                .font(.caption)
+                                                .foregroundColor(useAbbreviations ? .appSubColor : .gray)
+                                        }
+                                    }
+                                    .accessibilityLabel(useAbbreviations ? "약자 사용 중. 탭하여 끄기" : "약자 미사용. 탭하여 켜기")
                                 }
                             }
                             .padding(.leading, 8)
@@ -127,7 +141,7 @@ struct TranslatorView: View {
                                         .frame(maxWidth: .infinity)
                                 } else {
                                     // 텍스트가 있을 때 점자 뷰
-                                    BrailleCanvasView(text: viewModel.inputText, isInteracting: $isBrailleInteracting)
+                                    BrailleCanvasView(text: viewModel.inputText, useAbbreviations: useAbbreviations, isInteracting: $isBrailleInteracting)
                                         .cornerRadius(16)
                                         .fixedSize(horizontal: true, vertical: true)
                                 }

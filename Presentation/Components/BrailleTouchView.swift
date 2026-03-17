@@ -30,6 +30,7 @@ class BrailleCellView: UIView {
     // 외부에서 주입받을 스케일 값
     var scale: CGFloat = 1.0 {
         didSet {
+            setNeedsLayout()   // dotCenters 재계산
             setNeedsDisplay()
         }
     }
@@ -39,52 +40,28 @@ class BrailleCellView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .clear
-        self.isUserInteractionEnabled = false 
+        self.isUserInteractionEnabled = false
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    override func draw(_ rect: CGRect) {
-        guard let context = UIGraphicsGetCurrentContext() else { return }
-        
-        // 스케일 적용된 치수 계산
-        let dotRadius = baseDotRadius * scale
+
+    // 점 좌표 계산 — draw(_:)와 getDotIndex(at:) 양쪽에서 공유
+    private func computeDotCenters(in rect: CGRect) -> [CGPoint] {
         let hSpacing = baseHSpacing * scale
         let vSpacing = baseVSpacing * scale
-        
-        // 1. 카드 배경 그리기 (둥근 사각형)
-        let cardRect = rect.insetBy(dx: 4, dy: 4) // 여백
-        let path = UIBezierPath(roundedRect: cardRect, cornerRadius: 12 * scale) // Corner radius도 스케일링
-        
-        context.saveGState()
-        // 그림자
-        context.setShadow(offset: CGSize(width: 0, height: 2), blur: 4, color: UIColor.black.withAlphaComponent(0.1).cgColor)
-        UIColor.white.setFill()
-        path.fill()
-        context.restoreGState()
-        
-        // 테두리 (선택 사항, 깔끔하게)
-        UIColor.systemGray6.setStroke()
-        path.lineWidth = 1
-        path.stroke()
-        
-        // 뷰의 중앙을 기준으로 점 배치 계산
+
         let centerX = rect.width / 2
-        let centerY = (rect.height / 2) - (10 * scale) // 텍스트 공간 확보도 스케일링
-        
-        // 왼쪽 열 X, 오른쪽 열 X
+        let centerY = (rect.height / 2) - (10 * scale)
+
         let leftX = centerX - (hSpacing / 2)
         let rightX = centerX + (hSpacing / 2)
-        
-        // 상단 Y, 중단 Y, 하단 Y
         let topY = centerY - vSpacing
         let midY = centerY
         let bottomY = centerY + vSpacing
-        
-        // 좌표 저장 (순서: 1, 2, 3, 4, 5, 6 번 점)
-        dotCenters = [
+
+        return [
             CGPoint(x: leftX, y: topY),    // 1번
             CGPoint(x: leftX, y: midY),    // 2번
             CGPoint(x: leftX, y: bottomY), // 3번
@@ -92,9 +69,41 @@ class BrailleCellView: UIView {
             CGPoint(x: rightX, y: midY),   // 5번
             CGPoint(x: rightX, y: bottomY) // 6번
         ]
-        
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        dotCenters = computeDotCenters(in: bounds)
+    }
+
+    override func draw(_ rect: CGRect) {
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+
+        // 스케일 적용된 치수 계산
+        let dotRadius = baseDotRadius * scale
+
+        // 1. 카드 배경 그리기 (둥근 사각형)
+        let cardRect = rect.insetBy(dx: 4, dy: 4) // 여백
+        let path = UIBezierPath(roundedRect: cardRect, cornerRadius: 12 * scale) // Corner radius도 스케일링
+
+        context.saveGState()
+        // 그림자
+        context.setShadow(offset: CGSize(width: 0, height: 2), blur: 4, color: UIColor.black.withAlphaComponent(0.1).cgColor)
+        UIColor.white.setFill()
+        path.fill()
+        context.restoreGState()
+
+        // 테두리 (선택 사항, 깔끔하게)
+        UIColor.systemGray6.setStroke()
+        path.lineWidth = 1
+        path.stroke()
+
+        // 좌표는 layoutSubviews()에서 미리 계산된 dotCenters 사용
+        let centers = dotCenters.isEmpty ? computeDotCenters(in: rect) : dotCenters
+        let centerX = rect.width / 2
+
         // 2. 점 그리기
-        for (index, center) in dotCenters.enumerated() {
+        for (index, center) in centers.enumerated() {
             let isOn = dotsState[index]
             
             if isOn {
@@ -150,12 +159,17 @@ class BrailleTouchCanvasView: UIView {
     
     // 설정 주입
     var settings: BrailleSettings = BrailleSettings() {
+        didSet { layoutCells() }
+    }
+
+    var useAbbreviations: Bool = true {
         didSet {
-            // 설정 변경 시 레이아웃 재배치 및 다시 그리기
+            guard oldValue != useAbbreviations else { return }
+            lastRenderedText = nil // 캐시 무효화
             layoutCells()
         }
     }
-    
+
     private var text: String = ""
     private var cells: [BrailleCellView] = []
     
@@ -270,7 +284,11 @@ class BrailleTouchCanvasView: UIView {
             guideDots.append(CGRect(x: startGuideDotX, y: startGuideDotY, width: guideDotSize, height: guideDotSize))
         }
         
-        for char in text {
+        // 번역기 생성 및 번역 수행
+        let translator = BrailleTranslator()
+        let translatedDots = translator.translate(text, useAbbreviations: useAbbreviations)
+        
+        for (index, dotString) in translatedDots.enumerated() {
             // 줄바꿈 체크 (다음 글자를 그리고 가이드점까지 그릴 수 있는지 확인, 최소 1글자 보장)
             if currentX > startX && currentX + cellWidth + guideDotPadding + guideDotSize > containerWidth {
                 // 이전 줄의 끝에 가이드 점 추가 (마지막 점자 바로 옆)
@@ -294,10 +312,18 @@ class BrailleTouchCanvasView: UIView {
             
             let cell = BrailleCellView(frame: CGRect(x: currentX, y: currentY, width: cellWidth, height: cellHeight))
             
-            // [Mock Data] 차후 실제 엔진 연결 필요
-            let mockPattern = (0..<6).map { _ in Bool.random() }
-            cell.dotsState = mockPattern
-            cell.char = String(char) // 글자 표시
+            // 점자 문자열(예: "126")을 Bool 배열로 파싱
+            var pattern = Array(repeating: false, count: 6)
+            for ch in dotString {
+                if let dotNum = Int(String(ch)), dotNum >= 1 && dotNum <= 6 {
+                    pattern[dotNum - 1] = true
+                }
+            }
+            
+            cell.dotsState = pattern
+            // 현재는 자소를 분리해서 칸이 여러 개가 되므로 하단 글자 표시는 디버깅용으로 임시 표시하거나 제거
+            // 여기서는 번역된 결과 칸이므로 각 점자 셀 하단의 개별 글자 표시는 빈문자열로 처리
+            cell.char = ""
             cell.scale = scale // 스케일 전달
             
             self.addSubview(cell)
