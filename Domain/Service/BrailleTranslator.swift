@@ -45,6 +45,14 @@ class BrailleTranslator {
         "ㅄ": "12,3"
     ]
 
+    // 겹받침 → (첫 번째 자음, 두 번째 자음) 분리
+    private let compoundJongsungMap: [String: (String, String)] = [
+        "ㄳ": ("ㄱ", "ㅅ"), "ㄵ": ("ㄴ", "ㅈ"), "ㄶ": ("ㄴ", "ㅎ"),
+        "ㄺ": ("ㄹ", "ㄱ"), "ㄻ": ("ㄹ", "ㅁ"), "ㄼ": ("ㄹ", "ㅂ"),
+        "ㄽ": ("ㄹ", "ㅅ"), "ㄾ": ("ㄹ", "ㅌ"), "ㄿ": ("ㄹ", "ㅍ"),
+        "ㅀ": ("ㄹ", "ㅎ"), "ㅄ": ("ㅂ", "ㅅ"), "ㄲ": ("ㄱ", "ㄱ")
+    ]
+
     // MARK: - 14개 모음+받침 조합 약자 딕셔너리
     private let vowelJongseongMap: [String: String] = [
         "ㅓㄱ": "1456", "ㅓㄴ": "23456", "ㅓㄹ": "2345",
@@ -131,6 +139,10 @@ class BrailleTranslator {
             if isHangul(char) {
                 let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
                 result.append(contentsOf: extractJamoDots(from: char, nextChar: nextChar, useAbbreviations: useAbbreviations))
+                // 제11항/제12항: 모음 연쇄 구분표
+                if let next = nextChar, needsVowelSeparator(current: char, next: next) {
+                    result.append("36")
+                }
             } else if char.isWhitespace {
                 result.append("")
             }
@@ -192,6 +204,10 @@ class BrailleTranslator {
             if isHangul(char) {
                 let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
                 result.append(contentsOf: extractJamoDotsWithLabels(from: char, nextChar: nextChar, useAbbreviations: useAbbreviations))
+                // 제11항/제12항: 모음 연쇄 구분표
+                if let next = nextChar, needsVowelSeparator(current: char, next: next) {
+                    result.append(("36", ""))
+                }
             } else if char.isWhitespace {
                 result.append(("", " "))
             }
@@ -210,9 +226,11 @@ class BrailleTranslator {
             let ch = jamoList[Int(value - 0x3131)]
             pairs.append((STANDALONE_JAMO_PREFIX, ""))
             if let base = doubleChosungMap[ch] {
-                pairs.append((DOUBLE_CONSONANT_PREFIX, ""))
+                // 된소리 단독: 온표 + 기본자음 받침 2번 반복
                 if let d = jongsungMap[base] {
-                    for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? ch : "")) }
+                    let parts = d.split(separator: ",").map { String($0) }
+                    for (j, p) in parts.enumerated() { pairs.append((p, j == 0 ? ch : "")) }
+                    for p in parts { pairs.append((p, "")) }
                 }
             } else if let d = jongsungMap[ch] {
                 for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? ch : "")) }
@@ -287,6 +305,18 @@ class BrailleTranslator {
                     pairs.append((contraction, charLabel))
                     return pairs
                 }
+                // 겹받침: 첫 자음으로 모음+받침 약자 매칭 시도, 나머지는 별도 받침
+                if let (first, second) = compoundJongsungMap[jongChar] {
+                    let compoundKey = jungChar + first
+                    if let contraction = vowelJongseongMap[compoundKey] {
+                        appendChosungPairs(cho: choChar, mainLabel: "")
+                        pairs.append((contraction, charLabel))
+                        if let d = jongsungMap[second] {
+                            d.split(separator: ",").forEach { pairs.append((String($0), "")) }
+                        }
+                        return pairs
+                    }
+                }
             }
 
             // ㅏ 생략: 초성 셀에 원래 음절 레이블
@@ -294,7 +324,8 @@ class BrailleTranslator {
             if jungChar == "ㅏ" && aOmissionCho.contains(choChar) {
                 var omitA = true
                 if char == "팠" { omitA = false }
-                if let next = nextChar, isHangul(next), let nextScalar = next.unicodeScalars.first {
+                // 받침이 없을 때만: 다음 글자 초성이 ㅇ이면 ㅏ 생략 취소
+                if jongIndex == 0, let next = nextChar, isHangul(next), let nextScalar = next.unicodeScalars.first {
                     let nextValue = nextScalar.value
                     if nextValue >= 0xAC00 && nextValue <= 0xD7A3 {
                         let nextChoIndex = Int((nextValue - 0xAC00) / (21 * 28))
@@ -338,9 +369,59 @@ class BrailleTranslator {
         var str = text
         for (i, key) in abbrKeys.enumerated() {
             let marker = String(Character(UnicodeScalar(0xE000 + i)!))
-            str = str.replacingOccurrences(of: key, with: marker)
+            // 약어 앞에 다른 글자가 붙어 나오면 약어를 사용하지 않음
+            // 단어 시작(문장 처음 또는 공백 뒤)에서만 약어 적용
+            var result = ""
+            var searchRange = str.startIndex..<str.endIndex
+            while let range = str.range(of: key, range: searchRange) {
+                // 매칭 위치 앞이 문장 시작이거나 공백이면 약어 적용
+                let isWordStart = range.lowerBound == str.startIndex ||
+                    str[str.index(before: range.lowerBound)].isWhitespace
+                result += str[searchRange.lowerBound..<range.lowerBound]
+                result += isWordStart ? marker : key
+                searchRange = range.upperBound..<str.endIndex
+            }
+            result += str[searchRange]
+            str = result
         }
         return str
+    }
+
+    /// 제11항: 모음 + 예(ㅖ) 연쇄, 제12항: ㅑ/ㅘ/ㅜ/ㅝ + 애(ㅐ) 연쇄 시 구분표(36) 필요 여부
+    private func needsVowelSeparator(current: Character, next: Character) -> Bool {
+        guard let curScalar = current.unicodeScalars.first,
+              let nextScalar = next.unicodeScalars.first else { return false }
+        let curValue = curScalar.value
+        let nextValue = nextScalar.value
+
+        guard curValue >= 0xAC00 && curValue <= 0xD7A3,
+              nextValue >= 0xAC00 && nextValue <= 0xD7A3 else { return false }
+
+        let jungsungList = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"]
+        let chosungList = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
+
+        let curIdx = curValue - 0xAC00
+        let curJungIndex = Int((curIdx % (21 * 28)) / 28)
+        let curJongIndex = Int(curIdx % 28)
+
+        let nextIdx = nextValue - 0xAC00
+        let nextChoIndex = Int(nextIdx / (21 * 28))
+        let nextJungIndex = Int((nextIdx % (21 * 28)) / 28)
+
+        // 현재 음절에 받침이 없고, 다음 음절 초성이 ㅇ이어야 함
+        guard curJongIndex == 0 else { return false }
+        guard chosungList[nextChoIndex] == "ㅇ" else { return false }
+
+        let nextJung = jungsungList[nextJungIndex]
+
+        // 제11항: 모음 + 예(ㅖ)
+        if nextJung == "ㅖ" { return true }
+
+        // 제12항: ㅑ/ㅘ/ㅜ/ㅝ + 애(ㅐ)
+        let curJung = jungsungList[curJungIndex]
+        if ["ㅑ", "ㅘ", "ㅜ", "ㅝ"].contains(curJung) && nextJung == "ㅐ" { return true }
+
+        return false
     }
 
     private func isHangul(_ char: Character) -> Bool {
@@ -362,10 +443,11 @@ class BrailleTranslator {
             let ch = jamoList[Int(value - 0x3131)]
             dots.append(STANDALONE_JAMO_PREFIX)
             if let base = doubleChosungMap[ch] {
-                // 된소리 단독: 온표 + 된소리표 + 받침
-                dots.append(DOUBLE_CONSONANT_PREFIX)
+                // 된소리 단독: 온표 + 기본자음 받침 2번 반복
                 if let d = jongsungMap[base] {
-                    dots.append(contentsOf: d.split(separator: ",").map { String($0) })
+                    let parts = d.split(separator: ",").map { String($0) }
+                    dots.append(contentsOf: parts)
+                    dots.append(contentsOf: parts)
                 }
             } else if let d = jongsungMap[ch] {
                 // 일반/겹받침: 온표 + 받침
@@ -442,6 +524,18 @@ class BrailleTranslator {
                     dots.append(contraction)
                     return dots
                 }
+                // 겹받침: 첫 자음으로 모음+받침 약자 매칭 시도, 나머지는 별도 받침
+                if let (first, second) = compoundJongsungMap[jongChar] {
+                    let compoundKey = jungChar + first
+                    if let contraction = vowelJongseongMap[compoundKey] {
+                        appendChosung(choChar)
+                        dots.append(contraction)
+                        if let d = jongsungMap[second] {
+                            dots.append(contentsOf: d.split(separator: ",").map { String($0) })
+                        }
+                        return dots
+                    }
+                }
             }
 
             // 5. ㅏ 생략 약자 (나/다/마/바/자/카/타/파/하 및 된소리)
@@ -451,8 +545,8 @@ class BrailleTranslator {
             if jungChar == "ㅏ" && aOmissionCho.contains(choChar) {
                 omitA = true
                 if char == "팠" { omitA = false }
-
-                if let next = nextChar, isHangul(next),
+                // 받침이 없을 때만: 다음 글자 초성이 ㅇ이면 ㅏ 생략 취소
+                if jongIndex == 0, let next = nextChar, isHangul(next),
                    let nextScalar = next.unicodeScalars.first {
                     let nextValue = nextScalar.value
                     if nextValue >= 0xAC00 && nextValue <= 0xD7A3 {
