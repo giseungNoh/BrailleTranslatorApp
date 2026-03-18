@@ -7,6 +7,7 @@ class BrailleTranslator {
     private let NUMBER_PREFIX = "3456"
     private let DOUBLE_CONSONANT_PREFIX = "6"
     private let SINGLE_CONSONANT_PREFIX = "456"
+
     private let STANDALONE_JAMO_PREFIX = "123456" // 온표: 단독 자음/모음 앞에 붙임
 
     // MARK: - Mapping Dictionaries
@@ -95,6 +96,10 @@ class BrailleTranslator {
     func translate(_ input: String, useAbbreviations: Bool = true) -> [String] {
         var result: [String] = []
         var isNumberMode = false
+        var capitalMode: Int = 0      // 0=개별, 1=단어표, 2=구절표
+        var phraseEndIndex: Int = -1
+        var inRomanMode = false
+        let needsRomanIndicator = input.contains(where: { isHangul($0) }) // 한글이 있을 때만 로마자표 사용
 
         let preprocessedText = useAbbreviations ? preprocessAbbreviations(input) : input
         let chars = Array(preprocessedText)
@@ -126,7 +131,44 @@ class BrailleTranslator {
             isNumberMode = false
 
             if char.isLetter, let engDots = englishMap[Character(char.lowercased())] {
+                // 로마자표 (356): 한글이 포함된 문장에서만
+                if needsRomanIndicator && !inRomanMode {
+                    result.append("356")
+                    inRomanMode = true
+                }
+                // 대문자 연속 시작 감지 (이전 글자가 대문자 영문이 아닐 때)
+                let isUpperRunStart = char.isUppercase &&
+                    (i == 0 || !isEnglishLetter(chars[i - 1]) || !chars[i - 1].isUppercase)
+                if isUpperRunStart && capitalMode != 2 {
+                    let analysis = analyzeCapitalMode(chars, from: i)
+                    capitalMode = analysis.mode
+                    if capitalMode == 2 {
+                        phraseEndIndex = analysis.lastIndex
+                        result.append("6"); result.append("6"); result.append("6")
+                    } else if capitalMode == 1 {
+                        result.append("6"); result.append("6")
+                    }
+                }
+                // 개별 모드일 때만 글자별 대문자표
+                if capitalMode == 0 && char.isUppercase {
+                    result.append("6")
+                }
                 result.append(engDots)
+                // 구절 종료
+                if capitalMode == 2 && i == phraseEndIndex {
+                    result.append("6"); result.append("3")
+                    capitalMode = 0
+                }
+                // 단어표 모드: 다음 글자가 대문자 영문이 아니면 리셋
+                if capitalMode == 1 {
+                    let nextIsUpperEng = (i + 1 < chars.count) && isEnglishLetter(chars[i + 1]) && chars[i + 1].isUppercase
+                    if !nextIsUpperEng { capitalMode = 0 }
+                }
+                // 로마자 종료표 (256): 한글이 포함된 문장에서만
+                if needsRomanIndicator && !isRomanSectionContinuing(chars, after: i) {
+                    result.append("256")
+                    inRomanMode = false
+                }
                 continue
             }
 
@@ -156,6 +198,10 @@ class BrailleTranslator {
     func translateWithLabels(_ input: String, useAbbreviations: Bool = true) -> [(dots: String, label: String)] {
         var result: [(dots: String, label: String)] = []
         var isNumberMode = false
+        var capitalMode: Int = 0
+        var phraseEndIndex: Int = -1
+        var inRomanMode = false
+        let needsRomanIndicator = input.contains(where: { isHangul($0) })
 
         let preprocessedText = useAbbreviations ? preprocessAbbreviations(input) : input
         let chars = Array(preprocessedText)
@@ -189,7 +235,40 @@ class BrailleTranslator {
             isNumberMode = false
 
             if char.isLetter, let engDots = englishMap[Character(char.lowercased())] {
+                // 로마자표 (356): 한글이 포함된 문장에서만
+                if needsRomanIndicator && !inRomanMode {
+                    result.append(("356", ""))
+                    inRomanMode = true
+                }
+                let isUpperRunStart = char.isUppercase &&
+                    (i == 0 || !isEnglishLetter(chars[i - 1]) || !chars[i - 1].isUppercase)
+                if isUpperRunStart && capitalMode != 2 {
+                    let analysis = analyzeCapitalMode(chars, from: i)
+                    capitalMode = analysis.mode
+                    if capitalMode == 2 {
+                        phraseEndIndex = analysis.lastIndex
+                        result.append(("6", "")); result.append(("6", "")); result.append(("6", ""))
+                    } else if capitalMode == 1 {
+                        result.append(("6", "")); result.append(("6", ""))
+                    }
+                }
+                if capitalMode == 0 && char.isUppercase {
+                    result.append(("6", ""))
+                }
                 result.append((engDots, String(char)))
+                if capitalMode == 2 && i == phraseEndIndex {
+                    result.append(("6", "")); result.append(("3", ""))
+                    capitalMode = 0
+                }
+                if capitalMode == 1 {
+                    let nextIsUpperEng = (i + 1 < chars.count) && isEnglishLetter(chars[i + 1]) && chars[i + 1].isUppercase
+                    if !nextIsUpperEng { capitalMode = 0 }
+                }
+                // 로마자 종료표 (256): 한글이 포함된 문장에서만
+                if needsRomanIndicator && !isRomanSectionContinuing(chars, after: i) {
+                    result.append(("256", ""))
+                    inRomanMode = false
+                }
                 continue
             }
 
@@ -370,11 +449,9 @@ class BrailleTranslator {
         for (i, key) in abbrKeys.enumerated() {
             let marker = String(Character(UnicodeScalar(0xE000 + i)!))
             // 약어 앞에 다른 글자가 붙어 나오면 약어를 사용하지 않음
-            // 단어 시작(문장 처음 또는 공백 뒤)에서만 약어 적용
             var result = ""
             var searchRange = str.startIndex..<str.endIndex
             while let range = str.range(of: key, range: searchRange) {
-                // 매칭 위치 앞이 문장 시작이거나 공백이면 약어 적용
                 let isWordStart = range.lowerBound == str.startIndex ||
                     str[str.index(before: range.lowerBound)].isWhitespace
                 result += str[searchRange.lowerBound..<range.lowerBound]
@@ -422,6 +499,72 @@ class BrailleTranslator {
         if ["ㅑ", "ㅘ", "ㅜ", "ㅝ"].contains(curJung) && nextJung == "ㅐ" { return true }
 
         return false
+    }
+
+    private func isEnglishLetter(_ char: Character) -> Bool {
+        char.isLetter && englishMap[Character(char.lowercased())] != nil
+    }
+
+    /// 현재 영문 글자 뒤에 로마자 구간이 계속되는지 (공백 넘어서도 영문이 이어지면 true)
+    private func isRomanSectionContinuing(_ chars: [Character], after index: Int) -> Bool {
+        var j = index + 1
+        while j < chars.count {
+            if isEnglishLetter(chars[j]) { return true }
+            if chars[j].isWhitespace { j += 1; continue }
+            return false
+        }
+        return false
+    }
+
+    /// 영문 대문자 모드 분석: 0=개별(6), 1=단어표(6,6), 2=구절표(6,6,6...6,3)
+    private func analyzeCapitalMode(_ chars: [Character], from index: Int) -> (mode: Int, lastIndex: Int) {
+        // 현재 위치부터 연속 대문자 수 계산
+        var i = index
+        while i < chars.count && isEnglishLetter(chars[i]) && chars[i].isUppercase {
+            i += 1
+        }
+        let runLength = i - index
+        let runEnd = i - 1
+
+        if runLength < 2 {
+            return (0, index) // 1글자 → 개별 대문자표
+        }
+
+        // 2+ 연속 대문자 → 최소 단어표
+        // 구절표 체크: 단어 시작 위치에서 3개+ 연속 전체 대문자 단어
+        let isAtWordStart = (index == 0 || !isEnglishLetter(chars[index - 1]))
+        if isAtWordStart {
+            func scanUpperWord(from idx: Int) -> Int? {
+                guard idx < chars.count && isEnglishLetter(chars[idx]) && chars[idx].isUppercase else { return nil }
+                var j = idx
+                while j < chars.count && isEnglishLetter(chars[j]) {
+                    if !chars[j].isUppercase { return nil }
+                    j += 1
+                }
+                return j - 1
+            }
+
+            var wordCount = 0
+            var lastEnd = index
+            var scanIdx = index
+
+            while let wordEnd = scanUpperWord(from: scanIdx) {
+                wordCount += 1
+                lastEnd = wordEnd
+                scanIdx = wordEnd + 1
+                if scanIdx < chars.count && chars[scanIdx].isWhitespace {
+                    scanIdx += 1
+                } else {
+                    break
+                }
+            }
+
+            if wordCount >= 3 {
+                return (2, lastEnd) // 구절표
+            }
+        }
+
+        return (1, runEnd) // 단어표
     }
 
     private func isHangul(_ char: Character) -> Bool {
