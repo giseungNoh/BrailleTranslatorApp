@@ -18,9 +18,7 @@ class BrailleCellView: UIView {
             setNeedsDisplay()
         }
     }
-    
-    var char: String? // 표시할 글자 (예: "안")
-    
+
     // 기본 크기 상수 (Scale = 1.0 기준)
     private let baseDotRadius: CGFloat = 6.0
     private let baseTouchRadius: CGFloat = 16.0
@@ -53,7 +51,7 @@ class BrailleCellView: UIView {
         let vSpacing = baseVSpacing * scale
 
         let centerX = rect.width / 2
-        let centerY = (rect.height / 2) - (10 * scale)
+        let centerY = rect.height / 2
 
         let leftX = centerX - (hSpacing / 2)
         let rightX = centerX + (hSpacing / 2)
@@ -100,41 +98,19 @@ class BrailleCellView: UIView {
 
         // 좌표는 layoutSubviews()에서 미리 계산된 dotCenters 사용
         let centers = dotCenters.isEmpty ? computeDotCenters(in: rect) : dotCenters
-        let centerX = rect.width / 2
 
         // 2. 점 그리기
         for (index, center) in centers.enumerated() {
             let isOn = dotsState[index]
-            
+
             if isOn {
-                // 활성 점: 진한 회색/검정 (디자인 시안 참조)
-                UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0).setFill() // Dark Gray
+                UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0).setFill()
             } else {
-                // 비활성 점: 연한 회색 (배경과 대비되게)
                 UIColor.systemGray5.setFill()
             }
-            
-            // 점 그리기
+
             let dotRect = CGRect(x: center.x - dotRadius, y: center.y - dotRadius, width: dotRadius * 2, height: dotRadius * 2)
             context.fillEllipse(in: dotRect)
-        }
-        
-        // 3. 글자 그리기 (하단 중앙)
-        if let char = char {
-            let fontSize: CGFloat = 18 * scale
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: fontSize, weight: .bold),
-                .foregroundColor: UIColor.black
-            ]
-            let string = NSAttributedString(string: char, attributes: attributes)
-            let size = string.size()
-            let textRect = CGRect(
-                x: centerX - (size.width / 2),
-                y: rect.height - (30 * scale), // 하단 배치
-                width: size.width,
-                height: size.height
-            )
-            string.draw(in: textRect)
         }
     }
     
@@ -172,6 +148,7 @@ class BrailleTouchCanvasView: UIView {
 
     private var text: String = ""
     private var cells: [BrailleCellView] = []
+    private var labelViews: [UILabel] = []
     
     // 스크롤 잠금 제어를 위한 콜백
     var onTouchStateChanged: ((Bool) -> Void)?
@@ -233,9 +210,11 @@ class BrailleTouchCanvasView: UIView {
         // 상태 업데이트
         lastRenderedText = currentStateStr
         
-        // 기존 셀 제거
+        // 기존 셀 및 레이블 제거
         cells.forEach { $0.removeFromSuperview() }
         cells.removeAll()
+        labelViews.forEach { $0.removeFromSuperview() }
+        labelViews.removeAll()
         guideDots.removeAll()
         
         // 화면 너비에 맞춰 자동 줄바꿈.
@@ -284,54 +263,64 @@ class BrailleTouchCanvasView: UIView {
             guideDots.append(CGRect(x: startGuideDotX, y: startGuideDotY, width: guideDotSize, height: guideDotSize))
         }
         
-        // 번역기 생성 및 번역 수행
+        // 번역기 생성 및 번역 수행 (레이블 포함)
         let translator = BrailleTranslator()
-        let translatedDots = translator.translate(text, useAbbreviations: useAbbreviations)
-        
-        for (index, dotString) in translatedDots.enumerated() {
-            // 줄바꿈 체크 (다음 글자를 그리고 가이드점까지 그릴 수 있는지 확인, 최소 1글자 보장)
+        let translatedCells = translator.translateWithLabels(text, useAbbreviations: useAbbreviations)
+
+        let baseLabelAreaHeight: CGFloat = 22.0
+        let labelAreaHeight = baseLabelAreaHeight * scale
+        let labelFontSize = max(8.0, 12.0 * scale)
+
+        for (_, (dotString, label)) in translatedCells.enumerated() {
+            // 줄바꿈 체크
             if currentX > startX && currentX + cellWidth + guideDotPadding + guideDotSize > containerWidth {
-                // 이전 줄의 끝에 가이드 점 추가 (마지막 점자 바로 옆)
                 let guideDotX = currentX - padding + guideDotPadding
                 let guideDotY = currentRowY + (cellHeight / 2) - (guideDotSize / 2)
                 guideDots.append(CGRect(x: guideDotX, y: guideDotY, width: guideDotSize, height: guideDotSize))
-                
+
                 if guideDotX + guideDotSize + guideDotPadding > maxX {
                     maxX = guideDotX + guideDotSize + guideDotPadding
                 }
-                
+
                 currentX = startX
-                currentY += cellHeight + padding
+                currentY += cellHeight + labelAreaHeight + padding
                 currentRowY = currentY
-                
-                // 새로운 줄의 시작 가이드 점 추가
+
                 let startGuideDotX = guideDotPadding
                 let startGuideDotY = currentY + (cellHeight / 2) - (guideDotSize / 2)
                 guideDots.append(CGRect(x: startGuideDotX, y: startGuideDotY, width: guideDotSize, height: guideDotSize))
             }
-            
+
             let cell = BrailleCellView(frame: CGRect(x: currentX, y: currentY, width: cellWidth, height: cellHeight))
-            
-            // 점자 문자열(예: "126")을 Bool 배열로 파싱
+
             var pattern = Array(repeating: false, count: 6)
             for ch in dotString {
                 if let dotNum = Int(String(ch)), dotNum >= 1 && dotNum <= 6 {
                     pattern[dotNum - 1] = true
                 }
             }
-            
+
             cell.dotsState = pattern
-            // 현재는 자소를 분리해서 칸이 여러 개가 되므로 하단 글자 표시는 디버깅용으로 임시 표시하거나 제거
-            // 여기서는 번역된 결과 칸이므로 각 점자 셀 하단의 개별 글자 표시는 빈문자열로 처리
-            cell.char = ""
-            cell.scale = scale // 스케일 전달
-            
+            cell.scale = scale
+
             self.addSubview(cell)
             cells.append(cell)
-            
-            // 다음 위치 계산
+
+            // 셀 아래 레이블 (공백이 아닌 경우만 표시)
+            if !label.isEmpty {
+                let lv = UILabel()
+                lv.text = label
+                lv.textAlignment = .center
+                lv.font = UIFont.systemFont(ofSize: labelFontSize)
+                lv.textColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1.0)
+                lv.frame = CGRect(x: currentX, y: currentY + cellHeight + (4 * scale),
+                                  width: cellWidth, height: labelAreaHeight - (4 * scale))
+                self.addSubview(lv)
+                labelViews.append(lv)
+            }
+
             currentX += cellWidth + padding
-            
+
             if currentX > maxX {
                 maxX = currentX
             }
@@ -349,7 +338,7 @@ class BrailleTouchCanvasView: UIView {
         }
         
         // 컨텐츠 크기 계산
-        let totalHeight = currentY + cellHeight + padding
+        let totalHeight = currentY + cellHeight + labelAreaHeight + padding
         let totalWidth = maxX > 0 ? maxX : containerWidth // 최소한 padding 정도는 확보
         
         self.contentSize = CGSize(width: totalWidth, height: totalHeight) // 너비를 내용에 맞게 조절

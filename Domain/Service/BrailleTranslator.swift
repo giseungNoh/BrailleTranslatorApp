@@ -7,6 +7,7 @@ class BrailleTranslator {
     private let NUMBER_PREFIX = "3456"
     private let DOUBLE_CONSONANT_PREFIX = "6"
     private let SINGLE_CONSONANT_PREFIX = "456"
+    private let STANDALONE_JAMO_PREFIX = "123456" // 온표: 단독 자음/모음 앞에 붙임
 
     // MARK: - Mapping Dictionaries
 
@@ -137,6 +138,200 @@ class BrailleTranslator {
         return result
     }
 
+    // MARK: - Translation with Labels
+
+    /// 번역 결과와 각 셀에 대응하는 레이블(자모/음절)을 함께 반환합니다.
+    func translateWithLabels(_ input: String, useAbbreviations: Bool = true) -> [(dots: String, label: String)] {
+        var result: [(dots: String, label: String)] = []
+        var isNumberMode = false
+
+        let preprocessedText = useAbbreviations ? preprocessAbbreviations(input) : input
+        let chars = Array(preprocessedText)
+
+        for (i, char) in chars.enumerated() {
+            if let scalar = char.unicodeScalars.first, scalar.value >= 0xE000 && scalar.value < 0xE008 {
+                let index = Int(scalar.value - 0xE000)
+                let phrase = abbrKeys[index]
+                let parts = abbrDots[index].split(separator: ",").map { String($0) }
+                for (j, dots) in parts.enumerated() {
+                    result.append((dots, j == 0 ? phrase : ""))
+                }
+                isNumberMode = false
+                continue
+            }
+
+            if let numberDots = numberMap[char] {
+                if !isNumberMode {
+                    result.append((NUMBER_PREFIX, "#"))
+                    isNumberMode = true
+                }
+                result.append((numberDots, String(char)))
+                continue
+            }
+
+            if isNumberMode && (char == ":" || char == "-" || char == "·") {
+                if let puncDots = punctuationMap[char] { result.append((puncDots, String(char))) }
+                isNumberMode = false
+                continue
+            }
+            isNumberMode = false
+
+            if char.isLetter, let engDots = englishMap[Character(char.lowercased())] {
+                result.append((engDots, String(char)))
+                continue
+            }
+
+            if let puncDots = punctuationMap[char] {
+                let parts = puncDots.split(separator: ",").map { String($0) }
+                for (j, dots) in parts.enumerated() {
+                    result.append((dots, j == 0 ? String(char) : ""))
+                }
+                continue
+            }
+
+            if isHangul(char) {
+                let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
+                result.append(contentsOf: extractJamoDotsWithLabels(from: char, nextChar: nextChar, useAbbreviations: useAbbreviations))
+            } else if char.isWhitespace {
+                result.append(("", " "))
+            }
+        }
+        return result
+    }
+
+    private func extractJamoDotsWithLabels(from char: Character, nextChar: Character?, useAbbreviations: Bool) -> [(String, String)] {
+        guard let scalar = char.unicodeScalars.first else { return [] }
+        let value = scalar.value
+        var pairs: [(String, String)] = []
+
+        // 단독 자음: 온표 + 받침 형태
+        if value >= 0x3131 && value <= 0x314E {
+            let jamoList = ["ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄸ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅃ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
+            let ch = jamoList[Int(value - 0x3131)]
+            pairs.append((STANDALONE_JAMO_PREFIX, ""))
+            if let base = doubleChosungMap[ch] {
+                pairs.append((DOUBLE_CONSONANT_PREFIX, ""))
+                if let d = jongsungMap[base] {
+                    for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? ch : "")) }
+                }
+            } else if let d = jongsungMap[ch] {
+                for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? ch : "")) }
+            }
+            return pairs
+        }
+
+        // 단독 모음: 온표 + 모음
+        if value >= 0x314F && value <= 0x3163 {
+            let jungsungList = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"]
+            let ch = jungsungList[Int(value - 0x314F)]
+            pairs.append((STANDALONE_JAMO_PREFIX, ""))
+            if let d = jungsungMap[ch] {
+                for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? ch : "")) }
+            }
+            return pairs
+        }
+
+        guard value >= 0xAC00 && value <= 0xD7A3 else { return [] }
+
+        let charLabel = String(char)
+        let chosungList  = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
+        let jungsungList = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"]
+        let jongsungList = ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
+
+        let idx       = value - 0xAC00
+        let choIndex  = Int(idx / (21 * 28))
+        let jungIndex = Int((idx % (21 * 28)) / 28)
+        let jongIndex = Int(idx % 28)
+
+        let choChar  = chosungList[choIndex]
+        let jungChar = jungsungList[jungIndex]
+        let jongChar = jongIndex > 0 ? jongsungList[jongIndex] : ""
+
+        // 초성 셀 추가 (된소리표 prefix는 "" 레이블, 초성 셀은 지정 레이블)
+        func appendChosungPairs(cho: String, mainLabel: String) {
+            if let base = doubleChosungMap[cho] {
+                pairs.append((DOUBLE_CONSONANT_PREFIX, ""))
+                if let d = chosungMap[base] { pairs.append((d, mainLabel)) }
+            } else if cho != "ㅇ" {
+                if let d = chosungMap[cho] { pairs.append((d, mainLabel)) }
+            }
+        }
+
+        if useAbbreviations {
+            if char == "것" { return [("456", ""), ("234", "것")] }
+            if char == "껏" { return [("6", ""), ("456", ""), ("234", "껏")] }
+
+            // 가/까/사/싸: abbreviation 셀에 원래 음절 레이블
+            if jungChar == "ㅏ" && ["ㄱ", "ㄲ", "ㅅ", "ㅆ"].contains(choChar) {
+                if choChar == "ㄲ" || choChar == "ㅆ" { pairs.append((DOUBLE_CONSONANT_PREFIX, "")) }
+                let baseCho = (choChar == "ㄲ") ? "ㄱ" : (choChar == "ㅆ" ? "ㅅ" : choChar)
+                pairs.append((baseCho == "ㄱ" ? "1246" : "123", charLabel))
+                if jongIndex > 0, let d = jongsungMap[jongChar] {
+                    d.split(separator: ",").forEach { pairs.append((String($0), "")) }
+                }
+                return pairs
+            }
+
+            // ㅓ+ㅇ 예외: 약자 셀에 원래 음절 레이블
+            if jungChar == "ㅓ" && jongChar == "ㅇ" && ["ㅅ", "ㅆ", "ㅈ", "ㅉ", "ㅊ"].contains(choChar) {
+                appendChosungPairs(cho: choChar, mainLabel: "")
+                pairs.append(("12456", charLabel))
+                return pairs
+            }
+
+            // vowelJongseongMap: 약자 셀에 원래 음절 레이블
+            if jongIndex > 0 {
+                let key = jungChar + jongChar
+                if let contraction = vowelJongseongMap[key] {
+                    appendChosungPairs(cho: choChar, mainLabel: "")
+                    pairs.append((contraction, charLabel))
+                    return pairs
+                }
+            }
+
+            // ㅏ 생략: 초성 셀에 원래 음절 레이블
+            let aOmissionCho = ["ㄴ", "ㄷ", "ㄸ", "ㅁ", "ㅂ", "ㅃ", "ㅈ", "ㅉ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"]
+            if jungChar == "ㅏ" && aOmissionCho.contains(choChar) {
+                var omitA = true
+                if char == "팠" { omitA = false }
+                if let next = nextChar, isHangul(next), let nextScalar = next.unicodeScalars.first {
+                    let nextValue = nextScalar.value
+                    if nextValue >= 0xAC00 && nextValue <= 0xD7A3 {
+                        let nextChoIndex = Int((nextValue - 0xAC00) / (21 * 28))
+                        if chosungList[nextChoIndex] == "ㅇ" { omitA = false }
+                    }
+                }
+                if omitA {
+                    appendChosungPairs(cho: choChar, mainLabel: charLabel)
+                    if jongIndex > 0, let d = jongsungMap[jongChar] {
+                        d.split(separator: ",").forEach { pairs.append((String($0), "")) }
+                    }
+                    return pairs
+                }
+            }
+        }
+
+        // 기본 조합: 각 자모에 개별 레이블
+        if choChar != "ㅇ" {
+            if let base = doubleChosungMap[choChar] {
+                pairs.append((DOUBLE_CONSONANT_PREFIX, ""))
+                if let d = chosungMap[base] { pairs.append((d, choChar)) }
+            } else {
+                if let d = chosungMap[choChar] { pairs.append((d, choChar)) }
+            }
+        }
+
+        if let d = jungsungMap[jungChar] {
+            for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? jungChar : "")) }
+        }
+
+        if jongIndex > 0, let d = jongsungMap[jongChar] {
+            for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? jongChar : "")) }
+        }
+
+        return pairs
+    }
+
     // MARK: - Helper Methods
 
     private func preprocessAbbreviations(_ text: String) -> String {
@@ -161,28 +356,29 @@ class BrailleTranslator {
         let value = scalar.value
         var dots: [String] = []
 
-        // MARK: 단독 자음 (ㄱ~ㅎ)
+        // MARK: 단독 자음 (ㄱ~ㅎ): 온표 + 받침 형태
         if value >= 0x3131 && value <= 0x314E {
             let jamoList = ["ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄸ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅃ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
             let ch = jamoList[Int(value - 0x3131)]
+            dots.append(STANDALONE_JAMO_PREFIX)
             if let base = doubleChosungMap[ch] {
+                // 된소리 단독: 온표 + 된소리표 + 받침
                 dots.append(DOUBLE_CONSONANT_PREFIX)
-                if let d = chosungMap[base] { dots.append(d) }
-            } else if let d = chosungMap[ch] {
-                dots.append(d)
-            } else {
-                dots.append(SINGLE_CONSONANT_PREFIX)
-                if let d = jongsungMap[ch] {
+                if let d = jongsungMap[base] {
                     dots.append(contentsOf: d.split(separator: ",").map { String($0) })
                 }
+            } else if let d = jongsungMap[ch] {
+                // 일반/겹받침: 온표 + 받침
+                dots.append(contentsOf: d.split(separator: ",").map { String($0) })
             }
             return dots
         }
 
-        // MARK: 단독 모음 (ㅏ~ㅣ)
+        // MARK: 단독 모음 (ㅏ~ㅣ): 온표 + 모음
         if value >= 0x314F && value <= 0x3163 {
             let jungsungList = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"]
             let ch = jungsungList[Int(value - 0x314F)]
+            dots.append(STANDALONE_JAMO_PREFIX)
             if let d = jungsungMap[ch] {
                 dots.append(contentsOf: d.split(separator: ",").map { String($0) })
             }
