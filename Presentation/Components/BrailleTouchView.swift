@@ -106,7 +106,7 @@ class BrailleCellView: UIView {
             if isOn {
                 UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0).setFill()
             } else {
-                UIColor.systemGray5.setFill()
+                UIColor.systemGray3.setFill()
             }
 
             let dotRect = CGRect(x: center.x - dotRadius, y: center.y - dotRadius, width: dotRadius * 2, height: dotRadius * 2)
@@ -116,7 +116,7 @@ class BrailleCellView: UIView {
     
     // 외부(Canvas)에서 터치 좌표를 받아, 이 셀 내부의 어떤 점에 해당하는지 판별
     func getDotIndex(at point: CGPoint) -> Int? {
-        let touchRadius = baseTouchRadius * scale
+        let touchRadius = max(baseTouchRadius, baseDotRadius * 1.5) * scale
         
         // point는 이 뷰의 로컬 좌표계 기준이어야 함
         for (index, center) in dotCenters.enumerated() {
@@ -185,7 +185,7 @@ class BrailleTouchCanvasView: UIView {
         self.accessibilityTraits = .allowsDirectInteraction
         self.isAccessibilityElement = true
         self.accessibilityLabel = "점자 터치 영역"
-        self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다."
+        self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다."
     }
     
     // 텍스트를 받아서 셀을 배치하는 메서드
@@ -193,6 +193,12 @@ class BrailleTouchCanvasView: UIView {
         guard self.text != newText else { return } // 텍스트가 같으면 리로드 방지 (터치 시 깜빡임 해결)
         self.text = newText
         layoutCells()
+        // VoiceOver: 현재 표시 중인 텍스트를 accessibilityLabel에 반영
+        if newText.isEmpty {
+            self.accessibilityLabel = "점자 터치 영역"
+        } else {
+            self.accessibilityLabel = "'\(newText)'의 점자 터치 영역, 총 \(cells.count)셀"
+        }
     }
 
     private var lastRenderedText: String?
@@ -311,7 +317,8 @@ class BrailleTouchCanvasView: UIView {
                 let lv = UILabel()
                 lv.text = label
                 lv.textAlignment = .center
-                lv.font = UIFont.systemFont(ofSize: labelFontSize)
+                lv.font = UIFontMetrics(forTextStyle: .caption1).scaledFont(for: UIFont.systemFont(ofSize: labelFontSize))
+                lv.adjustsFontForContentSizeCategory = true
                 lv.textColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1.0)
                 lv.frame = CGRect(x: currentX, y: currentY + cellHeight + (4 * scale),
                                   width: cellWidth, height: labelAreaHeight - (4 * scale))

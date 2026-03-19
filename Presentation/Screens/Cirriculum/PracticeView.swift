@@ -6,14 +6,24 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import SwiftData
 
 struct PracticeView: View {
     @Bindable var item: LearningItem
 
     var body: some View {
+        Group {
+            switch item.day {
+            case 1:
+                Day1View(item: item)
+            default:
+                defaultPracticeView
+            }
+        }
+    }
+
+    // 기본 연습 화면 (아직 전용 뷰가 없는 일차용)
+    private var defaultPracticeView: some View {
         VStack(spacing: 0) {
             CommonNavigationBar(title: "연습 \(item.day)일차")
 
@@ -33,7 +43,7 @@ struct PracticeView: View {
                     .padding(.vertical)
 
                 Spacer()
-                
+
                 // 완료 버튼 (체크박스 스타일)
                 Button(action: {
                     item.isCompleted.toggle()
@@ -52,6 +62,8 @@ struct PracticeView: View {
                     .cornerRadius(12)
                     .shadow(radius: 2)
                 }
+                .accessibilityLabel(item.isCompleted ? "학습 완료됨" : "학습 완료하기")
+                .accessibilityHint(item.isCompleted ? "탭하면 완료를 취소합니다" : "탭하면 학습을 완료로 표시합니다")
                 .padding(.bottom, 30)
             }
             .padding(20)

@@ -77,11 +77,11 @@ final class HapticManager {
     }
     
     // 가이드 점 (줄바꿈 안내) 피드백
-    func playGuideDotFeedback() {
+    func playGuideDotFeedback(intensity: Float = 0.8) {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
-        
+
         // 부드럽게 두 번 울리는 효과
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0)
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
         let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.3)
 
         let event1 = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
@@ -96,12 +96,44 @@ final class HapticManager {
         }
     }
     
-    // 3. 경계선 (Sharp): 날카로움 (Medium Intensity, High Sharpness)
-    func playSharpBorderFeedback() {
+    // 연속 진동 플레이어 (탈선 시 지속 진동용)
+    private var continuousPlayer: CHHapticPatternPlayer?
+
+    /// 연속 진동 시작 (줄 벗어남 등)
+    func startContinuousVibration(intensity: Float = 0.6, sharpness: Float = 1.0) {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
-        
+        stopContinuousVibration()
+
+        let hapticIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
+        let hapticSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness)
+        let event = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [hapticIntensity, hapticSharpness],
+            relativeTime: 0,
+            duration: 30 // 최대 30초
+        )
+
+        do {
+            let pattern = try CHHapticPattern(events: [event], parameters: [])
+            continuousPlayer = try engine?.makePlayer(with: pattern)
+            try continuousPlayer?.start(atTime: 0)
+        } catch {
+            print("Failed to start continuous vibration: \(error)")
+        }
+    }
+
+    /// 연속 진동 중지
+    func stopContinuousVibration() {
+        try? continuousPlayer?.stop(atTime: 0)
+        continuousPlayer = nil
+    }
+
+    // 3. 경계선 (Sharp): 날카로움 (Medium Intensity, High Sharpness)
+    func playSharpBorderFeedback(intensity: Float = 0.7) {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+
         // 날카로운 틱: 강도 적당히, 날카로움 최대
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.7)
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
         let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1.0)
         let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
         
