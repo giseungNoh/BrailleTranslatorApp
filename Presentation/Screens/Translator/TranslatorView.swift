@@ -45,13 +45,13 @@ struct TranslatorView: View {
                                         y: 8
                                     )
                                     .animation(.easeInOut, value: viewModel.isRecording)
-                                
+
                                 VStack(spacing: 12) {
                                     Image(systemName: viewModel.isRecording ? "waveform" : "mic.fill")
                                         .font(.system(size: 44))
                                         .foregroundColor(viewModel.isRecording ? .red : .appTextColor)
                                         .contentTransition(.symbolEffect(.replace))
-                                    
+
                                     Text(viewModel.isRecording ? "듣는 중.." : "눌러서 말하세요")
                                         .font(.system(size: 14, weight: .bold))
                                         .tracking(1.2)
@@ -59,6 +59,9 @@ struct TranslatorView: View {
                                 }
                             }
                         }
+                        .accessibilityLabel(viewModel.isRecording ? "음성 인식 중지" : "음성으로 입력하기")
+                        .accessibilityHint(viewModel.isRecording ? "이중 탭하면 음성 인식을 중지합니다" : "이중 탭하면 음성 인식을 시작합니다")
+                        .accessibilityValue(viewModel.isRecording ? "녹음 중" : "")
                         
                         Spacer()
                             .frame(height: 50)
@@ -81,6 +84,8 @@ struct TranslatorView: View {
                                             .font(.title3)
                                             .foregroundColor(.gray.opacity(0.6))
                                     }
+                                    .accessibilityLabel("입력 텍스트 지우기")
+                                    .accessibilityHint("이중 탭하면 입력된 텍스트를 모두 지웁니다")
                                 }
                             }
                             .padding(16)

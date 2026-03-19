@@ -5,6 +5,8 @@ struct Day1IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
 
+    @AccessibilityFocusState private var isTitleFocused: Bool
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
@@ -20,12 +22,13 @@ struct Day1IntroView: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
                     .accessibilityLabel("1일차, 점자의 기초와 촉각 훈련")
+                    .accessibilityHint("오늘의 목표는 점자의 6점 구조를 이해하고, 가로 선을 따라가며 빈칸을 구별하는 연습을 하는 것입니다.")
+                    .accessibilityFocused($isTitleFocused)
 
                 Text("오늘의 목표")
                     .font(.headline)
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
-                    .accessibilityAddTraits(.isHeader)
 
                 Text("점자의 6점 구조를 이해하고,\n가로 선을 따라가며 빈칸을 구별하는\n연습을 합니다.")
                     .font(.body)
@@ -63,8 +66,9 @@ struct Day1IntroView: View {
             .accessibilityHint("커리큘럼 목록으로 돌아갑니다")
         }
         .onAppear {
-            let text = "1일차, 점자의 기초와 촉각 훈련입니다. 오늘의 목표는 점자의 6점 구조를 이해하고, 가로 선을 따라가며 빈칸을 구별하는 연습을 하는 것입니다."
-            TTSManager.shared.speak(text)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isTitleFocused = true
+            }
         }
     }
 }

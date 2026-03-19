@@ -214,7 +214,7 @@ private struct CurriculumDayRow: View {
             .padding(.vertical, 6)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(item.day)일차, \(item.title), \(item.subtitle), \(statusLabel)")
-            .accessibilityHint("연습 화면으로 이동")
+            .accessibilityHint("두번 탭하여 연습 화면으로 이동")
             .accessibilityAddTraits(.isButton)
         }
     }

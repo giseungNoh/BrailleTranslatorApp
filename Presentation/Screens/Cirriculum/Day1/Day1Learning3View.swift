@@ -7,6 +7,7 @@ struct Day1Learning3View: View {
     let onBack: () -> Void
 
     @State private var isInteracting = false
+    @AccessibilityFocusState private var isHeaderFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,8 +19,9 @@ struct Day1Learning3View: View {
             buttonSection
         }
         .onAppear {
-            let ttsText = "이번에는 실제 점자 한 글자를 느껴봅시다. 화면 가운데에 '가'의 점자가 있습니다. 손가락으로 문질러 보세요. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다. 양쪽의 작은 점은 줄의 시작과 끝을 알려주는 가이드 점입니다. 가이드 점을 터치하면 두 번 울리는 진동이 느껴집니다. 설정 탭에서 진동 세기를 조절할 수 있습니다."
-            TTSManager.shared.speak(ttsText)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isHeaderFocused = true
+            }
         }
     }
 
@@ -31,8 +33,11 @@ struct Day1Learning3View: View {
                 .font(.title2.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 20)
+                .accessibilityLabel("온점과 빈점 느끼기")
+                .accessibilityHint("화면 가운데에 점자가 있습니다. 손가락으로 문질러 보세요. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다.")
+                .accessibilityFocused($isHeaderFocused)
 
-            Text("'가'의 점자를 손가락으로 느껴보세요")
+            Text("점자를 손가락으로 느껴보세요")
                 .font(.subheadline)
                 .foregroundColor(.appTextSubColor)
         }
@@ -79,15 +84,7 @@ struct Day1Learning3View: View {
     private var buttonSection: some View {
         VStack(spacing: 0) {
             Button(action: {
-                TTSManager.shared.stop()
-                if UIAccessibility.isVoiceOverRunning {
-                    TTSManager.shared.announce("1일차 학습을 완료합니다. 학습홈으로 이동합니다.")
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                        onComplete()
-                    }
-                } else {
-                    onComplete()
-                }
+                onComplete()
             }) {
                 Text("학습 완료")
                     .font(.title3.bold())

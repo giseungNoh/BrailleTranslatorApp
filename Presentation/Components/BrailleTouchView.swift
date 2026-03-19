@@ -197,7 +197,7 @@ class BrailleTouchCanvasView: UIView {
         if newText.isEmpty {
             self.accessibilityLabel = "점자 터치 영역"
         } else {
-            self.accessibilityLabel = "'\(newText)'의 점자 터치 영역, 총 \(cells.count)셀"
+            self.accessibilityLabel = "'점자 터치 영역, 총 \(cells.count)개의 점자"
         }
     }
 

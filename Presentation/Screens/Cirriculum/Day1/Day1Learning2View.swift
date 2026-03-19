@@ -10,6 +10,7 @@ struct Day1Learning2View: View {
     @State private var pattern: [Bool] = Array(repeating: true, count: 12)
     @State private var currentIndex: Int? = nil
     @State private var isOutOfBounds = false
+    @AccessibilityFocusState private var isTitleFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,6 +18,9 @@ struct Day1Learning2View: View {
                 .font(.title2.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 20)
+                .accessibilityLabel("촉각 훈련")
+                .accessibilityHint("화면 아무 곳이나 손가락을 대고, 좌우로 부드럽게 미끄러져 보세요. 꽉 찬 온표의 강한 진동을 느껴보세요.")
+                .accessibilityFocused($isTitleFocused)
 
             Text(statusText)
                 .font(.subheadline)
@@ -46,7 +50,6 @@ struct Day1Learning2View: View {
 
             // 다음으로 버튼
             Button(action: {
-                TTSManager.shared.stop()
                 onNext()
             }) {
                 Text("다음으로")
@@ -72,8 +75,9 @@ struct Day1Learning2View: View {
             .accessibilityHint("6점 구조 화면으로 돌아갑니다")
         }
         .onAppear {
-            let text = "이제 화면 아무 곳이나 손가락을 대고, 좌우로 부드럽게 미끄러져 보세요. 꽉 찬 온표의 강한 진동을 느껴보세요. 위아래로 벗어나면 알려드립니다."
-            TTSManager.shared.speak(text)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isTitleFocused = true
+            }
         }
     }
 
@@ -156,10 +160,10 @@ private class FreeLineTrackingUIView: UIView {
         let total = pattern.count
         if pattern[index] {
             HapticManager.shared.playHeavyDotFeedback(intensity: 1.0)
-            TTSManager.shared.speak("\(index + 1)번째 점, 온표. \(total)개 중 \(index + 1)번째")
+            UIAccessibility.post(notification: .announcement, argument: "\(index + 1)번째 점, 온표. \(total)개 중 \(index + 1)번째")
         } else {
             HapticManager.shared.playSoftDotFeedback(intensity: 0.15)
-            TTSManager.shared.speak("\(index + 1)번째 점, 빈칸. \(total)개 중 \(index + 1)번째")
+            UIAccessibility.post(notification: .announcement, argument: "\(index + 1)번째 점, 빈칸. \(total)개 중 \(index + 1)번째")
         }
         onIndexChanged?(index)
     }
@@ -259,9 +263,7 @@ private class FreeLineTrackingUIView: UIView {
                 accessibilityValue = "줄을 벗어남"
                 HapticManager.shared.startContinuousVibration(intensity: 0.5, sharpness: 1.0)
                 if UIAccessibility.isVoiceOverRunning {
-                    TTSManager.shared.announce("줄을 벗어났습니다.")
-                } else {
-                    TTSManager.shared.speak("줄을 벗어났습니다.")
+                    UIAccessibility.post(notification: .announcement, argument: "줄을 벗어났습니다.")
                 }
             }
             lastIndex = nil

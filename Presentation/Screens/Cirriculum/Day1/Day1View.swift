@@ -23,34 +23,30 @@ struct Day1View: View {
             case .intro:
                 Day1IntroView(
                     onStart: { withAnimation { currentStep = .learning1 } },
-                    onBack: { TTSManager.shared.stop(); dismiss() }
+                    onBack: { dismiss() }
                 )
             case .learning1:
                 Day1Learning1View(
                     onNext: { withAnimation { currentStep = .learning2 } },
-                    onBack: { TTSManager.shared.stop(); withAnimation { currentStep = .intro } }
+                    onBack: { withAnimation { currentStep = .intro } }
                 )
             case .learning2:
                 Day1Learning2View(
                     onNext: { withAnimation { currentStep = .learning3 } },
-                    onBack: { TTSManager.shared.stop(); withAnimation { currentStep = .learning1 } }
+                    onBack: { withAnimation { currentStep = .learning1 } }
                 )
             case .learning3:
                 Day1Learning3View(
                     onComplete: {
-                        TTSManager.shared.stop()
                         item.isCompleted = true
                         dismiss()
                     },
-                    onBack: { TTSManager.shared.stop(); withAnimation { currentStep = .learning2 } }
+                    onBack: { withAnimation { currentStep = .learning2 } }
                 )
             }
         }
         .background(Color.appMainColor)
         .toolbar(.hidden, for: .navigationBar)
-        .onDisappear {
-            TTSManager.shared.stop()
-        }
     }
 }
 
@@ -69,5 +65,8 @@ private struct Day1ProgressBar: View {
             }
         }
         .padding(.vertical, 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("학습 진행 상황, \(total)단계 중 \(current + 1)단계")
+        .accessibilityValue("\(Int(Double(current + 1) / Double(total) * 100))퍼센트 진행")
     }
 }

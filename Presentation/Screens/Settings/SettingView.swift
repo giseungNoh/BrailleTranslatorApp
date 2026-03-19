@@ -37,24 +37,32 @@ struct SettingView: View {
                     VStack(alignment: .leading) {
                         Text("활성화된 점 진동 세기: \(String(format: "%.1f", settings.activeDotIntensity))")
                         Slider(value: $settings.activeDotIntensity, in: 0.1...1.0, step: 0.1)
+                            .accessibilityLabel("활성화된 점 진동 세기")
+                            .accessibilityValue("\(Int(settings.activeDotIntensity * 100))퍼센트")
                     }
-                    
+
                     // 3. 비활성 점 진동 설정
                     Toggle("비활성화된 점 진동 켜기", isOn: $settings.isInactiveDotFeedbackEnabled)
-                    
+                        .accessibilityHint("비활성화된 점을 터치할 때 약한 진동을 느낄 수 있습니다")
+                        .accessibilityValue(settings.isInactiveDotFeedbackEnabled ? "켜짐" : "꺼짐")
+
                     if settings.isInactiveDotFeedbackEnabled {
                         VStack(alignment: .leading) {
                             Text("비활성화된 점 진동 세기: \(String(format: "%.1f", settings.inactiveDotIntensity))")
                             Slider(value: $settings.inactiveDotIntensity, in: 0.1...1.0, step: 0.1)
+                                .accessibilityLabel("비활성화된 점 진동 세기")
+                                .accessibilityValue("\(Int(settings.inactiveDotIntensity * 100))퍼센트")
                         }
                     }
                 }
-                
+
                 Section {
                     Button("설정 초기화") {
                         settings.resetToDefaults()
                     }
                     .foregroundColor(.red)
+                    .accessibilityLabel("설정 초기화")
+                    .accessibilityHint("모든 설정을 기본값으로 되돌립니다")
                 }
             }
             .navigationTitle("설정")

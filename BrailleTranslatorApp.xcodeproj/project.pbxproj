@@ -208,9 +208,10 @@
 				};
 			};
 			buildConfigurationList = 4DAB8B892F360EEA00391C68 /* Build configuration list for PBXProject "BrailleTranslatorApp" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				ko,
 				en,
 				Base,
 			);

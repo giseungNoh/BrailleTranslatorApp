@@ -7,6 +7,7 @@ struct Day1Learning1View: View {
     let onBack: () -> Void
 
     @State private var activeDot: Int? = nil
+    @AccessibilityFocusState private var isTitleFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -14,6 +15,9 @@ struct Day1Learning1View: View {
                 .font(.title2.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 20)
+                .accessibilityLabel("점자 6점 구조")
+                .accessibilityHint("점자는 세로 3개, 가로 2개, 총 6개의 점으로 이루어집니다. 왼쪽 위부터 아래로 1, 2, 3점, 오른쪽 위부터 아래로 4, 5, 6점입니다. 화면 중앙을 터치하면서 점을 탐색해보세요")
+                .accessibilityFocused($isTitleFocused)
 
             Text("점의 위치를 직접 만져보세요")
                 .font(.subheadline)
@@ -29,7 +33,6 @@ struct Day1Learning1View: View {
             Spacer()
 
             Button(action: {
-                TTSManager.shared.stop()
                 onNext()
             }) {
                 Text("다음으로")
@@ -55,8 +58,9 @@ struct Day1Learning1View: View {
             .accessibilityHint("시작 화면으로 돌아갑니다")
         }
         .onAppear {
-            let text = "점자는 세로 3개, 가로 2개, 총 6개의 점으로 이루어집니다. 왼쪽 위부터 아래로 1, 2, 3점, 오른쪽 위부터 아래로 4, 5, 6점입니다. 점 위치를 직접 손가락으로 만져보세요."
-            TTSManager.shared.speak(text)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isTitleFocused = true
+            }
         }
     }
 }
@@ -107,7 +111,6 @@ private class BrailleDotExploreUIView: UIView {
         accessibilityTraits = .allowsDirectInteraction
         isAccessibilityElement = true
         accessibilityLabel = "점자 6점 탐색 영역"
-        accessibilityHint = "점자는 세로 3개, 가로 2개, 총 6개의 점입니다. 직접 터치하거나 커스텀 액션으로 각 점을 탐색하세요."
         setupAccessibilityActions()
     }
 
@@ -121,7 +124,7 @@ private class BrailleDotExploreUIView: UIView {
                 self?.activeDot = num
                 self?.onDotChanged?(num)
                 HapticManager.shared.playHeavyDotFeedback(intensity: 1.0)
-                TTSManager.shared.speak("\(num)점, \(position)")
+                UIAccessibility.post(notification: .announcement, argument: "\(num)점, \(position)")
                 self?.setNeedsDisplay()
                 return true
             }
@@ -233,9 +236,7 @@ private class BrailleDotExploreUIView: UIView {
                     onDotChanged?(num)
                     HapticManager.shared.playHeavyDotFeedback(intensity: 1.0)
                     if UIAccessibility.isVoiceOverRunning {
-                        TTSManager.shared.announce("\(num)점")
-                    } else {
-                        TTSManager.shared.speak("\(num)점")
+                        UIAccessibility.post(notification: .announcement, argument: "\(num)점")
                     }
                 }
                 return

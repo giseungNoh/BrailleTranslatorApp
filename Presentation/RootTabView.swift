@@ -11,16 +11,20 @@ struct RootTabView: View {
     var body: some View {
         TabView {
             CirriculumView()
-                .tabItem { Label("학습", systemImage: "dot.square") }	
+                .tabItem { Label("학습", systemImage: "dot.square") }
+                .accessibilityLabel("학습 탭, 커리큘럼")
 
             TranslatorView()
                 .tabItem { Label("점자번역", systemImage: "pencil") }
+                .accessibilityLabel("점자번역 탭")
 
             QuizView()
                 .tabItem { Label("퀴즈", systemImage: "questionmark") }
+                .accessibilityLabel("퀴즈 탭")
 
             SettingView()
                 .tabItem { Label("설정", systemImage: "gearshape") }
+                .accessibilityLabel("설정 탭")
         }
     }
 }

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build)"
+    ]
+  }
+}
