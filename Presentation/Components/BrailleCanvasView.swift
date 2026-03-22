@@ -31,6 +31,7 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
     @AppStorage("activeDotIntensity") private var activeDotIntensity: Double = 1.0
     @AppStorage("inactiveDotIntensity") private var inactiveDotIntensity: Double = 0.5
     @AppStorage("isInactiveDotFeedbackEnabled") private var isInactiveDotFeedbackEnabled: Bool = true
+    @AppStorage("isDotNumberAnnouncementEnabled") private var isDotNumberAnnouncementEnabled: Bool = true
 
     func makeUIView(context: Context) -> BrailleTouchCanvasView {
         let view = BrailleTouchCanvasView()
@@ -56,12 +57,13 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
     private func updateSettings(for view: BrailleTouchCanvasView) {
         let effectiveCellsPerLine = cellsPerLineOverride ?? cellsPerLine
 
-        let newSettings = BrailleSettings()
-        newSettings.cellsPerLine = effectiveCellsPerLine
-        newSettings.activeDotIntensity = activeDotIntensity
-        newSettings.inactiveDotIntensity = inactiveDotIntensity
-        newSettings.isInactiveDotFeedbackEnabled = isInactiveDotFeedbackEnabled
-
-        view.settings = newSettings
+        let newConfig = BrailleDisplayConfig(
+            cellsPerLine: effectiveCellsPerLine,
+            activeDotIntensity: activeDotIntensity,
+            inactiveDotIntensity: inactiveDotIntensity,
+            isInactiveDotFeedbackEnabled: isInactiveDotFeedbackEnabled,
+            isDotNumberAnnouncementEnabled: isDotNumberAnnouncementEnabled
+        )
+        view.config = newConfig
     }
 }

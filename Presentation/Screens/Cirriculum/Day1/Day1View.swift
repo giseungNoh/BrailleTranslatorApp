@@ -39,6 +39,7 @@ struct Day1View: View {
                 Day1Learning3View(
                     onComplete: {
                         item.isCompleted = true
+                        item.isInProgress = false
                         dismiss()
                     },
                     onBack: { withAnimation { currentStep = .learning2 } }

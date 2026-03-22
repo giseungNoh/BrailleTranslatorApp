@@ -133,9 +133,12 @@ class BrailleCellView: UIView {
 // 여러 개의 Cell을 담고 터치 이벤트를 총괄하는 UIKit 뷰
 class BrailleTouchCanvasView: UIView {
     
-    // 설정 주입
-    var settings: BrailleSettings = BrailleSettings() {
-        didSet { layoutCells() }
+    // 설정 주입 (순수 값 타입 — UserDefaults 오염 없음)
+    var config: BrailleDisplayConfig = BrailleDisplayConfig() {
+        didSet {
+            guard oldValue != config else { return }
+            layoutCells()
+        }
     }
 
     var useAbbreviations: Bool = true {
@@ -205,7 +208,7 @@ class BrailleTouchCanvasView: UIView {
     private var lastRenderedScale: CGFloat?
 
     private func layoutCells() {
-        let cellsPerLine = settings.cellsPerLine
+        let cellsPerLine = config.cellsPerLine
         
         // 텍스트와 설정 개수가 이전과 동일하면 레이아웃 생략 (불필요한 리로드 및 랜덤 점자 변경 방지)
         let currentStateStr = "\(text)_\(cellsPerLine)"
@@ -400,6 +403,18 @@ class BrailleTouchCanvasView: UIView {
                 if lastFeedbackID != feedbackID {
                     HapticManager.shared.playGuideDotFeedback()
                     lastFeedbackID = feedbackID
+
+                    // VoiceOver: 줄 정보 안내
+                    // guideDots는 줄마다 시작/끝 2개씩 쌍으로 들어감
+                    let lineNumber = (index / 2) + 1
+                    let isStart = (index % 2 == 0)
+                    let announcement: String
+                    if isStart {
+                        announcement = "\(lineNumber)번째 줄 시작입니다"
+                    } else {
+                        announcement = "\(lineNumber)번째 줄 마지막입니다. 다음 줄의 점자로 이동하세요"
+                    }
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
                 return
             }
@@ -417,17 +432,24 @@ class BrailleTouchCanvasView: UIView {
                 let localPoint = touch.location(in: cell)
                 if let dotIndex = cell.getDotIndex(at: localPoint) {
                     let feedbackID = "\(cellIndex)-\(dotIndex)"
-                    
+
                     if lastFeedbackID != feedbackID {
                         if cell.dotsState[dotIndex] {
                             // 점이 있는 곳 (Heavy)
-                            HapticManager.shared.playHeavyDotFeedback(intensity: Float(settings.activeDotIntensity))
+                            HapticManager.shared.playHeavyDotFeedback(intensity: Float(config.activeDotIntensity))
                         } else {
                             // 점이 없는 빈 곳 (Soft)
-                            if settings.isInactiveDotFeedbackEnabled {
-                                HapticManager.shared.playSoftDotFeedback(intensity: Float(settings.inactiveDotIntensity))
+                            if config.isInactiveDotFeedbackEnabled {
+                                HapticManager.shared.playSoftDotFeedback(intensity: Float(config.inactiveDotIntensity))
                             }
                         }
+
+                        // VoiceOver: 점 번호 안내
+                        if config.isDotNumberAnnouncementEnabled {
+                            let dotNumber = dotIndex + 1
+                            UIAccessibility.post(notification: .announcement, argument: "\(dotNumber)번 점")
+                        }
+
                         lastFeedbackID = feedbackID
                     }
                 } else {

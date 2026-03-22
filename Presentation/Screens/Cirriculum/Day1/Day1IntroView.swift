@@ -5,7 +5,11 @@ struct Day1IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
 
-    @AccessibilityFocusState private var isTitleFocused: Bool
+    @AccessibilityFocusState private var focusedElement: AccessibilityFocus?
+
+    enum AccessibilityFocus {
+        case intro
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -15,15 +19,11 @@ struct Day1IntroView: View {
                 Text("1일차")
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
-                    .accessibilityHidden(true)
 
                 Text("점자의 기초와\n촉각 훈련")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
-                    .accessibilityLabel("1일차, 점자의 기초와 촉각 훈련")
-                    .accessibilityHint("오늘의 목표는 점자의 6점 구조를 이해하고, 가로 선을 따라가며 빈칸을 구별하는 연습을 하는 것입니다.")
-                    .accessibilityFocused($isTitleFocused)
 
                 Text("오늘의 목표")
                     .font(.headline)
@@ -37,6 +37,9 @@ struct Day1IntroView: View {
                     .lineSpacing(4)
             }
             .padding(.horizontal, 30)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("1일차, 점자의 기초와 촉각 훈련. 오늘의 목표, 점자의 6점 구조를 이해하고, 가로 선을 따라가며 빈칸을 구별하는 연습을 합니다.")
+            .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer()
 
@@ -67,7 +70,7 @@ struct Day1IntroView: View {
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isTitleFocused = true
+                focusedElement = .intro
             }
         }
     }

@@ -61,9 +61,18 @@ extension CommonNavigationBar where Leading == EmptyView, Trailing == EmptyView 
     init(title: String) {
         self.init(title: title) {
             EmptyView()
-
         } trailing: {
             EmptyView()
+        }
+    }
+}
+
+extension CommonNavigationBar where Leading == EmptyView {
+    init(title: String, @ViewBuilder trailing: () -> Trailing) {
+        self.init(title: title) {
+            EmptyView()
+        } trailing: {
+            trailing()
         }
     }
 }

@@ -8,6 +8,18 @@
 import SwiftUI
 
 struct RootTabView: View {
+    @AppStorage("appFontSize") private var appFontSize: Int = 0
+
+    private var dynamicTypeSize: DynamicTypeSize {
+        switch appFontSize {
+        case -1: return .small
+        case 0: return .large
+        case 1: return .xLarge
+        case 2: return .xxLarge
+        default: return .large
+        }
+    }
+
     var body: some View {
         TabView {
             CirriculumView()
@@ -26,6 +38,7 @@ struct RootTabView: View {
                 .tabItem { Label("설정", systemImage: "gearshape") }
                 .accessibilityLabel("설정 탭")
         }
+        .dynamicTypeSize(dynamicTypeSize)
     }
 }
 

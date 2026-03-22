@@ -28,7 +28,7 @@ struct BrailleApp: App {
     }
 
     // 현재 커리큘럼 버전 (내용 변경 시 올리면 자동 업데이트)
-    private static let curriculumVersion = 2
+    private static let curriculumVersion = 3
 
     @MainActor
     private func checkAndSeedData() {

@@ -10,6 +10,7 @@ import SwiftData
 
 struct PracticeView: View {
     @Bindable var item: LearningItem
+    @AppStorage("lastStudiedDay") private var lastStudiedDay: Int = 0
 
     var body: some View {
         Group {
@@ -18,6 +19,12 @@ struct PracticeView: View {
                 Day1View(item: item)
             default:
                 defaultPracticeView
+            }
+        }
+        .onAppear {
+            lastStudiedDay = item.day
+            if !item.isCompleted {
+                item.isInProgress = true
             }
         }
     }
