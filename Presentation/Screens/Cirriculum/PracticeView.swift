@@ -17,6 +17,8 @@ struct PracticeView: View {
             switch item.day {
             case 1:
                 Day1View(item: item)
+            case 2:
+                Day2View(item: item)
             default:
                 defaultPracticeView
             }

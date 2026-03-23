@@ -32,7 +32,9 @@ struct Day1Learning2View: View {
             FreeLineTrackingView(
                 pattern: pattern,
                 currentIndex: $currentIndex,
-                isOutOfBounds: $isOutOfBounds
+                isOutOfBounds: $isOutOfBounds,
+                onNext: onNext,
+                onBack: onBack
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 20)
@@ -74,6 +76,9 @@ struct Day1Learning2View: View {
             .accessibilityLabel("이전으로")
             .accessibilityHint("6점 구조 화면으로 돌아갑니다")
         }
+        .accessibilityAction(.escape) {
+            onBack()
+        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isTitleFocused = true
@@ -98,6 +103,8 @@ private struct FreeLineTrackingView: UIViewRepresentable {
     let pattern: [Bool]
     @Binding var currentIndex: Int?
     @Binding var isOutOfBounds: Bool
+    var onNext: (() -> Void)? = nil
+    var onBack: (() -> Void)? = nil
 
     func makeUIView(context: Context) -> FreeLineTrackingUIView {
         let view = FreeLineTrackingUIView()
@@ -108,16 +115,23 @@ private struct FreeLineTrackingView: UIViewRepresentable {
         view.onOutOfBounds = { oob in
             DispatchQueue.main.async { isOutOfBounds = oob }
         }
+        view.onNext = onNext
+        view.onBack = onBack
         return view
     }
 
-    func updateUIView(_ uiView: FreeLineTrackingUIView, context: Context) {}
+    func updateUIView(_ uiView: FreeLineTrackingUIView, context: Context) {
+        uiView.onNext = onNext
+        uiView.onBack = onBack
+    }
 }
 
 private class FreeLineTrackingUIView: UIView {
     var pattern: [Bool] = []
     var onIndexChanged: ((Int?) -> Void)?
     var onOutOfBounds: ((Bool) -> Void)?
+    var onNext: (() -> Void)?
+    var onBack: (() -> Void)?
 
     private var lastIndex: Int? = nil
     private var touchStartY: CGFloat? = nil
@@ -125,17 +139,36 @@ private class FreeLineTrackingUIView: UIView {
     private let trackPadding: CGFloat = 20
     private let trackHalfHeight: CGFloat = 25
 
+    // 3탭 감지용
+    private var tapCount: Int = 0
+    private var tapTimer: Timer?
+    private var tapBeganTime: Date?
+    private var tapBeganLocation: CGPoint?
+
     private var voAccessibilityIndex: Int = 0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .clear
-        isMultipleTouchEnabled = false
+        isMultipleTouchEnabled = true
         accessibilityTraits = .allowsDirectInteraction
         isAccessibilityElement = true
         accessibilityLabel = "촉각 훈련 영역"
-        accessibilityHint = "직접 터치하여 좌우로 미끄러뜨리거나 커스텀 액션으로 점을 탐색하세요. 위아래로 벗어나면 알려드립니다."
+        accessibilityHint = "직접 터치하여 좌우로 미끄러뜨리거나 커스텀 액션으로 점을 탐색하세요. 위아래로 벗어나면 알려드립니다. 빠르게 세 번 탭하면 다음으로, 두 손가락으로 세 번 탭하면 이전으로 이동합니다."
         setupAccessibilityActions()
+        setupTwoFingerDoubleTap()
+    }
+
+    private func setupTwoFingerDoubleTap() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTwoFingerDoubleTap))
+        tap.numberOfTouchesRequired = 2
+        tap.numberOfTapsRequired = 3
+        tap.cancelsTouchesInView = false
+        self.addGestureRecognizer(tap)
+    }
+
+    @objc private func handleTwoFingerDoubleTap() {
+        onBack?()
     }
 
     private func setupAccessibilityActions() {
@@ -151,7 +184,7 @@ private class FreeLineTrackingUIView: UIView {
                 self.voAccessibilityIndex = max(self.voAccessibilityIndex - 1, 0)
                 self.announceCurrentDot()
                 return true
-            }
+            },
         ]
     }
 
@@ -225,6 +258,8 @@ private class FreeLineTrackingUIView: UIView {
         guard let touch = touches.first else { return }
         let loc = touch.location(in: self)
         touchStartY = loc.y
+        tapBeganTime = Date()
+        tapBeganLocation = loc
         wasOutOfBounds = false
         onOutOfBounds?(false)
         setNeedsDisplay()
@@ -241,6 +276,7 @@ private class FreeLineTrackingUIView: UIView {
         HapticManager.shared.stopContinuousVibration()
         onIndexChanged?(nil)
         onOutOfBounds?(false)
+        detectTap(touches)
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -249,6 +285,52 @@ private class FreeLineTrackingUIView: UIView {
         HapticManager.shared.stopContinuousVibration()
         onIndexChanged?(nil)
         onOutOfBounds?(false)
+        tapBeganTime = nil
+        tapBeganLocation = nil
+    }
+
+    // MARK: - VoiceOver Escape (두 손가락 Z 제스처 → 이전)
+    override func accessibilityPerformEscape() -> Bool {
+        if let onBack {
+            onBack()
+            return true
+        }
+        return false
+    }
+
+    /// 빠른 탭 3회 감지 — 다음 단계 이동
+    private func detectTap(_ touches: Set<UITouch>) {
+        guard let beganTime = tapBeganTime,
+              let beganLocation = tapBeganLocation,
+              let touch = touches.first else {
+            tapBeganTime = nil
+            tapBeganLocation = nil
+            return
+        }
+
+        let duration = Date().timeIntervalSince(beganTime)
+        let endLocation = touch.location(in: self)
+        let movement = hypot(endLocation.x - beganLocation.x, endLocation.y - beganLocation.y)
+
+        tapBeganTime = nil
+        tapBeganLocation = nil
+
+        guard duration < 0.5, movement < 10 else { return }
+
+        tapCount += 1
+        tapTimer?.invalidate()
+        tapTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { [weak self] _ in
+            self?.tapCount = 0
+        }
+
+        if tapCount >= 3 {
+            tapCount = 0
+            tapTimer?.invalidate()
+            tapTimer = nil
+            DispatchQueue.main.async { [weak self] in
+                self?.onNext?()
+            }
+        }
     }
 
     private func handleTouch(_ touches: Set<UITouch>) {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// ① 시작하기 화면 (Intro: 학습 목표)
-struct Day1IntroView: View {
+struct Day2IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
 
@@ -16,11 +16,11 @@ struct Day1IntroView: View {
             Spacer(minLength: 40)
 
             VStack(spacing: 20) {
-                Text("1일차")
+                Text("2일차")
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("점자의 기초와\n촉각 훈련")
+                Text("기본 자음 ①")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
@@ -30,7 +30,7 @@ struct Day1IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("점자의 6점 구조를 이해하고,\n가로 선을 따라가며 빈칸을 구별하는\n연습을 합니다.")
+                Text("4점, 5점, 6점을 기준으로 만들어지는\n첫소리 글자의 규칙성을 이해하고,\n첫소리 'ㅇ'은 점자로 표기하지 않는다는\n대원칙을 인지합니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day1IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("1일차, 점자의 기초와 촉각 훈련. 오늘의 목표, 점자의 6점 구조를 이해하고, 가로 선을 따라가며 빈칸을 구별하는 연습을 합니다.")
+            .accessibilityLabel("2일차, 기본 자음 1. 오늘의 목표: 4점, 5점, 6점을 기준으로 만들어지는 첫소리 글자의 규칙성을 이해하고, 첫소리 이응은 점자로 표기하지 않는다는 대원칙을 인지합니다.")
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

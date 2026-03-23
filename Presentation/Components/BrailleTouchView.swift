@@ -144,7 +144,15 @@ class BrailleTouchCanvasView: UIView {
     var useAbbreviations: Bool = true {
         didSet {
             guard oldValue != useAbbreviations else { return }
-            lastRenderedText = nil // 캐시 무효화
+            lastRenderedText = nil
+            layoutCells()
+        }
+    }
+
+    var useChosungForm: Bool = false {
+        didSet {
+            guard oldValue != useChosungForm else { return }
+            lastRenderedText = nil
             layoutCells()
         }
     }
@@ -155,12 +163,41 @@ class BrailleTouchCanvasView: UIView {
     
     // 스크롤 잠금 제어를 위한 콜백
     var onTouchStateChanged: ((Bool) -> Void)?
-    
+    // 3탭 시 호출되는 콜백 (다음 글자/단계 이동)
+    var onSwipeNext: (() -> Void)?
+    // Z 제스처(accessibilityPerformEscape) 시 호출 (이전 글자/단계 이동)
+    var onSwipePrevious: (() -> Void)?
+    // VoiceOver accessibilityLabel 오버라이드 (nil이면 기본값 사용)
+    var accessibilityLabelOverride: String? = nil
+    // 셀 아래 레이블 숨기기 (SwiftUI에서 별도 표시할 때 사용)
+    var hideLabels: Bool = false
+
     // 마지막으로 피드백을 준 점의 식별자
     private var lastFeedbackID: String?
     // 마지막으로 터치했던 셀의 인덱스 (경계선 감지용)
     private var lastCellIndex: Int?
+
+    // 3탭 감지용
+    private var tapCount: Int = 0
+    private var tapTimer: Timer?
+    private var touchBeganTime: Date?
+    private var touchBeganLocation: CGPoint?
+    private let tapMaxDuration: TimeInterval = 0.5
+    private let tapMaxMovement: CGFloat = 10
+    private let tapWindowInterval: TimeInterval = 0.8
+
+    // 비-VoiceOver 좌우 스와이프 제스처
+    private var swipeGestureRecognizers: [UISwipeGestureRecognizer] = []
     
+    // 셀 최대 너비 제한 (cellsPerLine=1일 때 과도 확대 방지)
+    var maxCellWidth: CGFloat? = nil {
+        didSet {
+            guard oldValue != maxCellWidth else { return }
+            lastRenderedText = nil
+            layoutCells()
+        }
+    }
+
     // 가이드 점 (줄바꿈 안내) 영역 저장
     private var guideDots: [CGRect] = []
     
@@ -181,26 +218,84 @@ class BrailleTouchCanvasView: UIView {
     }
     
     private func setupView() {
-        self.backgroundColor = .white // 깔끔한 디자인 (흰색 배경)
-        self.isMultipleTouchEnabled = false
-        
+        self.backgroundColor = .clear // 셀 카드는 BrailleCellView.draw()에서 직접 그림
+        self.clipsToBounds = true
+        self.isMultipleTouchEnabled = true
+
         // VoiceOver Direct Touch 설정
         self.accessibilityTraits = .allowsDirectInteraction
         self.isAccessibilityElement = true
         self.accessibilityLabel = "점자 터치 영역"
-        self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다."
+        self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다. 빠르게 세 번 탭하면 다음으로, 두 손가락으로 세 번 탭하면 이전으로 이동합니다."
+        setupSwipeGestures()
+        setupTwoFingerDoubleTap()
     }
-    
+
+    /// VoiceOver ON: 두 손가락 두 번 탭 → 이전
+    private func setupTwoFingerDoubleTap() {
+        let twoFingerDoubleTap = UITapGestureRecognizer(target: self, action: #selector(handleTwoFingerDoubleTap))
+        twoFingerDoubleTap.numberOfTouchesRequired = 2
+        twoFingerDoubleTap.numberOfTapsRequired = 3
+        twoFingerDoubleTap.cancelsTouchesInView = false
+        self.addGestureRecognizer(twoFingerDoubleTap)
+    }
+
+    @objc private func handleTwoFingerDoubleTap() {
+        onSwipePrevious?()
+    }
+
+    /// 비-VoiceOver: 좌우 스와이프로 글자/단계 전환
+    private func setupSwipeGestures() {
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
+        swipeLeft.direction = .left
+        swipeLeft.cancelsTouchesInView = false
+        self.addGestureRecognizer(swipeLeft)
+        swipeGestureRecognizers.append(swipeLeft)
+
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
+        swipeRight.direction = .right
+        swipeRight.cancelsTouchesInView = false
+        self.addGestureRecognizer(swipeRight)
+        swipeGestureRecognizers.append(swipeRight)
+    }
+
+    @objc private func handleSwipeGesture(_ gesture: UISwipeGestureRecognizer) {
+        // VoiceOver ON일 때는 3탭/Z제스처 사용, 스와이프 무시
+        guard !UIAccessibility.isVoiceOverRunning else { return }
+        // 점자 터치 중에는 스와이프 무시
+        guard lastFeedbackID == nil else { return }
+
+        switch gesture.direction {
+        case .left:
+            onSwipeNext?()
+        case .right:
+            onSwipePrevious?()
+        default:
+            break
+        }
+    }
+
+    // MARK: - VoiceOver Escape (두 손가락 Z 제스처 → 이전)
+    override func accessibilityPerformEscape() -> Bool {
+        if let onSwipePrevious {
+            onSwipePrevious()
+            return true
+        }
+        return false
+    }
+
     // 텍스트를 받아서 셀을 배치하는 메서드
     func updateText(_ newText: String) {
         guard self.text != newText else { return } // 텍스트가 같으면 리로드 방지 (터치 시 깜빡임 해결)
         self.text = newText
         layoutCells()
-        // VoiceOver: 현재 표시 중인 텍스트를 accessibilityLabel에 반영
-        if newText.isEmpty {
+        // VoiceOver: accessibilityLabel 설정
+        if let override = accessibilityLabelOverride {
+            self.accessibilityLabel = override
+        } else if newText.isEmpty {
             self.accessibilityLabel = "점자 터치 영역"
         } else {
-            self.accessibilityLabel = "'점자 터치 영역, 총 \(cells.count)개의 점자"
+            self.accessibilityLabel = "점자 터치 영역, 총 \(cells.count)개의 점자"
         }
     }
 
@@ -211,7 +306,7 @@ class BrailleTouchCanvasView: UIView {
         let cellsPerLine = config.cellsPerLine
         
         // 텍스트와 설정 개수가 이전과 동일하면 레이아웃 생략 (불필요한 리로드 및 랜덤 점자 변경 방지)
-        let currentStateStr = "\(text)_\(cellsPerLine)"
+        let currentStateStr = "\(text)_\(cellsPerLine)_\(hideLabels)"
         if currentStateStr == lastRenderedText {
             return
         }
@@ -248,7 +343,11 @@ class BrailleTouchCanvasView: UIView {
                                 (basePadding * CGFloat(max(0, cellsPerLine - 1))) // 셀 사이 패딩
                                 
         // 최종적으로 화면에 꽉 차게 그릴 비율 (Scale)
-        let scale = containerWidth / requiredBaseWidth
+        var scale = containerWidth / requiredBaseWidth
+        if let maxW = maxCellWidth {
+            let maxScale = maxW / baseCellWidth
+            scale = min(scale, maxScale)
+        }
         
         // 화면에 맞춰 스케일된 최종 수치 계산
         let cellWidth: CGFloat = baseCellWidth * scale
@@ -257,7 +356,13 @@ class BrailleTouchCanvasView: UIView {
         let guideDotPadding: CGFloat = baseGuideDotPadding * scale
         let guideDotSize: CGFloat = baseGuideDotSize * scale
         
-        let startX = guideDotPadding + guideDotSize + guideDotPadding
+        // maxCellWidth로 scale이 제한된 경우, 콘텐츠를 가운데 정렬
+        let actualContentWidth = (guideDotPadding * 4) + (guideDotSize * 2) +
+                                 (cellWidth * CGFloat(cellsPerLine)) +
+                                 (padding * CGFloat(max(0, cellsPerLine - 1)))
+        let centeringOffset = max(0, (containerWidth - actualContentWidth) / 2)
+
+        let startX = centeringOffset + guideDotPadding + guideDotSize + guideDotPadding
         var currentX: CGFloat = startX
         var currentY: CGFloat = padding
         var maxX: CGFloat = 0
@@ -267,17 +372,17 @@ class BrailleTouchCanvasView: UIView {
         
         if !text.isEmpty {
             // 첫 번째 줄 시작 가이드 점 (맨 앞)
-            let startGuideDotX = guideDotPadding
+            let startGuideDotX = centeringOffset + guideDotPadding
             let startGuideDotY = currentY + (cellHeight / 2) - (guideDotSize / 2)
             guideDots.append(CGRect(x: startGuideDotX, y: startGuideDotY, width: guideDotSize, height: guideDotSize))
         }
         
         // 번역기 생성 및 번역 수행 (레이블 포함)
         let translator = BrailleTranslator()
-        let translatedCells = translator.translateWithLabels(text, useAbbreviations: useAbbreviations)
+        let translatedCells = translator.translateWithLabels(text, useAbbreviations: useAbbreviations, useChosungForm: useChosungForm)
 
         let baseLabelAreaHeight: CGFloat = 22.0
-        let labelAreaHeight = baseLabelAreaHeight * scale
+        let labelAreaHeight = hideLabels ? 0.0 : baseLabelAreaHeight * scale
         let labelFontSize = max(8.0, 12.0 * scale)
 
         for (_, (dotString, label)) in translatedCells.enumerated() {
@@ -295,7 +400,7 @@ class BrailleTouchCanvasView: UIView {
                 currentY += cellHeight + labelAreaHeight + padding
                 currentRowY = currentY
 
-                let startGuideDotX = guideDotPadding
+                let startGuideDotX = centeringOffset + guideDotPadding
                 let startGuideDotY = currentY + (cellHeight / 2) - (guideDotSize / 2)
                 guideDots.append(CGRect(x: startGuideDotX, y: startGuideDotY, width: guideDotSize, height: guideDotSize))
             }
@@ -315,8 +420,8 @@ class BrailleTouchCanvasView: UIView {
             self.addSubview(cell)
             cells.append(cell)
 
-            // 셀 아래 레이블 (공백이 아닌 경우만 표시)
-            if !label.isEmpty {
+            // 셀 아래 레이블 (공백이 아닌 경우만 표시, hideLabels 시 생략)
+            if !hideLabels && !label.isEmpty {
                 let lv = UILabel()
                 lv.text = label
                 lv.textAlignment = .center
@@ -341,7 +446,7 @@ class BrailleTouchCanvasView: UIView {
             let guideDotX = currentX - padding + guideDotPadding
             let guideDotY = currentRowY + (cellHeight / 2) - (guideDotSize / 2)
             guideDots.append(CGRect(x: guideDotX, y: guideDotY, width: guideDotSize, height: guideDotSize))
-            
+
             if guideDotX + guideDotSize + guideDotPadding > maxX {
                 maxX = guideDotX + guideDotSize + guideDotPadding
             }
@@ -371,25 +476,72 @@ class BrailleTouchCanvasView: UIView {
     // MARK: - Touch Handling
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         onTouchStateChanged?(true) // 터치 시작: 스크롤 잠금
+        touchBeganTime = Date()
+        if let touch = touches.first {
+            touchBeganLocation = touch.location(in: self)
+        }
         handleTouch(touches)
     }
-    
+
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         handleTouch(touches)
     }
-    
+
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         onTouchStateChanged?(false) // 터치 종료: 스크롤 해제
         lastFeedbackID = nil // 터치 끝나면 초기화
         lastCellIndex = nil
+        detectTap(touches)
     }
-    
+
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         onTouchStateChanged?(false) // 터치 취소: 스크롤 해제
         lastFeedbackID = nil
         lastCellIndex = nil
+        touchBeganTime = nil
+        touchBeganLocation = nil
     }
-    
+
+    /// 빠른 탭 3회 감지 — 다음 글자/단계 이동
+    private func detectTap(_ touches: Set<UITouch>) {
+        guard let beganTime = touchBeganTime,
+              let beganLocation = touchBeganLocation,
+              let touch = touches.first else {
+            touchBeganTime = nil
+            touchBeganLocation = nil
+            return
+        }
+
+        let duration = Date().timeIntervalSince(beganTime)
+        let endLocation = touch.location(in: self)
+        let movement = hypot(endLocation.x - beganLocation.x, endLocation.y - beganLocation.y)
+
+        touchBeganTime = nil
+        touchBeganLocation = nil
+
+        // 짧고 움직임이 적은 터치만 "탭"으로 인정
+        guard duration < tapMaxDuration, movement < tapMaxMovement else {
+            return
+        }
+
+        tapCount += 1
+
+        // 타이머 리셋 — 일정 시간 내에 3번 탭해야 함
+        tapTimer?.invalidate()
+        tapTimer = Timer.scheduledTimer(withTimeInterval: tapWindowInterval, repeats: false) { [weak self] _ in
+            self?.tapCount = 0
+        }
+
+        if tapCount >= 3 {
+            tapCount = 0
+            tapTimer?.invalidate()
+            tapTimer = nil
+            DispatchQueue.main.async { [weak self] in
+                self?.onSwipeNext?()
+            }
+        }
+    }
+
     private func handleTouch(_ touches: Set<UITouch>) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -412,7 +564,7 @@ class BrailleTouchCanvasView: UIView {
                     if isStart {
                         announcement = "\(lineNumber)번째 줄 시작입니다"
                     } else {
-                        announcement = "\(lineNumber)번째 줄 마지막입니다. 다음 줄의 점자로 이동하세요"
+                        announcement = "\(lineNumber)번째 줄 마지막입니다."
                     }
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }

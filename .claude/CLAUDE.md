@@ -46,6 +46,7 @@
 | `braille-expert` | 점자 번역 정확성 검증, 커리큘럼 점자 내용 검토 |
 | `accessibility-reviewer` | VoiceOver/햅틱 접근성 전체 검토 |
 | `haptic-designer` | 햅틱 패턴 개선, 퀴즈 피드백 설계 |
+| `curriculum-layout-designer` | 커리큘럼 뷰 레이아웃 일관성, 반응형 배치, 읽기 순서 검토 |
 
 ## 사용 예시
 ```
@@ -56,4 +57,6 @@ Use the braille-expert agent to verify that the jungsungMap for ㅒ is correct
 Use the accessibility-reviewer agent to check all views for VoiceOver support
 
 Use the haptic-designer agent to design quiz feedback patterns
+
+Use the curriculum-layout-designer agent to review Day2 views for layout consistency
 ```

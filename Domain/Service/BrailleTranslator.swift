@@ -195,7 +195,7 @@ class BrailleTranslator {
     // MARK: - Translation with Labels
 
     /// 번역 결과와 각 셀에 대응하는 레이블(자모/음절)을 함께 반환합니다.
-    func translateWithLabels(_ input: String, useAbbreviations: Bool = true) -> [(dots: String, label: String)] {
+    func translateWithLabels(_ input: String, useAbbreviations: Bool = true, useChosungForm: Bool = false) -> [(dots: String, label: String)] {
         var result: [(dots: String, label: String)] = []
         var isNumberMode = false
         var capitalMode: Int = 0
@@ -282,7 +282,7 @@ class BrailleTranslator {
 
             if isHangul(char) {
                 let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
-                result.append(contentsOf: extractJamoDotsWithLabels(from: char, nextChar: nextChar, useAbbreviations: useAbbreviations))
+                result.append(contentsOf: extractJamoDotsWithLabels(from: char, nextChar: nextChar, useAbbreviations: useAbbreviations, useChosungForm: useChosungForm))
                 // 제11항/제12항: 모음 연쇄 구분표
                 if let next = nextChar, needsVowelSeparator(current: char, next: next) {
                     result.append(("36", ""))
@@ -294,15 +294,28 @@ class BrailleTranslator {
         return result
     }
 
-    private func extractJamoDotsWithLabels(from char: Character, nextChar: Character?, useAbbreviations: Bool) -> [(String, String)] {
+    private func extractJamoDotsWithLabels(from char: Character, nextChar: Character?, useAbbreviations: Bool, useChosungForm: Bool = false) -> [(String, String)] {
         guard let scalar = char.unicodeScalars.first else { return [] }
         let value = scalar.value
         var pairs: [(String, String)] = []
 
-        // 단독 자음: 온표 + 받침 형태
+        // 단독 자음
         if value >= 0x3131 && value <= 0x314E {
             let jamoList = ["ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄸ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅃ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
             let ch = jamoList[Int(value - 0x3131)]
+
+            // 초성 형태: 온표 없이 초성 점형만 사용 (커리큘럼용)
+            if useChosungForm {
+                if let base = doubleChosungMap[ch] {
+                    pairs.append((DOUBLE_CONSONANT_PREFIX, ""))
+                    if let d = chosungMap[base] { pairs.append((d, ch)) }
+                } else if let d = chosungMap[ch] {
+                    pairs.append((d, ch))
+                }
+                return pairs
+            }
+
+            // 기본 형태: 온표 + 받침
             pairs.append((STANDALONE_JAMO_PREFIX, ""))
             if let base = doubleChosungMap[ch] {
                 // 된소리 단독: 온표 + 기본자음 받침 2번 반복

@@ -18,6 +18,9 @@ struct Day1Learning3View: View {
             descriptionSection
             buttonSection
         }
+        .accessibilityAction(.escape) {
+            onBack()
+        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isHeaderFocused = true
@@ -45,7 +48,7 @@ struct Day1Learning3View: View {
 
     private var contentSection: some View {
         VStack {
-            BrailleCanvasView(text: "가", cellsPerLineOverride: 1, isInteracting: $isInteracting)
+            BrailleCanvasView(text: "가", cellsPerLineOverride: 1, isInteracting: $isInteracting, maxCellWidth: 120, onSwipeNext: onComplete, onSwipePrevious: onBack)
                 .frame(height: 180)
                 .padding(.horizontal, 20)
         }

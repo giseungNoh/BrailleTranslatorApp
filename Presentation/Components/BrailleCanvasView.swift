@@ -5,18 +5,41 @@ struct BrailleCanvasView: View {
     let text: String
     var useAbbreviations: Bool = true
     var cellsPerLineOverride: Int? = nil
+    var useChosungForm: Bool = false
     @Binding var isInteracting: Bool
+    var maxCellWidth: CGFloat? = nil
+    var accessibilityLabelOverride: String? = nil
+    var hideLabels: Bool = false
+    var onSwipeNext: (() -> Void)? = nil
+    var onSwipePrevious: (() -> Void)? = nil
 
-    init(text: String, useAbbreviations: Bool = true, cellsPerLineOverride: Int? = nil, isInteracting: Binding<Bool> = .constant(false)) {
+    init(text: String, useAbbreviations: Bool = true, cellsPerLineOverride: Int? = nil, useChosungForm: Bool = false, isInteracting: Binding<Bool> = .constant(false), maxCellWidth: CGFloat? = nil, accessibilityLabelOverride: String? = nil, hideLabels: Bool = false, onSwipeNext: (() -> Void)? = nil, onSwipePrevious: (() -> Void)? = nil) {
         self.text = text
         self.useAbbreviations = useAbbreviations
         self.cellsPerLineOverride = cellsPerLineOverride
+        self.useChosungForm = useChosungForm
         self._isInteracting = isInteracting
+        self.maxCellWidth = maxCellWidth
+        self.accessibilityLabelOverride = accessibilityLabelOverride
+        self.hideLabels = hideLabels
+        self.onSwipeNext = onSwipeNext
+        self.onSwipePrevious = onSwipePrevious
     }
 
     var body: some View {
-        BrailleTouchCanvasViewRepresentable(text: text, useAbbreviations: useAbbreviations, cellsPerLineOverride: cellsPerLineOverride, isInteracting: $isInteracting)
-            .background(Color.clear)
+        BrailleTouchCanvasViewRepresentable(
+            text: text,
+            useAbbreviations: useAbbreviations,
+            cellsPerLineOverride: cellsPerLineOverride,
+            useChosungForm: useChosungForm,
+            isInteracting: $isInteracting,
+            maxCellWidth: maxCellWidth,
+            accessibilityLabelOverride: accessibilityLabelOverride,
+            hideLabels: hideLabels,
+            onSwipeNext: onSwipeNext,
+            onSwipePrevious: onSwipePrevious
+        )
+        .background(Color.clear)
     }
 }
 
@@ -24,7 +47,13 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
     let text: String
     var useAbbreviations: Bool = true
     var cellsPerLineOverride: Int? = nil
+    var useChosungForm: Bool = false
     @Binding var isInteracting: Bool
+    var maxCellWidth: CGFloat? = nil
+    var accessibilityLabelOverride: String? = nil
+    var hideLabels: Bool = false
+    var onSwipeNext: (() -> Void)? = nil
+    var onSwipePrevious: (() -> Void)? = nil
 
     // UserDefaults 변경 감지 (설정 즉시 반영)
     @AppStorage("cellsPerLine") private var cellsPerLine: Int = 4
@@ -41,7 +70,13 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
                 self.isInteracting = isTouching
             }
         }
+        view.maxCellWidth = maxCellWidth
+        view.accessibilityLabelOverride = accessibilityLabelOverride
+        view.hideLabels = hideLabels
+        view.onSwipeNext = onSwipeNext
+        view.onSwipePrevious = onSwipePrevious
 
+        view.useChosungForm = useChosungForm
         updateSettings(for: view)
         view.useAbbreviations = useAbbreviations
         view.updateText(text)
@@ -49,6 +84,12 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: BrailleTouchCanvasView, context: Context) {
+        uiView.maxCellWidth = maxCellWidth
+        uiView.accessibilityLabelOverride = accessibilityLabelOverride
+        uiView.hideLabels = hideLabels
+        uiView.onSwipeNext = onSwipeNext
+        uiView.onSwipePrevious = onSwipePrevious
+        uiView.useChosungForm = useChosungForm
         updateSettings(for: uiView)
         uiView.useAbbreviations = useAbbreviations
         uiView.updateText(text)
