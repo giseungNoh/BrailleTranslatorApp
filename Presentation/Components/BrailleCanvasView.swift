@@ -10,10 +10,11 @@ struct BrailleCanvasView: View {
     var maxCellWidth: CGFloat? = nil
     var accessibilityLabelOverride: String? = nil
     var hideLabels: Bool = false
+    var enableOneFingerSwipe: Bool = false
     var onSwipeNext: (() -> Void)? = nil
     var onSwipePrevious: (() -> Void)? = nil
 
-    init(text: String, useAbbreviations: Bool = true, cellsPerLineOverride: Int? = nil, useChosungForm: Bool = false, isInteracting: Binding<Bool> = .constant(false), maxCellWidth: CGFloat? = nil, accessibilityLabelOverride: String? = nil, hideLabels: Bool = false, onSwipeNext: (() -> Void)? = nil, onSwipePrevious: (() -> Void)? = nil) {
+    init(text: String, useAbbreviations: Bool = true, cellsPerLineOverride: Int? = nil, useChosungForm: Bool = false, isInteracting: Binding<Bool> = .constant(false), maxCellWidth: CGFloat? = nil, accessibilityLabelOverride: String? = nil, hideLabels: Bool = false, enableOneFingerSwipe: Bool = false, onSwipeNext: (() -> Void)? = nil, onSwipePrevious: (() -> Void)? = nil) {
         self.text = text
         self.useAbbreviations = useAbbreviations
         self.cellsPerLineOverride = cellsPerLineOverride
@@ -22,6 +23,7 @@ struct BrailleCanvasView: View {
         self.maxCellWidth = maxCellWidth
         self.accessibilityLabelOverride = accessibilityLabelOverride
         self.hideLabels = hideLabels
+        self.enableOneFingerSwipe = enableOneFingerSwipe
         self.onSwipeNext = onSwipeNext
         self.onSwipePrevious = onSwipePrevious
     }
@@ -36,6 +38,7 @@ struct BrailleCanvasView: View {
             maxCellWidth: maxCellWidth,
             accessibilityLabelOverride: accessibilityLabelOverride,
             hideLabels: hideLabels,
+            enableOneFingerSwipe: enableOneFingerSwipe,
             onSwipeNext: onSwipeNext,
             onSwipePrevious: onSwipePrevious
         )
@@ -52,6 +55,7 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
     var maxCellWidth: CGFloat? = nil
     var accessibilityLabelOverride: String? = nil
     var hideLabels: Bool = false
+    var enableOneFingerSwipe: Bool = false
     var onSwipeNext: (() -> Void)? = nil
     var onSwipePrevious: (() -> Void)? = nil
 
@@ -73,6 +77,7 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
         view.maxCellWidth = maxCellWidth
         view.accessibilityLabelOverride = accessibilityLabelOverride
         view.hideLabels = hideLabels
+        view.enableOneFingerSwipe = enableOneFingerSwipe
         view.onSwipeNext = onSwipeNext
         view.onSwipePrevious = onSwipePrevious
 
@@ -87,6 +92,7 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
         uiView.maxCellWidth = maxCellWidth
         uiView.accessibilityLabelOverride = accessibilityLabelOverride
         uiView.hideLabels = hideLabels
+        uiView.enableOneFingerSwipe = enableOneFingerSwipe
         uiView.onSwipeNext = onSwipeNext
         uiView.onSwipePrevious = onSwipePrevious
         uiView.useChosungForm = useChosungForm

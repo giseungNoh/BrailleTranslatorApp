@@ -53,75 +53,71 @@ struct Day2Learning2View: View {
     // MARK: - Sections
 
     private var infoCardSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // 핵심 규칙
-            HStack(spacing: 8) {
-                Image(systemName: "lightbulb.fill")
-                    .font(.caption)
-                    .foregroundColor(.yellow)
-                    .accessibilityHidden(true)
+        CommonCardView {
+            VStack(alignment: .leading, spacing: 10) {
+                // 핵심 규칙
+                HStack(spacing: 8) {
+                    Image(systemName: "lightbulb.fill")
+                        .font(.caption)
+                        .foregroundColor(.yellow)
+                        .accessibilityHidden(true)
 
-                Text("첫소리 'ㅇ'은 소리가 없으므로 적지 않고, 모음만 적습니다.")
-                    .font(.caption)
-                    .foregroundColor(.appTextColor)
-                    .lineSpacing(2)
-            }
-
-            Divider()
-
-            // 묵자 → 점자 비교
-            HStack(spacing: 0) {
-                // 묵자 쪽
-                VStack(spacing: 2) {
-                    Text("묵자")
-                        .font(.caption2.bold())
-                        .foregroundColor(.appTextSubColor)
-                    HStack(spacing: 6) {
-                        letterColumn("아", isStruck: false)
-                        letterColumn("이", isStruck: false)
-                    }
+                    Text("첫소리 'ㅇ'은 소리가 없으므로 적지 않고, 모음만 적습니다.")
+                        .font(.caption)
+                        .foregroundColor(.appTextColor)
+                        .lineSpacing(2)
                 }
-                .frame(maxWidth: .infinity)
 
-                Image(systemName: "arrow.right")
-                    .font(.caption2)
-                    .foregroundColor(.appSubColor)
-                    .accessibilityHidden(true)
+                Divider()
 
-                // 점자 쪽
-                VStack(spacing: 2) {
-                    Text("점자")
-                        .font(.caption2.bold())
-                        .foregroundColor(.appTextSubColor)
-                    HStack(spacing: 6) {
-                        letterColumn( "ㅏ", isStruck: false)
-                        letterColumn( "ㅣ", isStruck: false)
+                // 묵자 → 점자 비교
+                HStack(spacing: 0) {
+                    // 묵자 쪽
+                    VStack(spacing: 2) {
+                        Text("묵자")
+                            .font(.caption2.bold())
+                            .foregroundColor(.appTextSubColor)
+                        HStack(spacing: 6) {
+                            letterColumn("아", isStruck: false)
+                            letterColumn("이", isStruck: false)
+                        }
                     }
+                    .frame(maxWidth: .infinity)
+
+                    Image(systemName: "arrow.right")
+                        .font(.caption2)
+                        .foregroundColor(.appSubColor)
+                        .accessibilityHidden(true)
+
+                    // 점자 쪽
+                    VStack(spacing: 2) {
+                        Text("점자")
+                            .font(.caption2.bold())
+                            .foregroundColor(.appTextSubColor)
+                        HStack(spacing: 6) {
+                            letterColumn("ㅏ", isStruck: false)
+                            letterColumn("ㅣ", isStruck: false)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
-            }
 
-            Divider()
+                Divider()
 
-            // 모음 안내
-            HStack(spacing: 8) {
-                Image(systemName: "info.circle.fill")
-                    .font(.caption2)
-                    .foregroundColor(.appSubColor)
-                    .accessibilityHidden(true)
+                // 모음 안내
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.caption2)
+                        .foregroundColor(.appSubColor)
+                        .accessibilityHidden(true)
 
-                Text("모음 점자는 다음 시간에 배웁니다. 지금은 'ㅇ'이 빠진다는 원리만 기억하세요!")
-                    .font(.caption2)
-                    .foregroundColor(.appTextSubColor)
-                    .lineSpacing(2)
+                    Text("모음 점자는 다음 시간에 배웁니다. 지금은 'ㅇ'이 빠진다는 원리만 기억하세요!")
+                        .font(.caption2)
+                        .foregroundColor(.appTextSubColor)
+                        .lineSpacing(2)
+                }
             }
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .shadow(color: .black.opacity(0.05), radius: 3, y: 1)
-        )
         .padding(.horizontal, 20)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("핵심 규칙: 첫소리 이응은 소리가 없으므로 적지 않고 모음만 적습니다. 예를 들어 '아이'에서 이응이 생략되어 모음만 표기됩니다. 안내: 모음 점자는 다음 시간에 배웁니다.")
@@ -145,7 +141,9 @@ struct Day2Learning2View: View {
                 text: "아이",
                 cellsPerLineOverride: 2,
                 isInteracting: $isInteracting,
-                onSwipeNext: onComplete,
+                onSwipeNext: {
+                    UIAccessibility.post(notification: .announcement, argument: "마지막 단계입니다. 학습 완료 버튼을 눌러주세요.")
+                },
                 onSwipePrevious: onBack
             )
             .frame(minHeight: 140, maxHeight: 220)
@@ -154,29 +152,12 @@ struct Day2Learning2View: View {
     }
 
     private var buttonSection: some View {
-        VStack(spacing: 0) {
-            Button(action: onComplete) {
-                Text("학습 완료")
-                    .font(.title3.bold())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.appSubColor)
-                    .cornerRadius(16)
-            }
-            .padding(.horizontal, 20)
-            .accessibilityLabel("학습 완료")
-            .accessibilityHint("2일차 학습을 완료하고 학습홈으로 돌아갑니다")
-
-            Button(action: onBack) {
-                Text("이전으로")
-                    .font(.body)
-                    .foregroundColor(.appTextSubColor)
-            }
-            .padding(.top, 12)
-            .padding(.bottom, 40)
-            .accessibilityLabel("이전으로")
-            .accessibilityHint("자음 탐색 화면으로 돌아갑니다")
-        }
+        LearningButtonSection(
+            nextTitle: "학습 완료",
+            nextHint: "2일차 학습을 완료하고 학습홈으로 돌아갑니다",
+            backHint: "자음 탐색 화면으로 돌아갑니다",
+            onNext: onComplete,
+            onBack: onBack
+        )
     }
 }

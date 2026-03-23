@@ -32,30 +32,12 @@ struct Day1Learning1View: View {
 
             Spacer()
 
-            Button(action: {
-                onNext()
-            }) {
-                Text("다음으로")
-                    .font(.title3.bold())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.appSubColor)
-                    .cornerRadius(16)
-            }
-            .padding(.horizontal, 20)
-            .accessibilityLabel("다음으로")
-            .accessibilityHint("촉각 훈련 화면으로 이동합니다")
-
-            Button(action: onBack) {
-                Text("이전으로")
-                    .font(.body)
-                    .foregroundColor(.appSubColor)
-            }
-            .padding(.top, 12)
-            .padding(.bottom, 40)
-            .accessibilityLabel("이전으로")
-            .accessibilityHint("시작 화면으로 돌아갑니다")
+            LearningButtonSection(
+                nextHint: "촉각 훈련 화면으로 이동합니다",
+                backHint: "시작 화면으로 돌아갑니다",
+                onNext: onNext,
+                onBack: onBack
+            )
         }
         .accessibilityAction(.escape) {
             onBack()
@@ -115,12 +97,6 @@ private class BrailleDotExploreUIView: UIView {
 
     private var lastDot: Int? = nil
 
-    // 3탭 감지용
-    private var tapCount: Int = 0
-    private var tapTimer: Timer?
-    private var tapBeganTime: Date?
-    private var tapBeganLocation: CGPoint?
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .clear
@@ -128,21 +104,30 @@ private class BrailleDotExploreUIView: UIView {
         accessibilityTraits = .allowsDirectInteraction
         isAccessibilityElement = true
         accessibilityLabel = "점자 6점 탐색 영역"
-        accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 빠르게 세 번 탭하면 다음으로, 두 손가락으로 세 번 탭하면 이전으로 이동합니다."
+        accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 두 손가락으로 좌우 스와이프하면 이전 또는 다음으로 이동합니다."
         setupAccessibilityActions()
-        setupTwoFingerDoubleTap()
+        setupSwipeGestures()
     }
 
-    private func setupTwoFingerDoubleTap() {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTwoFingerDoubleTap))
-        tap.numberOfTouchesRequired = 2
-        tap.numberOfTapsRequired = 3
-        tap.cancelsTouchesInView = false
-        self.addGestureRecognizer(tap)
+    private func setupSwipeGestures() {
+        // 2손가락 스와이프만 (넘길 콘텐츠 없으므로 1손가락 스와이프 불필요)
+        for direction in [UISwipeGestureRecognizer.Direction.left, .right] {
+            let swipe = UISwipeGestureRecognizer(target: self, action: #selector(handleTwoFingerSwipe(_:)))
+            swipe.direction = direction
+            swipe.numberOfTouchesRequired = 2
+            swipe.cancelsTouchesInView = false
+            self.addGestureRecognizer(swipe)
+        }
     }
 
-    @objc private func handleTwoFingerDoubleTap() {
-        onBack?()
+    @objc private func handleTwoFingerSwipe(_ gesture: UISwipeGestureRecognizer) {
+        guard lastDot == nil else { return } // 점 터치 중에는 무시
+
+        switch gesture.direction {
+        case .left:  onNext?()
+        case .right: onBack?()
+        default: break
+        }
     }
 
     private func setupAccessibilityActions() {
@@ -247,10 +232,6 @@ private class BrailleDotExploreUIView: UIView {
     // MARK: - Touch
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        tapBeganTime = Date()
-        if let touch = touches.first {
-            tapBeganLocation = touch.location(in: self)
-        }
         handleTouch(touches)
     }
 
@@ -261,49 +242,11 @@ private class BrailleDotExploreUIView: UIView {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         lastDot = nil
         onDotChanged?(nil)
-        detectTap(touches)
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         lastDot = nil
         onDotChanged?(nil)
-        tapBeganTime = nil
-        tapBeganLocation = nil
-    }
-
-    /// 빠른 탭 3회 감지 — 다음 단계 이동
-    private func detectTap(_ touches: Set<UITouch>) {
-        guard let beganTime = tapBeganTime,
-              let beganLocation = tapBeganLocation,
-              let touch = touches.first else {
-            tapBeganTime = nil
-            tapBeganLocation = nil
-            return
-        }
-
-        let duration = Date().timeIntervalSince(beganTime)
-        let endLocation = touch.location(in: self)
-        let movement = hypot(endLocation.x - beganLocation.x, endLocation.y - beganLocation.y)
-
-        tapBeganTime = nil
-        tapBeganLocation = nil
-
-        guard duration < 0.5, movement < 10 else { return }
-
-        tapCount += 1
-        tapTimer?.invalidate()
-        tapTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { [weak self] _ in
-            self?.tapCount = 0
-        }
-
-        if tapCount >= 3 {
-            tapCount = 0
-            tapTimer?.invalidate()
-            tapTimer = nil
-            DispatchQueue.main.async { [weak self] in
-                self?.onNext?()
-            }
-        }
     }
 
     private func handleTouch(_ touches: Set<UITouch>) {

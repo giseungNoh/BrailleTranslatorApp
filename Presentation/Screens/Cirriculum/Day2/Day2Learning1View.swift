@@ -107,9 +107,10 @@ struct Day2Learning1View: View {
                     maxCellWidth: 120,
                     accessibilityLabelOverride: canvasAccessibilityLabel,
                     hideLabels: true,
+                    enableOneFingerSwipe: true,
                     onSwipeNext: {
                         if isLastConsonant {
-                            onNext()
+                            UIAccessibility.post(notification: .announcement, argument: "마지막 글자입니다. 다음으로 버튼을 눌러주세요. 다음으로 버튼은 화면 아래에 위치해 있습니다.")
                         } else {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 currentConsonantIndex += 1
@@ -124,7 +125,7 @@ struct Day2Learning1View: View {
                             }
                             announceCurrentConsonant()
                         } else {
-                            onBack()
+                            UIAccessibility.post(notification: .announcement, argument: "첫 번째 글자입니다.")
                         }
                     }
                 )
@@ -135,28 +136,12 @@ struct Day2Learning1View: View {
                 Spacer(minLength: spacerMin)
 
                 // 버튼
-                Button(action: onNext) {
-                    Text("다음으로")
-                        .font(.title3.bold())
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.appSubColor)
-                        .cornerRadius(16)
-                }
-                .padding(.horizontal, 20)
-                .accessibilityLabel("다음으로")
-                .accessibilityHint("다음 학습 화면으로 이동합니다")
-
-                Button(action: onBack) {
-                    Text("이전으로")
-                        .font(.body)
-                        .foregroundColor(.appTextSubColor)
-                }
-                .padding(.top, 12)
-                .padding(.bottom, 40)
-                .accessibilityLabel("이전으로")
-                .accessibilityHint("이전 화면으로 돌아갑니다")
+                LearningButtonSection(
+                    nextHint: "다음 학습 화면으로 이동합니다",
+                    backHint: "이전 화면으로 돌아갑니다",
+                    onNext: onNext,
+                    onBack: onBack
+                )
             }
         }
         .accessibilityAction(.escape) {
@@ -188,7 +173,7 @@ struct Day2Learning1View: View {
 
     private static let allGroups: [ConsonantGroup] = [
         ConsonantGroup(
-            description: "오른쪽 맨 위 4점을 기준으로\n점이 하나씩 늘어나는 글자들입니다.",
+            description: "오른쪽 맨 위 4점을 기준으로\n점이 하나씩 늘어나는 글자들입니다.ㄱ은 4점, ㄴ은 1·4점, ㄷ은 2·4점으로 구성되어있습니다.",
             consonants: [
                 ConsonantInfo(name: "기역", letter: "ㄱ", dotLabel: "4점"),
                 ConsonantInfo(name: "니은", letter: "ㄴ", dotLabel: "1·4점"),
@@ -196,7 +181,7 @@ struct Day2Learning1View: View {
             ]
         ),
         ConsonantGroup(
-            description: "오른쪽 가운데 5점을 기준으로 하는\n리을, 미음, 비읍입니다.",
+            description: "오른쪽 가운데 5점을 기준으로 하는\n리을, 미음, 비읍입니다. ㄹ은 5점, ㅁ은 1·5점, ㅂ은 4·5점으로 구성되어있습니다.",
             consonants: [
                 ConsonantInfo(name: "리을", letter: "ㄹ", dotLabel: "5점"),
                 ConsonantInfo(name: "미음", letter: "ㅁ", dotLabel: "1·5점"),
@@ -204,7 +189,7 @@ struct Day2Learning1View: View {
             ]
         ),
         ConsonantGroup(
-            description: "오른쪽 맨 아래 6점을 기준으로 하는\n시옷, 지읒, 치읓입니다.",
+            description: "오른쪽 맨 아래 6점을 기준으로 하는\n시옷, 지읒, 치읓입니다. ㅅ은 6점, ㅈ은 4·6점, ㅊ은 5·6점으로 구성되어있습니다.",
             consonants: [
                 ConsonantInfo(name: "시옷", letter: "ㅅ", dotLabel: "6점"),
                 ConsonantInfo(name: "지읒", letter: "ㅈ", dotLabel: "4·6점"),

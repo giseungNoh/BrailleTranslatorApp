@@ -171,22 +171,15 @@ class BrailleTouchCanvasView: UIView {
     var accessibilityLabelOverride: String? = nil
     // 셀 아래 레이블 숨기기 (SwiftUI에서 별도 표시할 때 사용)
     var hideLabels: Bool = false
+    // VoiceOver OFF 시 1손가락 스와이프 허용 여부 (넘길 콘텐츠가 있을 때만 true)
+    var enableOneFingerSwipe: Bool = false
 
     // 마지막으로 피드백을 준 점의 식별자
     private var lastFeedbackID: String?
     // 마지막으로 터치했던 셀의 인덱스 (경계선 감지용)
     private var lastCellIndex: Int?
 
-    // 3탭 감지용
-    private var tapCount: Int = 0
-    private var tapTimer: Timer?
-    private var touchBeganTime: Date?
-    private var touchBeganLocation: CGPoint?
-    private let tapMaxDuration: TimeInterval = 0.5
-    private let tapMaxMovement: CGFloat = 10
-    private let tapWindowInterval: TimeInterval = 0.8
-
-    // 비-VoiceOver 좌우 스와이프 제스처
+    // 좌우 스와이프 제스처 (VoiceOver ON/OFF 공통)
     private var swipeGestureRecognizers: [UISwipeGestureRecognizer] = []
     
     // 셀 최대 너비 제한 (cellsPerLine=1일 때 과도 확대 방지)
@@ -226,52 +219,59 @@ class BrailleTouchCanvasView: UIView {
         self.accessibilityTraits = .allowsDirectInteraction
         self.isAccessibilityElement = true
         self.accessibilityLabel = "점자 터치 영역"
-        self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다. 빠르게 세 번 탭하면 다음으로, 두 손가락으로 세 번 탭하면 이전으로 이동합니다."
+        self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다. 두 손가락으로 좌우 스와이프하면 이전 또는 다음으로 이동합니다."
         setupSwipeGestures()
-        setupTwoFingerDoubleTap()
     }
 
-    /// VoiceOver ON: 두 손가락 두 번 탭 → 이전
-    private func setupTwoFingerDoubleTap() {
-        let twoFingerDoubleTap = UITapGestureRecognizer(target: self, action: #selector(handleTwoFingerDoubleTap))
-        twoFingerDoubleTap.numberOfTouchesRequired = 2
-        twoFingerDoubleTap.numberOfTapsRequired = 3
-        twoFingerDoubleTap.cancelsTouchesInView = false
-        self.addGestureRecognizer(twoFingerDoubleTap)
-    }
-
-    @objc private func handleTwoFingerDoubleTap() {
-        onSwipePrevious?()
-    }
-
-    /// 비-VoiceOver: 좌우 스와이프로 글자/단계 전환
+    /// 좌우 스와이프로 글자/단계 전환 (1손가락: VoiceOver OFF, 2손가락: 공통)
     private func setupSwipeGestures() {
-        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
+        // 1손가락 스와이프 (VoiceOver OFF 전용)
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleOneFingerSwipe(_:)))
         swipeLeft.direction = .left
         swipeLeft.cancelsTouchesInView = false
         self.addGestureRecognizer(swipeLeft)
         swipeGestureRecognizers.append(swipeLeft)
 
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleOneFingerSwipe(_:)))
         swipeRight.direction = .right
         swipeRight.cancelsTouchesInView = false
         self.addGestureRecognizer(swipeRight)
         swipeGestureRecognizers.append(swipeRight)
+
+        // 2손가락 스와이프 (VoiceOver ON/OFF 공통)
+        let twoFingerLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleTwoFingerSwipe(_:)))
+        twoFingerLeft.direction = .left
+        twoFingerLeft.numberOfTouchesRequired = 2
+        twoFingerLeft.cancelsTouchesInView = false
+        self.addGestureRecognizer(twoFingerLeft)
+        swipeGestureRecognizers.append(twoFingerLeft)
+
+        let twoFingerRight = UISwipeGestureRecognizer(target: self, action: #selector(handleTwoFingerSwipe(_:)))
+        twoFingerRight.direction = .right
+        twoFingerRight.numberOfTouchesRequired = 2
+        twoFingerRight.cancelsTouchesInView = false
+        self.addGestureRecognizer(twoFingerRight)
+        swipeGestureRecognizers.append(twoFingerRight)
     }
 
-    @objc private func handleSwipeGesture(_ gesture: UISwipeGestureRecognizer) {
-        // VoiceOver ON일 때는 3탭/Z제스처 사용, 스와이프 무시
-        guard !UIAccessibility.isVoiceOverRunning else { return }
-        // 점자 터치 중에는 스와이프 무시
-        guard lastFeedbackID == nil else { return }
+    @objc private func handleOneFingerSwipe(_ gesture: UISwipeGestureRecognizer) {
+        guard !UIAccessibility.isVoiceOverRunning, enableOneFingerSwipe else { return }
+        guard lastFeedbackID == nil else { return } // 점자 터치 중에는 무시
 
         switch gesture.direction {
-        case .left:
-            onSwipeNext?()
-        case .right:
-            onSwipePrevious?()
-        default:
-            break
+        case .left:  onSwipeNext?()
+        case .right: onSwipePrevious?()
+        default: break
+        }
+    }
+
+    @objc private func handleTwoFingerSwipe(_ gesture: UISwipeGestureRecognizer) {
+        guard lastFeedbackID == nil else { return } // 점자 터치 중에는 무시
+
+        switch gesture.direction {
+        case .left:  onSwipeNext?()
+        case .right: onSwipePrevious?()
+        default: break
         }
     }
 
@@ -476,10 +476,6 @@ class BrailleTouchCanvasView: UIView {
     // MARK: - Touch Handling
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         onTouchStateChanged?(true) // 터치 시작: 스크롤 잠금
-        touchBeganTime = Date()
-        if let touch = touches.first {
-            touchBeganLocation = touch.location(in: self)
-        }
         handleTouch(touches)
     }
 
@@ -491,55 +487,12 @@ class BrailleTouchCanvasView: UIView {
         onTouchStateChanged?(false) // 터치 종료: 스크롤 해제
         lastFeedbackID = nil // 터치 끝나면 초기화
         lastCellIndex = nil
-        detectTap(touches)
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         onTouchStateChanged?(false) // 터치 취소: 스크롤 해제
         lastFeedbackID = nil
         lastCellIndex = nil
-        touchBeganTime = nil
-        touchBeganLocation = nil
-    }
-
-    /// 빠른 탭 3회 감지 — 다음 글자/단계 이동
-    private func detectTap(_ touches: Set<UITouch>) {
-        guard let beganTime = touchBeganTime,
-              let beganLocation = touchBeganLocation,
-              let touch = touches.first else {
-            touchBeganTime = nil
-            touchBeganLocation = nil
-            return
-        }
-
-        let duration = Date().timeIntervalSince(beganTime)
-        let endLocation = touch.location(in: self)
-        let movement = hypot(endLocation.x - beganLocation.x, endLocation.y - beganLocation.y)
-
-        touchBeganTime = nil
-        touchBeganLocation = nil
-
-        // 짧고 움직임이 적은 터치만 "탭"으로 인정
-        guard duration < tapMaxDuration, movement < tapMaxMovement else {
-            return
-        }
-
-        tapCount += 1
-
-        // 타이머 리셋 — 일정 시간 내에 3번 탭해야 함
-        tapTimer?.invalidate()
-        tapTimer = Timer.scheduledTimer(withTimeInterval: tapWindowInterval, repeats: false) { [weak self] _ in
-            self?.tapCount = 0
-        }
-
-        if tapCount >= 3 {
-            tapCount = 0
-            tapTimer?.invalidate()
-            tapTimer = nil
-            DispatchQueue.main.async { [weak self] in
-                self?.onSwipeNext?()
-            }
-        }
     }
 
     private func handleTouch(_ touches: Set<UITouch>) {

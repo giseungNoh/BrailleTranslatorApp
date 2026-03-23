@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(xcodebuild -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build)",
-      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build)"
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build)",
+      "Bash(find '/Users/juks86/Desktop/untitled folder/practice/BrailleTranslatorApp' -name *.swift -path */Presentation/* -type f)",
+      "Bash(xcodebuild -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16' build)"
     ]
   }
 }

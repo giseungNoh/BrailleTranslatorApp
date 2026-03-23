@@ -48,7 +48,16 @@ struct Day1Learning3View: View {
 
     private var contentSection: some View {
         VStack {
-            BrailleCanvasView(text: "가", cellsPerLineOverride: 1, isInteracting: $isInteracting, maxCellWidth: 120, onSwipeNext: onComplete, onSwipePrevious: onBack)
+            BrailleCanvasView(
+                text: "가",
+                cellsPerLineOverride: 1,
+                isInteracting: $isInteracting,
+                maxCellWidth: 120,
+                onSwipeNext: {
+                    UIAccessibility.post(notification: .announcement, argument: "마지막 단계입니다. 학습 완료 버튼을 눌러주세요.")
+                },
+                onSwipePrevious: onBack
+            )
                 .frame(height: 180)
                 .padding(.horizontal, 20)
         }
@@ -85,32 +94,13 @@ struct Day1Learning3View: View {
     }
 
     private var buttonSection: some View {
-        VStack(spacing: 0) {
-            Button(action: {
-                onComplete()
-            }) {
-                Text("학습 완료")
-                    .font(.title3.bold())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.appSubColor)
-                    .cornerRadius(16)
-            }
-            .padding(.horizontal, 20)
-            .accessibilityLabel("학습 완료")
-            .accessibilityHint("1일차 학습을 완료하고 학습홈으로 돌아갑니다")
-
-            Button(action: onBack) {
-                Text("이전으로")
-                    .font(.body)
-                    .foregroundColor(.appTextSubColor)
-            }
-            .padding(.top, 12)
-            .padding(.bottom, 40)
-            .accessibilityLabel("이전으로")
-            .accessibilityHint("촉각 훈련 화면으로 돌아갑니다")
-        }
+        LearningButtonSection(
+            nextTitle: "학습 완료",
+            nextHint: "1일차 학습을 완료하고 학습홈으로 돌아갑니다",
+            backHint: "촉각 훈련 화면으로 돌아갑니다",
+            onNext: onComplete,
+            onBack: onBack
+        )
     }
 }
 

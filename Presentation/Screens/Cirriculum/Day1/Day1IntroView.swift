@@ -43,30 +43,14 @@ struct Day1IntroView: View {
 
             Spacer(minLength: 40)
 
-            // 시작하기 버튼
-            Button(action: onStart) {
-                Text("시작하기")
-                    .font(.title3.bold())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.appSubColor)
-                    .cornerRadius(16)
-            }
-            .padding(.horizontal, 20)
-            .accessibilityLabel("시작하기")
-            .accessibilityHint("이중 탭하면 학습을 시작합니다")
-
-            // 뒤로가기 버튼
-            Button(action: onBack) {
-                Text("돌아가기")
-                    .font(.body)
-                    .foregroundColor(.appTextSubColor)
-            }
-            .padding(.top, 12)
-            .padding(.bottom, 40)
-            .accessibilityLabel("돌아가기")
-            .accessibilityHint("커리큘럼 목록으로 돌아갑니다")
+            LearningButtonSection(
+                nextTitle: "시작하기",
+                backTitle: "돌아가기",
+                nextHint: "이중 탭하면 학습을 시작합니다",
+                backHint: "커리큘럼 목록으로 돌아갑니다",
+                onNext: onStart,
+                onBack: onBack
+            )
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
