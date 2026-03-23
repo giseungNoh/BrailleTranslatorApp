@@ -330,11 +330,13 @@ class BrailleTranslator {
             return pairs
         }
 
-        // 단독 모음: 온표 + 모음
+        // 단독 모음: 온표 + 모음 (useChosungForm이면 온표 생략)
         if value >= 0x314F && value <= 0x3163 {
             let jungsungList = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"]
             let ch = jungsungList[Int(value - 0x314F)]
-            pairs.append((STANDALONE_JAMO_PREFIX, ""))
+            if !useChosungForm {
+                pairs.append((STANDALONE_JAMO_PREFIX, ""))
+            }
             if let d = jungsungMap[ch] {
                 for (j, p) in d.split(separator: ",").enumerated() { pairs.append((String(p), j == 0 ? ch : "")) }
             }

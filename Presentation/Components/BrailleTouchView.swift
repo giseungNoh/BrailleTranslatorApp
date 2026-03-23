@@ -173,6 +173,8 @@ class BrailleTouchCanvasView: UIView {
     var hideLabels: Bool = false
     // VoiceOver OFF 시 1손가락 스와이프 허용 여부 (넘길 콘텐츠가 있을 때만 true)
     var enableOneFingerSwipe: Bool = false
+    // 번역기를 우회하여 직접 점형 패턴을 지정 (된소리표 등 독립 기호 표시용)
+    var rawDotPatterns: [(dots: String, label: String)]? = nil
 
     // 마지막으로 피드백을 준 점의 식별자
     private var lastFeedbackID: String?
@@ -306,7 +308,8 @@ class BrailleTouchCanvasView: UIView {
         let cellsPerLine = config.cellsPerLine
         
         // 텍스트와 설정 개수가 이전과 동일하면 레이아웃 생략 (불필요한 리로드 및 랜덤 점자 변경 방지)
-        let currentStateStr = "\(text)_\(cellsPerLine)_\(hideLabels)"
+        let rawKey = rawDotPatterns?.map { $0.dots }.joined(separator: "-") ?? ""
+        let currentStateStr = "\(text)_\(cellsPerLine)_\(hideLabels)_\(rawKey)"
         if currentStateStr == lastRenderedText {
             return
         }
@@ -378,8 +381,13 @@ class BrailleTouchCanvasView: UIView {
         }
         
         // 번역기 생성 및 번역 수행 (레이블 포함)
-        let translator = BrailleTranslator()
-        let translatedCells = translator.translateWithLabels(text, useAbbreviations: useAbbreviations, useChosungForm: useChosungForm)
+        let translatedCells: [(dots: String, label: String)]
+        if let raw = rawDotPatterns {
+            translatedCells = raw
+        } else {
+            let translator = BrailleTranslator()
+            translatedCells = translator.translateWithLabels(text, useAbbreviations: useAbbreviations, useChosungForm: useChosungForm)
+        }
 
         let baseLabelAreaHeight: CGFloat = 22.0
         let labelAreaHeight = hideLabels ? 0.0 : baseLabelAreaHeight * scale

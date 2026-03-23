@@ -12,7 +12,7 @@ extension Color {
     static let appMainColor = Color(.systemBackground)
 
     /// 서브/보조 컬러
-    static let appSubColor = Color("AppSecondary")
+    static let appSubColor = Color(.appSecondary)
 
     /// 기본 배경 컬러
     static let appBackgroundColor = Color("AppBackground")
@@ -27,6 +27,23 @@ extension Color {
     static let appTextColor = Color(.label)
 
     /// 서브 텍스트 컬러
-    static let appTextSubColor = Color("AppTextSecondary")
+    static let appTextSubColor = Color(.label).opacity(0.7)
 }
 
+#Preview {
+    ScrollView {
+        VStack(spacing: 12) {
+            Group {
+                Color.appMainColor
+                Color.appSubColor
+                Color.appBackgroundColor
+                Color.appCardColor
+                Color.appTextColor
+                Color.appTextSubColor
+            }
+            .frame(height: 60)
+            .cornerRadius(8)
+        }
+        .padding()
+    }
+}

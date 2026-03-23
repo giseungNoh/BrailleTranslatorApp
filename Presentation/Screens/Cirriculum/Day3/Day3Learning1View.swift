@@ -1,52 +1,40 @@
 import SwiftUI
 
-/// ② 학습하기 1: 자음 그룹별 탐색 (4점/5점/6점 중심)
-/// 1셀씩 표시 + VoiceOver adjustable(스와이프 위/아래)로 글자 간 이동
-struct Day2Learning1View: View {
-    let group: ConsonantGroupType
+/// ② 학습하기 1: 1-2-4-5점 중심 글자 탐색 (ㅋ, ㅌ, ㅍ, ㅎ)
+/// 1셀씩 표시 + 스와이프로 글자 간 이동
+struct Day3Learning1View: View {
     let onNext: () -> Void
     let onBack: () -> Void
 
     @State private var isInteracting = false
-    @State private var currentConsonantIndex: Int = 0
+    @State private var currentIndex: Int = 0
     @AccessibilityFocusState private var isTitleFocused: Bool
 
-    enum ConsonantGroupType {
-        case dot4, dot5, dot6
+    private let consonants: [ConsonantInfo] = [
+        ConsonantInfo(name: "키읔", letter: "ㅋ", dotLabel: "1·2·4점"),
+        ConsonantInfo(name: "티읕", letter: "ㅌ", dotLabel: "1·2·5점"),
+        ConsonantInfo(name: "피읖", letter: "ㅍ", dotLabel: "1·4·5점"),
+        ConsonantInfo(name: "히읗", letter: "ㅎ", dotLabel: "2·4·5점"),
+    ]
+
+    private let descriptionText = "1, 2, 4, 5점의 자리를 기준으로\n점이 이동하며 만들어지는 글자들입니다.\n\nㅋ은 1·2·4점, ㅌ은 1·2·5점,\nㅍ은 1·4·5점, ㅎ은 2·4·5점으로\n구성되어 있습니다."
+
+    private var current: ConsonantInfo {
+        consonants[currentIndex]
     }
 
-    private var data: ConsonantGroup {
-        switch group {
-        case .dot4: return Self.allGroups[0]
-        case .dot5: return Self.allGroups[1]
-        case .dot6: return Self.allGroups[2]
-        }
-    }
-
-    private var groupTitle: String {
-        switch group {
-        case .dot4: return "4점 중심 자음"
-        case .dot5: return "5점 중심 자음"
-        case .dot6: return "6점 중심 자음"
-        }
-    }
-
-    private var currentConsonant: ConsonantInfo {
-        data.consonants[currentConsonantIndex]
-    }
-
-    private var isLastConsonant: Bool {
-        currentConsonantIndex >= data.consonants.count - 1
+    private var isLast: Bool {
+        currentIndex >= consonants.count - 1
     }
 
     private var canvasAccessibilityLabel: String {
-        "\(currentConsonant.name)의 점자는 \(currentConsonant.dotLabel)으로 구성되어 있습니다."
+        "\(current.name)의 점자는 \(current.dotLabel)으로 구성되어 있습니다."
     }
 
     private var cardAccessibilityLabel: String {
-        let position = "\(data.consonants.count)개 중 \(currentConsonantIndex + 1)번째"
-        let dotDescription = currentConsonant.dotLabel.replacingOccurrences(of: "·", with: "과 ")
-        return "\(position), \(currentConsonant.letter), \(dotDescription)으로 구성됩니다. \(data.description)"
+        let position = "\(consonants.count)개 중 \(currentIndex + 1)번째"
+        let dotDescription = current.dotLabel.replacingOccurrences(of: "·", with: "과 ")
+        return "\(position), \(current.letter), \(dotDescription)으로 구성됩니다. \(descriptionText)"
     }
 
     var body: some View {
@@ -57,18 +45,18 @@ struct Day2Learning1View: View {
 
             VStack(spacing: 0) {
                 // 타이틀
-                Text(groupTitle)
+                Text("1-2-4-5점 중심 글자")
                     .font(.title3.bold())
                     .foregroundColor(.appTextColor)
                     .padding(.top, isCompact ? 10 : 16)
-                    .accessibilityLabel(groupTitle)
+                    .accessibilityLabel("1, 2, 4, 5점 중심 글자 연상 훈련")
                     .accessibilityFocused($isTitleFocused)
 
-                // 현재 글자 위치 표시 (●○○)
+                // 현재 글자 위치 표시 (●○○○)
                 HStack(spacing: 8) {
-                    ForEach(0..<data.consonants.count, id: \.self) { i in
+                    ForEach(0..<consonants.count, id: \.self) { i in
                         Circle()
-                            .fill(i == currentConsonantIndex ? Color.appSubColor : Color.gray.opacity(0.3))
+                            .fill(i == currentIndex ? Color.appSubColor : Color.gray.opacity(0.3))
                             .frame(width: 12, height: 12)
                     }
                 }
@@ -79,7 +67,7 @@ struct Day2Learning1View: View {
                 // 설명 + 자음 정보 카드
                 CommonCardView(padding: isCompact ? 12 : 16) {
                     VStack(spacing: isCompact ? 10 : 14) {
-                        Text(data.description)
+                        Text(descriptionText)
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .multilineTextAlignment(.center)
@@ -91,16 +79,15 @@ struct Day2Learning1View: View {
                             .padding(.horizontal, 8)
 
                         VStack(spacing: 4) {
-                            Text(currentConsonant.letter)
+                            Text(current.letter)
                                 .font(isCompact ? .title3.bold() : .title2.bold())
                                 .fixedSize()
-                            Text(currentConsonant.dotLabel)
+                            Text(current.dotLabel)
                                 .font(isCompact ? .subheadline.bold() : .body.bold())
-                                .foregroundStyle(.primary.opacity(0.6))
+                                .foregroundColor(.appSubColor)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.85)
                                 .fixedSize(horizontal: true, vertical: false)
-                                .foregroundColor(.appSubColor)
                         }
                     }
                 }
@@ -112,7 +99,7 @@ struct Day2Learning1View: View {
 
                 // 1셀 BrailleCanvasView
                 BrailleCanvasView(
-                    text: currentConsonant.letter,
+                    text: current.letter,
                     cellsPerLineOverride: 1,
                     useChosungForm: true,
                     isInteracting: $isInteracting,
@@ -121,19 +108,19 @@ struct Day2Learning1View: View {
                     hideLabels: false,
                     enableOneFingerSwipe: true,
                     onSwipeNext: {
-                        if isLastConsonant {
+                        if isLast {
                             UIAccessibility.post(notification: .announcement, argument: "마지막 글자입니다. 다음으로 버튼을 눌러주세요. 다음으로 버튼은 화면 아래에 위치해 있습니다.")
                         } else {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                currentConsonantIndex += 1
+                                currentIndex += 1
                             }
                             announceCurrentConsonant()
                         }
                     },
                     onSwipePrevious: {
-                        if currentConsonantIndex > 0 {
+                        if currentIndex > 0 {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                currentConsonantIndex -= 1
+                                currentIndex -= 1
                             }
                             announceCurrentConsonant()
                         } else {
@@ -143,7 +130,7 @@ struct Day2Learning1View: View {
                 )
                 .frame(height: canvasHeight)
                 .padding(.horizontal, 20)
-                .id(currentConsonantIndex)
+                .id(currentIndex)
 
                 Spacer(minLength: spacerMin)
 
@@ -157,9 +144,9 @@ struct Day2Learning1View: View {
             }
         }
         .accessibilityAction(.escape) {
-            if currentConsonantIndex > 0 {
+            if currentIndex > 0 {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    currentConsonantIndex -= 1
+                    currentIndex -= 1
                 }
                 announceCurrentConsonant()
             } else {
@@ -167,7 +154,7 @@ struct Day2Learning1View: View {
             }
         }
         .onAppear {
-            currentConsonantIndex = 0
+            currentIndex = 0
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isTitleFocused = true
             }
@@ -175,48 +162,14 @@ struct Day2Learning1View: View {
     }
 
     private func announceCurrentConsonant() {
-        let c = currentConsonant
-        let position = "\(data.consonants.count)개 중 \(currentConsonantIndex + 1)번째"
+        let c = current
+        let position = "\(consonants.count)개 중 \(currentIndex + 1)번째"
         let announcement = "\(c.name), \(c.letter), \(c.dotLabel). \(position)"
         UIAccessibility.post(notification: .announcement, argument: announcement)
     }
-
-    // MARK: - 데이터
-
-    private static let allGroups: [ConsonantGroup] = [
-        ConsonantGroup(
-            description: "오른쪽 맨 위 4점을 기준으로\n점이 하나씩 늘어나는 글자들입니다.\n\nㄱ은 4점, ㄴ은 1·4점,\nㄷ은 2·4점으로 구성되어 있습니다.",
-            consonants: [
-                ConsonantInfo(name: "기역", letter: "ㄱ", dotLabel: "4점"),
-                ConsonantInfo(name: "니은", letter: "ㄴ", dotLabel: "1·4점"),
-                ConsonantInfo(name: "디귿", letter: "ㄷ", dotLabel: "2·4점"),
-            ]
-        ),
-        ConsonantGroup(
-            description: "오른쪽 가운데 5점을 기준으로 하는\n리을, 미음, 비읍입니다.\n\nㄹ은 5점, ㅁ은 1·5점,\nㅂ은 4·5점으로 구성되어 있습니다.",
-            consonants: [
-                ConsonantInfo(name: "리을", letter: "ㄹ", dotLabel: "5점"),
-                ConsonantInfo(name: "미음", letter: "ㅁ", dotLabel: "1·5점"),
-                ConsonantInfo(name: "비읍", letter: "ㅂ", dotLabel: "4·5점"),
-            ]
-        ),
-        ConsonantGroup(
-            description: "오른쪽 맨 아래 6점을 기준으로 하는\n시옷, 지읒, 치읓입니다.\n\nㅅ은 6점, ㅈ은 4·6점,\nㅊ은 5·6점으로 구성되어 있습니다.",
-            consonants: [
-                ConsonantInfo(name: "시옷", letter: "ㅅ", dotLabel: "6점"),
-                ConsonantInfo(name: "지읒", letter: "ㅈ", dotLabel: "4·6점"),
-                ConsonantInfo(name: "치읓", letter: "ㅊ", dotLabel: "5·6점"),
-            ]
-        ),
-    ]
 }
 
 // MARK: - 데이터 모델
-
-private struct ConsonantGroup {
-    let description: String
-    let consonants: [ConsonantInfo]
-}
 
 private struct ConsonantInfo {
     let name: String
@@ -224,12 +177,7 @@ private struct ConsonantInfo {
     let dotLabel: String
 }
 
-#Preview("4점 그룹") {
-    Day2Learning1View(group: .dot4, onNext: {}, onBack: {})
-        .background(Color(.systemGroupedBackground))
-}
-
-#Preview("5점 그룹") {
-    Day2Learning1View(group: .dot5, onNext: {}, onBack: {})
+#Preview {
+    Day3Learning1View(onNext: {}, onBack: {})
         .background(Color(.systemGroupedBackground))
 }
