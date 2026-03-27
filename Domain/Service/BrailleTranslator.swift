@@ -10,6 +10,12 @@ class BrailleTranslator {
 
     private let STANDALONE_JAMO_PREFIX = "123456" // 온표: 단독 자음/모음 앞에 붙임
 
+    private let HANGUL_INDICATOR = ["345", "12356"]     // 한글표: 로마자 주 문장 안의 한글 시작
+    private let HANGUL_END_INDICATOR = ["345", "23456"]  // 한글 종료표: 로마자 주 문장 안의 한글 끝
+
+    // 연산·비교 기호: 한글/영문 사이에서는 앞뒤 띄어쓰기 필요
+    private let mathOperatorChars: Set<Character> = ["+", "-", "*", "\u{00F7}", "=", ">", "<"]
+
     // MARK: - Mapping Dictionaries
 
     // 초성 (ㅇ 은 음절 안에서 빈칸, 단독 입력 시에는 1245)
@@ -73,9 +79,11 @@ class BrailleTranslator {
     // 문장 부호
     private let punctuationMap: [Character: String] = [
         "?": "236", "!": "235", ".": "256", ",": "5",
-        ":": "5,2", ";": "56,23", "-": "36", "~": "4,35",
-        "\u{201C}": "236", "\u{201D}": "356", "\u{2018}": "236", "\u{2019}": "356",
-        "(": "236,3", ")": "6,356", "·": "5,23", "@":"4,1"
+        ":": "5,2", ";": "56,23", "-": "35", "~": "4,35",
+        "\u{201C}": "236", "\u{201D}": "356", "\u{2018}": "236", "\u{2019}": "356", //왼쪽 큰따옴표 오른쪽 큰따옴표 왼쪽 작은따옴표 오른쪽 작은 따옴표
+        "(": "236,3", ")": "6,356", "•": "5,23", "@": "4,1",
+        "+": "36", "*": "16", "%": "34,34", "=": "25,25",
+        ">": "26,26", "<": "35,35", "/":"456,34"
     ]
 
     // 영어 소문자
@@ -99,12 +107,18 @@ class BrailleTranslator {
         var capitalMode: Int = 0      // 0=개별, 1=단어표, 2=구절표
         var phraseEndIndex: Int = -1
         var inRomanMode = false
+        var inHangulMode = false      // 로마자 주 문장에서 한글 구간 표시용
+        var skipCount = 0             // 줄임표 등에서 문자 건너뛰기
+        var lastWasOpenQuote = false  // 여는 따옴표/괄호 뒤 붙여쓰기용
         let needsRomanIndicator = input.contains(where: { isHangul($0) }) // 한글이 있을 때만 로마자표 사용
+        let romanDominant = isRomanDominant(input) // 로마자 주 문장 판별
 
         let preprocessedText = useAbbreviations ? preprocessAbbreviations(input) : input
         let chars = Array(preprocessedText)
 
         for (i, char) in chars.enumerated() {
+            if skipCount > 0 { skipCount -= 1; continue }
+
             // 약어 마커 처리 (U+E000~)
             if let scalar = char.unicodeScalars.first, scalar.value >= 0xE000 && scalar.value < 0xE008 {
                 let index = Int(scalar.value - 0xE000)
@@ -115,6 +129,7 @@ class BrailleTranslator {
             }
 
             if let numberDots = numberMap[char] {
+                if inRomanMode { inRomanMode = false } // 로마자+숫자: 종료표 불필요 (MP3)
                 if !isNumberMode {
                     result.append(NUMBER_PREFIX)
                     isNumberMode = true
@@ -123,16 +138,62 @@ class BrailleTranslator {
                 continue
             }
 
-            if isNumberMode && (char == ":" || char == "-" || char == "·") {
-                if let puncDots = punctuationMap[char] { result.append(puncDots) }
-                isNumberMode = false
-                continue
+            // 숫자 모드에서 소수점: 다음 문자가 숫자면 소수점으로 처리 (숫자 모드 유지)
+            if isNumberMode && char == "." {
+                let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
+                if nextIsDigit {
+                    result.append("256")
+                    continue
+                }
             }
+
+            // 숫자 모드에서 쉼표(자릿점): 숫자 모드 유지 (연결표는 줄바꿈 시에만)
+            if isNumberMode && char == "," {
+                let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
+                if nextIsDigit {
+                    result.append("5")   // 쉼표
+                    continue
+                }
+            }
+
+            // 숫자 모드에서 연결표(-): 다음이 숫자면 연결표(36), 숫자 모드 유지
+            if isNumberMode && char == "-" {
+                let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
+                if nextIsDigit {
+                    result.append("36")  // 연결표
+                    continue
+                }
+            }
+
+            // 숫자 모드에서 수학 기호 (그 밖의 기호: 수표 다시 적음)
+            if isNumberMode {
+                let mathChars: Set<Character> = [":", "-", "·", "+", "*", "\u{00F7}", "=", ">", "<", "/"]
+                if mathChars.contains(char) {
+                    if char == "-" {
+                        result.append("35") // 빼기표 (다음이 숫자가 아닌 경우)
+                    } else if char == "/" {
+                        result.append("456"); result.append("34") // 분수표
+                    } else if let puncDots = punctuationMap[char] {
+                        let parts = puncDots.split(separator: ",")
+                        result.append(contentsOf: parts.map { String($0) })
+                    }
+                    isNumberMode = false
+                    continue
+                }
+            }
+
+            // 숫자 뒤 혼동 초성 띄어쓰기: ㄴ,ㄷ,ㅁ,ㅋ,ㅌ,ㅍ,ㅎ 초성 또는 '운' 약자
+            let wasNumberMode = isNumberMode
             isNumberMode = false
 
             if char.isLetter, let engDots = englishMap[Character(char.lowercased())] {
-                // 로마자표 (356): 한글이 포함된 문장에서만
-                if needsRomanIndicator && !inRomanMode {
+                // 로마자 주 문장: 한글 구간 종료
+                if romanDominant && inHangulMode {
+                    result.append(contentsOf: HANGUL_END_INDICATOR)
+                    inHangulMode = false
+                }
+                // 로마자표 (356): 한글 주 문장에서만 (로마자 주 문장에서는 불필요)
+                if !romanDominant && needsRomanIndicator && !inRomanMode {
                     result.append("356")
                     inRomanMode = true
                 }
@@ -164,30 +225,121 @@ class BrailleTranslator {
                     let nextIsUpperEng = (i + 1 < chars.count) && isEnglishLetter(chars[i + 1]) && chars[i + 1].isUppercase
                     if !nextIsUpperEng { capitalMode = 0 }
                 }
-                // 로마자 종료표 (256): 한글이 포함된 문장에서만
-                if needsRomanIndicator && !isRomanSectionContinuing(chars, after: i) {
+                // 로마자 종료표 (256): 한글 주 문장에서만
+                if !romanDominant && needsRomanIndicator && !isRomanSectionContinuing(chars, after: i) {
                     result.append("256")
                     inRomanMode = false
                 }
                 continue
             }
 
+            // 줄임표: 마침표 3개 이상(...) → 256,256,256
+            if char == "." && !isNumberMode {
+                var dotCount = 1
+                var j = i + 1
+                while j < chars.count && chars[j] == "." { dotCount += 1; j += 1 }
+                if dotCount >= 3 {
+                    result.append("256"); result.append("256"); result.append("256")
+                    skipCount = dotCount - 1
+                    continue
+                }
+            }
+
+            // 줄임표: 가운뎃점 3개 이상(···) → 6,6,6
+            if char == "\u{00B7}" {
+                var dotCount = 1
+                var j = i + 1
+                while j < chars.count && chars[j] == "\u{00B7}" { dotCount += 1; j += 1 }
+                if dotCount >= 3 {
+                    result.append("6"); result.append("6"); result.append("6")
+                    skipCount = dotCount - 1
+                    continue
+                }
+            }
+
+            // 줄임표: Unicode … (U+2026) → 256,256,256
+            if char == "\u{2026}" {
+                var count = 1
+                var j = i + 1
+                while j < chars.count && chars[j] == "\u{2026}" { count += 1; j += 1 }
+                result.append("256"); result.append("256"); result.append("256")
+                skipCount = count - 1
+                continue
+            }
+
             if let puncDots = punctuationMap[char] {
+                // 로마자 모드에서 문장부호 처리
+                if inRomanMode {
+                    let noEndMarkerChars: Set<Character> = [",", ":", ";", "-", ".", "?", "!",
+                        "\u{201D}", "\u{2019}", ")"]
+                    if noEndMarkerChars.contains(char) {
+                        inRomanMode = false
+                    }
+                }
+
+                // 닫는 따옴표/괄호 앞 붙여쓰기: 앞에 불필요한 빈칸 제거
+                let closingChars: Set<Character> = ["\u{201D}", "\u{2019}", ")"]
+                if closingChars.contains(char) && result.last == "" {
+                    result.removeLast()
+                }
+
+                // 연산·비교 기호가 숫자 모드가 아닐 때 (한글/영문 사이): 앞뒤 띄어쓰기
+                let needsMathSpacing = mathOperatorChars.contains(char) && !isNumberMode
+                let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
+                let isLessThanBeforeMinus = (char == "<" && nextChar == "-")
+                if needsMathSpacing && !isLessThanBeforeMinus {
+                    if result.last != "" { result.append("") }
+                }
+
                 let parts = puncDots.split(separator: ",")
                 result.append(contentsOf: parts.map { String($0) })
+
+                if needsMathSpacing && !isLessThanBeforeMinus {
+                    if nextChar != nil && nextChar?.isWhitespace != true { result.append("") }
+                }
+
+                // 쌍점(:), 쌍반점(;): 뒤 한 칸 띄어쓰기
+                if (char == ":" || char == ";") && !needsMathSpacing {
+                    if nextChar != nil && nextChar?.isWhitespace != true { result.append("") }
+                }
+
+                // 여는 따옴표/괄호: 뒤 붙여쓰기 플래그
+                let openingChars: Set<Character> = ["\u{201C}", "\u{2018}", "("]
+                lastWasOpenQuote = openingChars.contains(char)
+
                 continue
             }
 
             if isHangul(char) {
+                // 숫자 뒤 혼동 초성(ㄴ,ㄷ,ㅁ,ㅋ,ㅌ,ㅍ,ㅎ) 또는 '운' 약자 → 강제 띄어쓰기
+                if wasNumberMode && needsNumberHangulSpace(char) {
+                    result.append("")
+                }
+                // 로마자 주 문장: 한글표 삽입
+                if romanDominant && !inHangulMode {
+                    result.append(contentsOf: HANGUL_INDICATOR)
+                    inHangulMode = true
+                }
                 let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
                 result.append(contentsOf: extractJamoDots(from: char, nextChar: nextChar, useAbbreviations: useAbbreviations))
                 // 제11항/제12항: 모음 연쇄 구분표
                 if let next = nextChar, needsVowelSeparator(current: char, next: next) {
                     result.append("36")
                 }
+                // 로마자 주 문장: 한글 구간 끝나면 한글 종료표
+                if romanDominant && !isHangulSectionContinuing(chars, after: i) {
+                    result.append(contentsOf: HANGUL_END_INDICATOR)
+                    inHangulMode = false
+                }
             } else if char.isWhitespace {
+                // 여는 따옴표/괄호 뒤 공백 → 생략 (붙여쓰기)
+                if lastWasOpenQuote {
+                    lastWasOpenQuote = false
+                    continue
+                }
                 result.append("")
             }
+            lastWasOpenQuote = false
         }
         return result
     }
@@ -201,12 +353,18 @@ class BrailleTranslator {
         var capitalMode: Int = 0
         var phraseEndIndex: Int = -1
         var inRomanMode = false
+        var inHangulMode = false
+        var skipCount = 0
+        var lastWasOpenQuote = false
         let needsRomanIndicator = input.contains(where: { isHangul($0) })
+        let romanDominant = isRomanDominant(input)
 
         let preprocessedText = useAbbreviations ? preprocessAbbreviations(input) : input
         let chars = Array(preprocessedText)
 
         for (i, char) in chars.enumerated() {
+            if skipCount > 0 { skipCount -= 1; continue }
+
             if let scalar = char.unicodeScalars.first, scalar.value >= 0xE000 && scalar.value < 0xE008 {
                 let index = Int(scalar.value - 0xE000)
                 let phrase = abbrKeys[index]
@@ -219,6 +377,7 @@ class BrailleTranslator {
             }
 
             if let numberDots = numberMap[char] {
+                if inRomanMode { inRomanMode = false } // 로마자+숫자: 종료표 불필요 (MP3)
                 if !isNumberMode {
                     result.append((NUMBER_PREFIX, "#"))
                     isNumberMode = true
@@ -227,16 +386,64 @@ class BrailleTranslator {
                 continue
             }
 
-            if isNumberMode && (char == ":" || char == "-" || char == "·") {
-                if let puncDots = punctuationMap[char] { result.append((puncDots, String(char))) }
-                isNumberMode = false
-                continue
+            // 숫자 모드에서 소수점: 다음 문자가 숫자면 소수점으로 처리 (숫자 모드 유지)
+            if isNumberMode && char == "." {
+                let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
+                if nextIsDigit {
+                    result.append(("256", "."))
+                    continue
+                }
             }
+
+            // 숫자 모드에서 쉼표(자릿점): 숫자 모드 유지 (연결표는 줄바꿈 시에만)
+            if isNumberMode && char == "," {
+                let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
+                if nextIsDigit {
+                    result.append(("5", ","))   // 쉼표
+                    continue
+                }
+            }
+
+            // 숫자 모드에서 연결표(-): 다음이 숫자면 연결표(36), 숫자 모드 유지
+            if isNumberMode && char == "-" {
+                let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
+                if nextIsDigit {
+                    result.append(("36", "-"))  // 연결표
+                    continue
+                }
+            }
+
+            // 숫자 모드에서 수학 기호 (그 밖의 기호: 수표 다시 적음)
+            if isNumberMode {
+                let mathChars: Set<Character> = [":", "-", "·", "+", "*", "\u{00F7}", "=", ">", "<", "/"]
+                if mathChars.contains(char) {
+                    if char == "-" {
+                        result.append(("35", "-")) // 빼기표 (다음이 숫자가 아닌 경우)
+                    } else if char == "/" {
+                        result.append(("456", "")); result.append(("34", "/")) // 분수표
+                    } else if let puncDots = punctuationMap[char] {
+                        let parts = puncDots.split(separator: ",").map { String($0) }
+                        for (j, dots) in parts.enumerated() {
+                            result.append((dots, j == 0 ? String(char) : ""))
+                        }
+                    }
+                    isNumberMode = false
+                    continue
+                }
+            }
+
+            // 숫자 뒤 혼동 초성 띄어쓰기
+            let wasNumberMode = isNumberMode
             isNumberMode = false
 
             if char.isLetter, let engDots = englishMap[Character(char.lowercased())] {
-                // 로마자표 (356): 한글이 포함된 문장에서만
-                if needsRomanIndicator && !inRomanMode {
+                // 로마자 주 문장: 한글 구간 종료
+                if romanDominant && inHangulMode {
+                    for d in HANGUL_END_INDICATOR { result.append((d, "")) }
+                    inHangulMode = false
+                }
+                // 로마자표 (356): 한글 주 문장에서만
+                if !romanDominant && needsRomanIndicator && !inRomanMode {
                     result.append(("356", ""))
                     inRomanMode = true
                 }
@@ -264,32 +471,123 @@ class BrailleTranslator {
                     let nextIsUpperEng = (i + 1 < chars.count) && isEnglishLetter(chars[i + 1]) && chars[i + 1].isUppercase
                     if !nextIsUpperEng { capitalMode = 0 }
                 }
-                // 로마자 종료표 (256): 한글이 포함된 문장에서만
-                if needsRomanIndicator && !isRomanSectionContinuing(chars, after: i) {
+                // 로마자 종료표 (256): 한글 주 문장에서만
+                if !romanDominant && needsRomanIndicator && !isRomanSectionContinuing(chars, after: i) {
                     result.append(("256", ""))
                     inRomanMode = false
                 }
                 continue
             }
 
+            // 줄임표: 마침표 3개 이상(...) → 256,256,256
+            if char == "." && !isNumberMode {
+                var dotCount = 1
+                var j = i + 1
+                while j < chars.count && chars[j] == "." { dotCount += 1; j += 1 }
+                if dotCount >= 3 {
+                    result.append(("256", "…")); result.append(("256", "")); result.append(("256", ""))
+                    skipCount = dotCount - 1
+                    continue
+                }
+            }
+
+            // 줄임표: 가운뎃점 3개 이상(···) → 6,6,6
+            if char == "\u{00B7}" {
+                var dotCount = 1
+                var j = i + 1
+                while j < chars.count && chars[j] == "\u{00B7}" { dotCount += 1; j += 1 }
+                if dotCount >= 3 {
+                    result.append(("6", "…")); result.append(("6", "")); result.append(("6", ""))
+                    skipCount = dotCount - 1
+                    continue
+                }
+            }
+
+            // 줄임표: Unicode … (U+2026) → 256,256,256
+            if char == "\u{2026}" {
+                var count = 1
+                var j = i + 1
+                while j < chars.count && chars[j] == "\u{2026}" { count += 1; j += 1 }
+                result.append(("256", "…")); result.append(("256", "")); result.append(("256", ""))
+                skipCount = count - 1
+                continue
+            }
+
             if let puncDots = punctuationMap[char] {
+                // 로마자 모드에서 문장부호 처리
+                if inRomanMode {
+                    let noEndMarkerChars: Set<Character> = [",", ":", ";", "-", ".", "?", "!",
+                        "\u{201D}", "\u{2019}", ")"]
+                    if noEndMarkerChars.contains(char) {
+                        inRomanMode = false
+                    }
+                }
+
+                // 닫는 따옴표/괄호 앞 붙여쓰기: 앞에 불필요한 빈칸 제거
+                let closingChars: Set<Character> = ["\u{201D}", "\u{2019}", ")"]
+                if closingChars.contains(char) && result.last?.dots == "" {
+                    result.removeLast()
+                }
+
+                // 연산·비교 기호가 숫자 모드가 아닐 때 (한글/영문 사이): 앞뒤 띄어쓰기
+                let needsMathSpacing = mathOperatorChars.contains(char) && !isNumberMode
+                let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
+                let isLessThanBeforeMinus = (char == "<" && nextChar == "-")
+                if needsMathSpacing && !isLessThanBeforeMinus {
+                    if result.last?.dots != "" { result.append(("", " ")) }
+                }
+
                 let parts = puncDots.split(separator: ",").map { String($0) }
                 for (j, dots) in parts.enumerated() {
                     result.append((dots, j == 0 ? String(char) : ""))
                 }
+
+                if needsMathSpacing && !isLessThanBeforeMinus {
+                    if nextChar != nil && nextChar?.isWhitespace != true { result.append(("", " ")) }
+                }
+
+                // 쌍점(:), 쌍반점(;): 뒤 한 칸 띄어쓰기
+                if (char == ":" || char == ";") && !needsMathSpacing {
+                    if nextChar != nil && nextChar?.isWhitespace != true { result.append(("", " ")) }
+                }
+
+                // 여는 따옴표/괄호: 뒤 붙여쓰기 플래그
+                let openingChars: Set<Character> = ["\u{201C}", "\u{2018}", "("]
+                lastWasOpenQuote = openingChars.contains(char)
+
                 continue
             }
 
             if isHangul(char) {
+                // 숫자 뒤 혼동 초성(ㄴ,ㄷ,ㅁ,ㅋ,ㅌ,ㅍ,ㅎ) 또는 '운' 약자 → 강제 띄어쓰기
+                if wasNumberMode && needsNumberHangulSpace(char) {
+                    result.append(("", " "))
+                }
+                // 로마자 주 문장: 한글표 삽입
+                if romanDominant && !inHangulMode {
+                    for d in HANGUL_INDICATOR { result.append((d, "")) }
+                    inHangulMode = true
+                }
                 let nextChar: Character? = (i + 1 < chars.count) ? chars[i + 1] : nil
                 result.append(contentsOf: extractJamoDotsWithLabels(from: char, nextChar: nextChar, useAbbreviations: useAbbreviations, useChosungForm: useChosungForm))
                 // 제11항/제12항: 모음 연쇄 구분표
                 if let next = nextChar, needsVowelSeparator(current: char, next: next) {
                     result.append(("36", ""))
                 }
+                // 로마자 주 문장: 한글 구간 끝나면 한글 종료표
+                if romanDominant && !isHangulSectionContinuing(chars, after: i) {
+                    for d in HANGUL_END_INDICATOR { result.append((d, "")) }
+                    inHangulMode = false
+                }
             } else if char.isWhitespace {
+                // 여는 따옴표/괄호 뒤 공백 → 생략 (붙여쓰기)
+                if lastWasOpenQuote {
+                    lastWasOpenQuote = false
+                    continue
+                }
                 result.append(("", " "))
             }
+            lastWasOpenQuote = false
         }
         return result
     }
@@ -520,12 +818,26 @@ class BrailleTranslator {
         char.isLetter && englishMap[Character(char.lowercased())] != nil
     }
 
-    /// 현재 영문 글자 뒤에 로마자 구간이 계속되는지 (공백 넘어서도 영문이 이어지면 true)
+    /// 현재 영문 글자 뒤에 로마자 구간이 계속되는지 판단
+    /// - 영문, 숫자, 닫는 따옴표/괄호가 이어지면 종료표 불필요
+    /// - UEB와 점형이 다른 부호(, : ; -) 뒤에 종료표 불필요
+    /// - . ? ! 뒤에 종료표 불필요
+    /// - / ~ 는 앞에 종료표 필요 (false 반환)
     private func isRomanSectionContinuing(_ chars: [Character], after index: Int) -> Bool {
         var j = index + 1
         while j < chars.count {
-            if isEnglishLetter(chars[j]) { return true }
-            if chars[j].isWhitespace { j += 1; continue }
+            let ch = chars[j]
+            if isEnglishLetter(ch) { return true }
+            if ch.isWhitespace { j += 1; continue }
+            // 숫자가 이어지면 종료표 불필요 (MP3)
+            if ch.isNumber { return true }
+            // 닫는 따옴표/괄호: 종료표 불필요
+            if ch == "\u{201D}" || ch == "\u{2019}" || ch == ")" || ch == "\"" { return true }
+            // UEB와 한글 점자의 점형이 다른 부호: 종료표 없이 한글 규정 따름
+            if ch == "," || ch == ":" || ch == ";" || ch == "-" { return true }
+            // . ? ! : 종료표 불필요
+            if ch == "." || ch == "?" || ch == "!" { return true }
+            // / ~ 등은 종료표 필요 → false
             return false
         }
         return false
@@ -587,6 +899,63 @@ class BrailleTranslator {
         if scalar.value >= 0xAC00 && scalar.value <= 0xD7A3 { return true }
         if scalar.value >= 0x3131 && scalar.value <= 0x314E { return true }
         if scalar.value >= 0x314F && scalar.value <= 0x3163 { return true }
+        return false
+    }
+
+    /// 로마자 주 문장 판별: 영문 비율 50% 이상이면 true
+    private func isRomanDominant(_ text: String) -> Bool {
+        var romanCount = 0
+        var hangulCount = 0
+        for ch in text {
+            if ch.isLetter && englishMap[Character(ch.lowercased())] != nil {
+                romanCount += 1
+            } else if isHangul(ch) {
+                hangulCount += 1
+            }
+        }
+        let total = romanCount + hangulCount
+        guard total > 0 else { return false }
+        return romanCount * 100 / total >= 50
+    }
+
+    /// 한글 구간이 계속되는지 (공백 넘어서도 한글이 이어지면 true)
+    private func isHangulSectionContinuing(_ chars: [Character], after index: Int) -> Bool {
+        var j = index + 1
+        while j < chars.count {
+            let ch = chars[j]
+            if isHangul(ch) { return true }
+            if ch.isWhitespace { j += 1; continue }
+            return false
+        }
+        return false
+    }
+
+    /// 숫자와 혼동되는 초성(ㄴ,ㄷ,ㅁ,ㅋ,ㅌ,ㅍ,ㅎ) 또는 '운' 약자로 시작하는 글자인지 확인
+    /// 숫자 점형과 겹침: ㄴ(14)=3, ㄷ(24)=9, ㅁ(15)=5, ㅋ(124)=6, ㅌ(125)=8, ㅍ(145)=4, ㅎ(245)=0, 운(1245)=7
+    private func needsNumberHangulSpace(_ char: Character) -> Bool {
+        guard let scalar = char.unicodeScalars.first else { return false }
+        let value = scalar.value
+        guard value >= 0xAC00 && value <= 0xD7A3 else { return false }
+
+        let chosungList = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
+        let jungsungList = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"]
+        let jongsungList = ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
+        let conflictingCho: Set<String> = ["ㄴ", "ㄷ", "ㅁ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"]
+
+        let idx = value - 0xAC00
+        let choIndex = Int(idx / (21 * 28))
+        let cho = chosungList[choIndex]
+
+        // 초성이 숫자 점형과 겹치는 자음
+        if conflictingCho.contains(cho) { return true }
+
+        // '운' 약자: ㅇ+ㅜ+ㄴ → 약자(1245) = 숫자 7과 동일
+        let jungIndex = Int((idx % (21 * 28)) / 28)
+        let jongIndex = Int(idx % 28)
+        if cho == "ㅇ" && jungsungList[jungIndex] == "ㅜ" && jongIndex > 0 && jongsungList[jongIndex] == "ㄴ" {
+            return true
+        }
+
         return false
     }
 
