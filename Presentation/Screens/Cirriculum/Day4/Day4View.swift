@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-/// 4일차 학습 플로우: Intro → 좌우대칭1 → 상하대칭 → 좌우대칭2 → 10개 마스터
+/// 4일차 학습 플로우: Intro → 설명/실습(좌우1) → 설명/실습(상하) → 설명/실습(좌우2) → 10개 마스터 실습
 struct Day4View: View {
     @Bindable var item: LearningItem
     @Environment(\.dismiss) private var dismiss
@@ -10,10 +10,16 @@ struct Day4View: View {
 
     enum Day4Step: Int, CaseIterable {
         case intro = 0
-        case learning1 = 1
-        case learning2 = 2
-        case learning3 = 3
-        case learning4 = 4
+        case explainLR1 = 1
+        case practiceLR1 = 2
+        case explainUD = 3
+        case practiceUD = 4
+        case explainLR2 = 5
+        case practiceLR2 = 6
+    }
+
+    private func vowelGroup(_ index: Int) -> Day4VowelGroup {
+        day4VowelGroups[index]
     }
 
     var body: some View {
@@ -24,33 +30,57 @@ struct Day4View: View {
             switch currentStep {
             case .intro:
                 Day4IntroView(
-                    onStart: { goTo(.learning1) },
+                    onStart: { goTo(.explainLR1) },
                     onBack: { dismiss() }
                 )
-            case .learning1:
-                Day4Learning1View(
-                    onNext: { goTo(.learning2) },
+
+            case .explainLR1:
+                CurriculumExplanationView(
+                    title: vowelGroup(0).title, subtitle: vowelGroup(0).subtitle,
+                    description: vowelGroup(0).description, items: vowelGroup(0).items,
+                    onNext: { goTo(.practiceLR1) },
                     onBack: { goTo(.intro) }
                 )
-            case .learning2:
-                Day4Learning2View(
-                    onNext: { goTo(.learning3) },
-                    onBack: { goTo(.learning1) }
+            case .practiceLR1:
+                CurriculumPracticeView(
+                    items: vowelGroup(0).items,
+                    onNext: { goTo(.explainUD) },
+                    onBack: { goTo(.explainLR1) }
                 )
-            case .learning3:
-                Day4Learning3View(
-                    onNext: { goTo(.learning4) },
-                    onBack: { goTo(.learning2) }
+
+            case .explainUD:
+                CurriculumExplanationView(
+                    title: vowelGroup(1).title, subtitle: vowelGroup(1).subtitle,
+                    description: vowelGroup(1).description, items: vowelGroup(1).items,
+                    onNext: { goTo(.practiceUD) },
+                    onBack: { goTo(.practiceLR1) }
                 )
-            case .learning4:
-                Day4Learning4View(
-                    onComplete: {
+            case .practiceUD:
+                CurriculumPracticeView(
+                    items: vowelGroup(1).items,
+                    onNext: { goTo(.explainLR2) },
+                    onBack: { goTo(.explainUD) }
+                )
+
+            case .explainLR2:
+                CurriculumExplanationView(
+                    title: vowelGroup(2).title, subtitle: vowelGroup(2).subtitle,
+                    description: vowelGroup(2).description, items: vowelGroup(2).items,
+                    onNext: { goTo(.practiceLR2) },
+                    onBack: { goTo(.practiceUD) }
+                )
+            case .practiceLR2:
+                CurriculumPracticeView(
+                    items: vowelGroup(2).items,
+                    finalNextTitle: "학습 완료",
+                    finalNextHint: "4일차 학습을 완료하고 학습홈으로 돌아갑니다",
+                    onNext: {
                         item.isCompleted = true
                         item.isInProgress = false
                         UIAccessibility.post(notification: .announcement, argument: "4일차 학습을 완료했습니다")
                         dismiss()
                     },
-                    onBack: { goTo(.learning3) }
+                    onBack: { goTo(.practiceLR2) }
                 )
             }
         }
@@ -59,7 +89,7 @@ struct Day4View: View {
     }
 
     private func goTo(_ step: Day4Step) {
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
         UIAccessibility.post(notification: .screenChanged, argument: nil)

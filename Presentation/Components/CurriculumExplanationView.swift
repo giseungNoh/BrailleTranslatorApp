@@ -60,17 +60,19 @@ struct CurriculumExplanationView: View {
                 Spacer(minLength: isCompact ? 10 : 16)
 
                 // MARK: 글자 점형 목록
-                VStack(spacing: isCompact ? 8 : 12) {
-                    ForEach(Array(items.enumerated()), id: \.offset) { index, item in
-                        LetterRowCard(
-                            item: item,
-                            index: index,
-                            total: items.count,
-                            isCompact: isCompact
-                        )
+                ScrollView {
+                    VStack(spacing: isCompact ? 8 : 12) {
+                        ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            LetterRowCard(
+                                item: item,
+                                index: index,
+                                total: items.count,
+                                isCompact: isCompact
+                            )
+                        }
                     }
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
 
                 Spacer(minLength: isCompact ? 12 : 20)
 
@@ -101,6 +103,10 @@ private struct LetterRowCard: View {
     let total: Int
     let isCompact: Bool
 
+    private var hasTransformation: Bool {
+        item.fromDotLabel != nil
+    }
+
     var body: some View {
         HStack(spacing: 0) {
             Text(item.letter)
@@ -117,24 +123,74 @@ private struct LetterRowCard: View {
                 Text(item.name)
                     .font(.caption)
                     .foregroundColor(.appTextSubColor)
-                Text(item.dotLabel)
-                    .font(isCompact ? .footnote.bold() : .subheadline.bold())
-                    .foregroundColor(.appSubColor)
+
+                if hasTransformation {
+                    Text("\(item.fromDotLabel!) → \(item.dotLabel)")
+                        .font(isCompact ? .footnote.bold() : .subheadline.bold())
+                        .foregroundColor(.appSubColor)
+                } else {
+                    Text(item.dotLabel)
+                        .font(isCompact ? .footnote.bold() : .subheadline.bold())
+                        .foregroundColor(.appSubColor)
+                }
             }
             .padding(.horizontal, 14)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            BrailleDotDiagram(
-                activeDots: item.activeDotNumbers,
-                dotSize: isCompact ? 10 : 12,
-                spacing: isCompact ? 5 : 6
-            )
-            .padding(.trailing, 14)
+            if hasTransformation {
+                // 첫소리 → 받침 다이어그램 비교
+                HStack(spacing: isCompact ? 3 : 4) {
+                    BrailleDotDiagram(
+                        activeDots: item.fromActiveDotNumbers,
+                        dotSize: isCompact ? 7 : 8,
+                        spacing: isCompact ? 3 : 4
+                    )
+
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: isCompact ? 8 : 10))
+                        .foregroundColor(.appSubColor)
+
+                    BrailleDotDiagram(
+                        activeDots: item.activeDotNumbers,
+                        dotSize: isCompact ? 7 : 8,
+                        spacing: isCompact ? 3 : 4
+                    )
+                }
+                .padding(.trailing, isCompact ? 8 : 10)
+            } else if item.isCompoundDot {
+                // 겹받침: 두 개의 다이어그램을 "+" 로 나란히 표시
+                HStack(spacing: isCompact ? 3 : 4) {
+                    ForEach(Array(item.compoundDotSets.enumerated()), id: \.offset) { idx, dots in
+                        if idx > 0 {
+                            Text("+")
+                                .font(.caption2.bold())
+                                .foregroundColor(.appSubColor)
+                        }
+                        BrailleDotDiagram(
+                            activeDots: dots,
+                            dotSize: isCompact ? 7 : 8,
+                            spacing: isCompact ? 3 : 4
+                        )
+                    }
+                }
+                .padding(.trailing, isCompact ? 8 : 10)
+            } else {
+                BrailleDotDiagram(
+                    activeDots: item.activeDotNumbers,
+                    dotSize: isCompact ? 10 : 12,
+                    spacing: isCompact ? 5 : 6
+                )
+                .padding(.trailing, 14)
+            }
         }
         .padding(.vertical, isCompact ? 10 : 14)
         .appCard(cornerRadius: 14)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(total)개 중 \(index + 1)번째, \(item.letter), \(item.dotLabel)")
+        .accessibilityLabel(
+            hasTransformation
+                ? "\(total)개 중 \(index + 1)번째, \(item.name), 첫소리 \(item.fromDotLabel!)에서 받침 \(item.dotLabel)으로"
+                : "\(total)개 중 \(index + 1)번째, \(item.letter), \(item.dotLabel)"
+        )
     }
 }
 

@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-/// 2일차 학습 플로우: Intro → 4점 자음 → 5점 자음 → 6점 자음 → ㅇ 생략 원리
+/// 2일차 학습 플로우: Intro → 설명/실습(4점) → 설명/실습(5점) → 설명/실습(6점) → ㅇ 생략 원리
 struct Day2View: View {
     @Bindable var item: LearningItem
     @Environment(\.dismiss) private var dismiss
@@ -10,10 +10,17 @@ struct Day2View: View {
 
     enum Day2Step: Int, CaseIterable {
         case intro = 0
-        case learning1_dot4 = 1
-        case learning1_dot5 = 2
-        case learning1_dot6 = 3
-        case learning2 = 4
+        case explain_dot4 = 1
+        case practice_dot4 = 2
+        case explain_dot5 = 3
+        case practice_dot5 = 4
+        case explain_dot6 = 5
+        case practice_dot6 = 6
+        case ieungRule = 7
+    }
+
+    private func group(_ index: Int) -> Day2ConsonantGroup {
+        day2ConsonantGroups[index]
     }
 
     var body: some View {
@@ -24,36 +31,61 @@ struct Day2View: View {
             switch currentStep {
             case .intro:
                 Day2IntroView(
-                    onStart: { goTo(.learning1_dot4) },
+                    onStart: { goTo(.explain_dot4) },
                     onBack: { dismiss() }
                 )
-            case .learning1_dot4:
-                Day2Learning1View(
-                    group: .dot4,
-                    onNext: { goTo(.learning1_dot5) },
+
+            case .explain_dot4:
+                CurriculumExplanationView(
+                    title: group(0).title, subtitle: group(0).subtitle,
+                    description: group(0).description, items: group(0).items,
+                    onNext: { goTo(.practice_dot4) },
                     onBack: { goTo(.intro) }
                 )
-            case .learning1_dot5:
-                Day2Learning1View(
-                    group: .dot5,
-                    onNext: { goTo(.learning1_dot6) },
-                    onBack: { goTo(.learning1_dot4) }
+            case .practice_dot4:
+                CurriculumPracticeView(
+                    items: group(0).items,
+                    onNext: { goTo(.explain_dot5) },
+                    onBack: { goTo(.explain_dot4) }
                 )
-            case .learning1_dot6:
-                Day2Learning1View(
-                    group: .dot6,
-                    onNext: { goTo(.learning2) },
-                    onBack: { goTo(.learning1_dot5) }
+
+            case .explain_dot5:
+                CurriculumExplanationView(
+                    title: group(1).title, subtitle: group(1).subtitle,
+                    description: group(1).description, items: group(1).items,
+                    onNext: { goTo(.practice_dot5) },
+                    onBack: { goTo(.practice_dot4) }
                 )
-            case .learning2:
-                Day2Learning2View(
+            case .practice_dot5:
+                CurriculumPracticeView(
+                    items: group(1).items,
+                    onNext: { goTo(.explain_dot6) },
+                    onBack: { goTo(.explain_dot5) }
+                )
+
+            case .explain_dot6:
+                CurriculumExplanationView(
+                    title: group(2).title, subtitle: group(2).subtitle,
+                    description: group(2).description, items: group(2).items,
+                    onNext: { goTo(.practice_dot6) },
+                    onBack: { goTo(.practice_dot5) }
+                )
+            case .practice_dot6:
+                CurriculumPracticeView(
+                    items: group(2).items,
+                    onNext: { goTo(.ieungRule) },
+                    onBack: { goTo(.explain_dot6) }
+                )
+
+            case .ieungRule:
+                Day2RuleView(
                     onComplete: {
                         item.isCompleted = true
                         item.isInProgress = false
                         UIAccessibility.post(notification: .announcement, argument: "2일차 학습을 완료했습니다")
                         dismiss()
                     },
-                    onBack: { goTo(.learning1_dot6) }
+                    onBack: { goTo(.practice_dot6) }
                 )
             }
         }
@@ -62,7 +94,7 @@ struct Day2View: View {
     }
 
     private func goTo(_ step: Day2Step) {
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
         UIAccessibility.post(notification: .screenChanged, argument: nil)

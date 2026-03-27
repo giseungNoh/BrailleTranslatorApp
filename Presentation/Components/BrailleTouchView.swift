@@ -175,6 +175,10 @@ class BrailleTouchCanvasView: UIView {
     var enableOneFingerSwipe: Bool = false
     // 번역기를 우회하여 직접 점형 패턴을 지정 (된소리표 등 독립 기호 표시용)
     var rawDotPatterns: [(dots: String, label: String)]? = nil
+    // 번역 결과에서 앞쪽 N개 셀을 건너뜀 (온표 등 제거용)
+    var skipLeadingCells: Int = 0
+    // 콘텐츠를 수직 중앙에 배치 (커리큘럼 실습뷰용, 기본 false)
+    var centerVertically: Bool = false
 
     // 마지막으로 피드백을 준 점의 식별자
     private var lastFeedbackID: String?
@@ -202,14 +206,26 @@ class BrailleTouchCanvasView: UIView {
         return contentSize
     }
 
+    private var lastLayoutBounds: CGRect = .zero
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupView()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // bounds 변경 시 재레이아웃 (centerVertically가 bounds 기반이므로)
+        if bounds != lastLayoutBounds {
+            lastLayoutBounds = bounds
+            lastRenderedText = nil
+            layoutCells()
+        }
     }
     
     private func setupView() {
@@ -309,7 +325,7 @@ class BrailleTouchCanvasView: UIView {
         
         // 텍스트와 설정 개수가 이전과 동일하면 레이아웃 생략 (불필요한 리로드 및 랜덤 점자 변경 방지)
         let rawKey = rawDotPatterns?.map { $0.dots }.joined(separator: "-") ?? ""
-        let currentStateStr = "\(text)_\(cellsPerLine)_\(hideLabels)_\(rawKey)"
+        let currentStateStr = "\(text)_\(cellsPerLine)_\(hideLabels)_\(rawKey)_\(skipLeadingCells)"
         if currentStateStr == lastRenderedText {
             return
         }
@@ -386,7 +402,8 @@ class BrailleTouchCanvasView: UIView {
             translatedCells = raw
         } else {
             let translator = BrailleTranslator()
-            translatedCells = translator.translateWithLabels(text, useAbbreviations: useAbbreviations, useChosungForm: useChosungForm)
+            let allCells = translator.translateWithLabels(text, useAbbreviations: useAbbreviations, useChosungForm: useChosungForm)
+            translatedCells = skipLeadingCells > 0 ? Array(allCells.dropFirst(skipLeadingCells)) : allCells
         }
 
         let baseLabelAreaHeight: CGFloat = 22.0
@@ -465,6 +482,21 @@ class BrailleTouchCanvasView: UIView {
         let totalWidth = maxX > 0 ? maxX : containerWidth // 최소한 padding 정도는 확보
         
         self.contentSize = CGSize(width: totalWidth, height: totalHeight) // 너비를 내용에 맞게 조절
+
+        // 수직 중앙 정렬 (커리큘럼 실습뷰용)
+        if centerVertically && bounds.height > totalHeight {
+            let offsetY = (bounds.height - totalHeight) / 2
+            for cell in cells {
+                cell.frame.origin.y += offsetY
+            }
+            for label in labelViews {
+                label.frame.origin.y += offsetY
+            }
+            guideDots = guideDots.map {
+                CGRect(x: $0.origin.x, y: $0.origin.y + offsetY, width: $0.width, height: $0.height)
+            }
+        }
+
         self.invalidateIntrinsicContentSize()
         self.setNeedsDisplay() // 가이드 점 그리기 위해
     }

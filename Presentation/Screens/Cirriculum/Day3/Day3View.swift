@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-/// 3일차 학습 플로우: Intro → ㅋㅌㅍㅎ 탐색 → 된소리표 이해 → 된소리 글자 만들기
+/// 3일차 학습 플로우: Intro → 설명/실습(ㅋㅌㅍㅎ) → 된소리표 규칙 → 실습(ㄲㄸㅃㅆㅉ)
 struct Day3View: View {
     @Bindable var item: LearningItem
     @Environment(\.dismiss) private var dismiss
@@ -10,9 +10,10 @@ struct Day3View: View {
 
     enum Day3Step: Int, CaseIterable {
         case intro = 0
-        case learning1 = 1
-        case learning2 = 2
-        case learning3 = 3
+        case explainConsonants = 1
+        case practiceConsonants = 2
+        case doubleConsonantRule = 3
+        case practiceDoubleConsonants = 4
     }
 
     var body: some View {
@@ -23,28 +24,45 @@ struct Day3View: View {
             switch currentStep {
             case .intro:
                 Day3IntroView(
-                    onStart: { goTo(.learning1) },
+                    onStart: { goTo(.explainConsonants) },
                     onBack: { dismiss() }
                 )
-            case .learning1:
-                Day3Learning1View(
-                    onNext: { goTo(.learning2) },
+
+            case .explainConsonants:
+                CurriculumExplanationView(
+                    title: day3ConsonantGroup.title,
+                    subtitle: day3ConsonantGroup.subtitle,
+                    description: day3ConsonantGroup.description,
+                    items: day3ConsonantGroup.items,
+                    onNext: { goTo(.practiceConsonants) },
                     onBack: { goTo(.intro) }
                 )
-            case .learning2:
-                Day3Learning2View(
-                    onNext: { goTo(.learning3) },
-                    onBack: { goTo(.learning1) }
+            case .practiceConsonants:
+                CurriculumPracticeView(
+                    items: day3ConsonantGroup.items,
+                    onNext: { goTo(.doubleConsonantRule) },
+                    onBack: { goTo(.explainConsonants) }
                 )
-            case .learning3:
-                Day3Learning3View(
-                    onComplete: {
+
+            case .doubleConsonantRule:
+                Day3DoubleConsonantRuleView(
+                    onNext: { goTo(.practiceDoubleConsonants) },
+                    onBack: { goTo(.practiceConsonants) }
+                )
+            case .practiceDoubleConsonants:
+                CurriculumPracticeView(
+                    items: day3DoubleConsonantItems,
+                    useChosungForm: true,
+                    cellsPerLine: 2,
+                    finalNextTitle: "학습 완료",
+                    finalNextHint: "3일차 학습을 완료하고 학습홈으로 돌아갑니다",
+                    onNext: {
                         item.isCompleted = true
                         item.isInProgress = false
                         UIAccessibility.post(notification: .announcement, argument: "3일차 학습을 완료했습니다")
                         dismiss()
                     },
-                    onBack: { goTo(.learning2) }
+                    onBack: { goTo(.doubleConsonantRule) }
                 )
             }
         }
@@ -53,7 +71,7 @@ struct Day3View: View {
     }
 
     private func goTo(_ step: Day3Step) {
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
         UIAccessibility.post(notification: .screenChanged, argument: nil)

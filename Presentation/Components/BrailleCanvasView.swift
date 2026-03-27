@@ -12,10 +12,12 @@ struct BrailleCanvasView: View {
     var hideLabels: Bool = false
     var enableOneFingerSwipe: Bool = false
     var rawDotPatterns: [(dots: String, label: String)]? = nil
+    var skipLeadingCells: Int = 0
+    var centerVertically: Bool = false
     var onSwipeNext: (() -> Void)? = nil
     var onSwipePrevious: (() -> Void)? = nil
 
-    init(text: String = "", useAbbreviations: Bool = true, cellsPerLineOverride: Int? = nil, useChosungForm: Bool = false, isInteracting: Binding<Bool> = .constant(false), maxCellWidth: CGFloat? = nil, accessibilityLabelOverride: String? = nil, hideLabels: Bool = false, enableOneFingerSwipe: Bool = false, rawDotPatterns: [(dots: String, label: String)]? = nil, onSwipeNext: (() -> Void)? = nil, onSwipePrevious: (() -> Void)? = nil) {
+    init(text: String = "", useAbbreviations: Bool = true, cellsPerLineOverride: Int? = nil, useChosungForm: Bool = false, isInteracting: Binding<Bool> = .constant(false), maxCellWidth: CGFloat? = nil, accessibilityLabelOverride: String? = nil, hideLabels: Bool = false, enableOneFingerSwipe: Bool = false, rawDotPatterns: [(dots: String, label: String)]? = nil, skipLeadingCells: Int = 0, centerVertically: Bool = false, onSwipeNext: (() -> Void)? = nil, onSwipePrevious: (() -> Void)? = nil) {
         self.text = text
         self.useAbbreviations = useAbbreviations
         self.cellsPerLineOverride = cellsPerLineOverride
@@ -26,6 +28,8 @@ struct BrailleCanvasView: View {
         self.hideLabels = hideLabels
         self.enableOneFingerSwipe = enableOneFingerSwipe
         self.rawDotPatterns = rawDotPatterns
+        self.skipLeadingCells = skipLeadingCells
+        self.centerVertically = centerVertically
         self.onSwipeNext = onSwipeNext
         self.onSwipePrevious = onSwipePrevious
     }
@@ -42,6 +46,8 @@ struct BrailleCanvasView: View {
             hideLabels: hideLabels,
             enableOneFingerSwipe: enableOneFingerSwipe,
             rawDotPatterns: rawDotPatterns,
+            skipLeadingCells: skipLeadingCells,
+            centerVertically: centerVertically,
             onSwipeNext: onSwipeNext,
             onSwipePrevious: onSwipePrevious
         )
@@ -60,6 +66,8 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
     var hideLabels: Bool = false
     var enableOneFingerSwipe: Bool = false
     var rawDotPatterns: [(dots: String, label: String)]? = nil
+    var skipLeadingCells: Int = 0
+    var centerVertically: Bool = false
     var onSwipeNext: (() -> Void)? = nil
     var onSwipePrevious: (() -> Void)? = nil
 
@@ -83,6 +91,8 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
         view.hideLabels = hideLabels
         view.enableOneFingerSwipe = enableOneFingerSwipe
         view.rawDotPatterns = rawDotPatterns
+        view.skipLeadingCells = skipLeadingCells
+        view.centerVertically = centerVertically
         view.onSwipeNext = onSwipeNext
         view.onSwipePrevious = onSwipePrevious
 
@@ -99,6 +109,8 @@ struct BrailleTouchCanvasViewRepresentable: UIViewRepresentable {
         uiView.hideLabels = hideLabels
         uiView.enableOneFingerSwipe = enableOneFingerSwipe
         uiView.rawDotPatterns = rawDotPatterns
+        uiView.skipLeadingCells = skipLeadingCells
+        uiView.centerVertically = centerVertically
         uiView.onSwipeNext = onSwipeNext
         uiView.onSwipePrevious = onSwipePrevious
         uiView.useChosungForm = useChosungForm

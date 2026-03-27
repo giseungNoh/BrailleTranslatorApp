@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// ③ 학습하기 2: 첫소리 'ㅇ' 생략 원리
-/// "아이" 예시로 BrailleCanvasView 터치 체험 (한 화면 레이아웃)
-struct Day2Learning2View: View {
-    let onComplete: () -> Void
+/// ③ 학습하기 2: 된소리표(6점) 이해
+/// 된소리표의 원리 설명 + 단독 터치 체험
+struct Day3DoubleConsonantRuleView: View {
+    let onNext: () -> Void
     let onBack: () -> Void
 
     @State private var isInteracting = false
@@ -12,24 +12,24 @@ struct Day2Learning2View: View {
     var body: some View {
         VStack(spacing: 0) {
             // 타이틀
-            Text("첫소리 'ㅇ' 생략 원리")
+            Text("된소리 마법 깨치기")
                 .font(.title3.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 16)
-                .accessibilityLabel("첫소리 이응 생략 원리")
-                .accessibilityHint("점자에서 첫소리 이응은 소리가 나지 않으므로 표기하지 않습니다.")
+                .accessibilityLabel("된소리 마법 깨치기")
+                .accessibilityHint("점자에서 된소리는 자음 앞에 된소리표 6점을 붙여 만듭니다.")
                 .accessibilityFocused($isHeaderFocused)
 
-            Text("가장 중요한 첫 번째 규칙!")
+            Text("된소리표의 이해")
                 .font(.caption.bold())
                 .foregroundColor(.appSubColor)
                 .padding(.top, 2)
                 .accessibilityHidden(true)
 
             VStack(spacing: 20) {
-                // 규칙 설명 + 모음 안내 (통합 카드)
+                // 규칙 설명 카드
                 infoCardSection
-                    .padding(.vertical,20)
+                    .padding(.vertical, 20)
 
                 // BrailleCanvasView
                 canvasSection
@@ -38,7 +38,12 @@ struct Day2Learning2View: View {
             Spacer(minLength: 16)
 
             // 버튼
-            buttonSection
+            LearningButtonSection(
+                nextHint: "다음 학습 화면으로 이동합니다",
+                backHint: "이전 화면으로 돌아갑니다",
+                onNext: onNext,
+                onBack: onBack
+            )
         }
         .accessibilityAction(.escape) {
             onBack()
@@ -62,7 +67,7 @@ struct Day2Learning2View: View {
                         .foregroundColor(.yellow)
                         .accessibilityHidden(true)
 
-                    Text("첫소리 'ㅇ'은 소리가 없으므로 적지 않고, 모음만 적습니다.")
+                    Text("점자에서 된소리(쌍자음)는\n자음 앞에 '된소리표(6점)'를 붙여 만듭니다.")
                         .font(.footnote)
                         .foregroundColor(.appTextColor)
                         .lineSpacing(2)
@@ -77,10 +82,9 @@ struct Day2Learning2View: View {
                         Text("묵자")
                             .font(.caption.bold())
                             .foregroundColor(.appTextSubColor)
-                        HStack(spacing: 6) {
-                            letterColumn("아", isStruck: false)
-                            letterColumn("이", isStruck: false)
-                        }
+                        Text("ㄲ")
+                            .font(.title3.bold())
+                            .foregroundColor(.appTextColor)
                     }
                     .frame(maxWidth: .infinity)
 
@@ -94,9 +98,16 @@ struct Day2Learning2View: View {
                         Text("점자")
                             .font(.caption.bold())
                             .foregroundColor(.appTextSubColor)
-                        HStack(spacing: 6) {
-                            letterColumn("ㅏ", isStruck: false)
-                            letterColumn("ㅣ", isStruck: false)
+                        HStack(spacing: 4) {
+                            Text("된소리표")
+                                .font(.caption2.bold())
+                                .foregroundColor(.appSubColor)
+                            Text("+")
+                                .font(.caption2)
+                                .foregroundColor(.appTextSubColor)
+                            Text("ㄱ")
+                                .font(.title3.bold())
+                                .foregroundColor(.appTextColor)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -104,44 +115,39 @@ struct Day2Learning2View: View {
 
                 Divider()
 
-                // 모음 안내
+                // 안내
                 HStack(spacing: 8) {
                     Image(systemName: "info.circle.fill")
                         .font(.callout)
                         .foregroundColor(.appSubColor)
                         .accessibilityHidden(true)
 
-                    Text("모음 점자는 다음 시간에 배웁니다. 지금은 'ㅇ'이 빠진다는 원리만 기억하세요!")
+                    Text("된소리표는 6점 하나로 이루어져 있습니다.\n아래에서 직접 만져보세요!")
                         .font(.caption2)
+                        .foregroundColor(.appTextSubColor)
                         .lineSpacing(2)
                 }
             }
         }
         .padding(.horizontal, 20)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("핵심 규칙: 첫소리 이응은 소리가 없으므로 적지 않고 모음만 적습니다. 예를 들어 '아이'에서 이응이 생략되어 모음만 표기됩니다. 안내: 모음 점자는 다음 시간에 배웁니다.")
-    }
-
-    private func letterColumn(_ syllable: String, isStruck: Bool) -> some View {
-        VStack(spacing: 1) {
-            Text(syllable)
-                .font(.title3.bold())
-                .foregroundColor(.appTextColor)
-        }
+        .accessibilityLabel("핵심 규칙: 점자에서 된소리, 쌍자음은 자음 앞에 된소리표 6점을 붙여 만듭니다. 예를 들어 묵자 쌍기역은 점자에서 된소리표와 기역으로 표기됩니다. 안내: 된소리표는 6점 하나로 이루어져 있습니다.")
     }
 
     private var canvasSection: some View {
         VStack(spacing: 8) {
-            Text("'아이' 점자 만져보기")
+            Text("된소리표(6점) 만져보기")
                 .font(.callout.bold())
                 .foregroundColor(.appTextColor)
 
             BrailleCanvasView(
-                text: "아이",
-                cellsPerLineOverride: 2,
+                cellsPerLineOverride: 1,
                 isInteracting: $isInteracting,
+                maxCellWidth: 120,
+                accessibilityLabelOverride: "된소리표는 오른쪽 맨 아래 6점 하나로 이루어져 있습니다.",
+                rawDotPatterns: [("6", "된소리표")],
                 onSwipeNext: {
-                    UIAccessibility.post(notification: .announcement, argument: "마지막 단계입니다. 학습 완료 버튼을 눌러주세요.")
+                    UIAccessibility.post(notification: .announcement, argument: "다음으로 버튼을 눌러 된소리 글자 만들기로 이동하세요.")
                 },
                 onSwipePrevious: onBack
             )
@@ -149,19 +155,9 @@ struct Day2Learning2View: View {
         }
         .padding(.horizontal, 20)
     }
-
-    private var buttonSection: some View {
-        LearningButtonSection(
-            nextTitle: "학습 완료",
-            nextHint: "2일차 학습을 완료하고 학습홈으로 돌아갑니다",
-            backHint: "자음 탐색 화면으로 돌아갑니다",
-            onNext: onComplete,
-            onBack: onBack
-        )
-    }
 }
 
 #Preview {
-    Day2Learning2View(onComplete: {}, onBack: {})
+    Day3DoubleConsonantRuleView(onNext: {}, onBack: {})
         .background(Color(.systemGroupedBackground))
 }
