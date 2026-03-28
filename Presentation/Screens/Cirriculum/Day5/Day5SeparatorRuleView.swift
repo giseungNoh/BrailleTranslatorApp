@@ -52,38 +52,10 @@ struct Day5SeparatorRuleView: View {
     // MARK: - Sections
 
     private var infoCardSection: some View {
-        CommonCardView {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                        .accessibilityHidden(true)
-
-                    Text("아주 중요한 규칙입니다!\n'딴이(1·2·3·5점)'의 점형은\n모음 'ㅐ(1·2·3·5점)'와\n완전히 똑같이 생겼습니다.")
-                        .font(.footnote)
-                        .foregroundColor(.appTextColor)
-                        .lineSpacing(3)
-                }
-
-                Divider()
-
-                HStack(spacing: 8) {
-                    Image(systemName: "lightbulb.fill")
-                        .font(.caption)
-                        .foregroundColor(.yellow)
-                        .accessibilityHidden(true)
-
-                    Text("'와' 뒤에 독립된 글자 '애'가 오는\n'와애'를 쓸 때는, '왜'로 잘못 읽히는 것을\n막기 위해 두 글자 사이에 방지턱 역할인\n'붙임표(3·6점)'를 끼워 넣어야 합니다.")
-                        .font(.footnote)
-                        .foregroundColor(.appTextColor)
-                        .lineSpacing(3)
-                }
-            }
-        }
+        ExplanationChalkboardCard(
+            description: "아주 중요한 규칙입니다! '딴이(1·2·3·5점)'의 점형은 모음 'ㅐ(1·2·3·5점)'와 완전히 똑같이 생겼습니다.\n\n'와' 뒤에 독립된 글자 '애'가 오는 '와애'를 쓸 때는, '왜'로 잘못 읽히는 것을 막기 위해 두 글자 사이에 방지턱 역할인 '붙임표(3·6점)'를 끼워 넣어야 합니다."
+        )
         .padding(.horizontal, 20)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("핵심 규칙: 딴이 1·2·3·5점의 점형은 모음 애 1·2·3·5점과 완전히 똑같이 생겼습니다. 그래서 와 뒤에 독립된 글자 애가 오는 와애를 쓸 때는, 왜로 잘못 읽히는 것을 막기 위해 두 글자 사이에 붙임표 3·6점을 끼워 넣어야 합니다.")
     }
 
     private var comparisonSection: some View {

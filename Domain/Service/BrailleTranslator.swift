@@ -379,7 +379,7 @@ class BrailleTranslator {
             if let numberDots = numberMap[char] {
                 if inRomanMode { inRomanMode = false } // 로마자+숫자: 종료표 불필요 (MP3)
                 if !isNumberMode {
-                    result.append((NUMBER_PREFIX, "#"))
+                    result.append((NUMBER_PREFIX, "수표"))
                     isNumberMode = true
                 }
                 result.append((numberDots, String(char)))

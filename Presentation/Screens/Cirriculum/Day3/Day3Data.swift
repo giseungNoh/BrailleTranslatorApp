@@ -12,7 +12,7 @@ struct Day3LearningGroup {
 let day3ConsonantGroup = Day3LearningGroup(
     title: "1-2-4-5점 중심 글자",
     subtitle: "ㅋ · ㅌ · ㅍ · ㅎ",
-    description: "1, 2, 4, 5점의 자리를 기준으로\n점이 이동하며 만들어지는 글자들입니다.\n\nㅋ은 1·2·4점, ㅌ은 1·2·5점,\nㅍ은 1·4·5점, ㅎ은 2·4·5점으로\n구성되어 있습니다.",
+    description: "1, 2, 4, 5점의 자리를 기준으로\n점이 이동하며 만들어지는 글자들입니다.\n\nㅋ은 1·2·4점, ㅌ은 1·2·5점,ㅍ은 1·4·5점, ㅎ은 2·4·5점으로 구성되어 있습니다.",
     items: [
         BrailleLetterItem(name: "키읔", letter: "ㅋ", dotLabel: "1·2·4점"),
         BrailleLetterItem(name: "티읕", letter: "ㅌ", dotLabel: "1·2·5점"),

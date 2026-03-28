@@ -15,7 +15,7 @@ let day5SingleCellVowelItems: [BrailleLetterItem] = [
 
 let day5ExplanationTitle = "한 칸 이중 모음과 두 칸 이중 모음"
 let day5ExplanationSubtitle = "ㅐ · ㅔ · ㅖ · ㅘ · ㅚ · ㅝ · ㅢ"
-let day5ExplanationDescription = "점자에서 'ㅐ, ㅔ, ㅖ, ㅘ, ㅚ, ㅝ, ㅢ'는\n한 칸으로 적습니다.\n\n하지만 'ㅒ, ㅙ, ㅞ, ㅟ'처럼 복잡한 모음은\n두 칸이 필요합니다.\n기본 모음 뒤에 '딴이(1·2·3·5점)'를\n붙여서 완성합니다."
+let day5ExplanationDescription = "점자에서 'ㅐ, ㅔ, ㅖ, ㅘ, ㅚ, ㅝ, ㅢ'는\n한 칸으로 적습니다.\n\n하지만 'ㅒ, ㅙ, ㅞ, ㅟ'처럼 복잡한 모음은\n두 칸이 필요합니다.\n기본 모음 뒤에 '딴이(1·2·3·5점)'를 붙여서 완성합니다."
 
 /// 실습1: 두 칸 이중 모음 (딴이 결합)
 let day5DoubleCellVowelItems: [BrailleLetterItem] = [

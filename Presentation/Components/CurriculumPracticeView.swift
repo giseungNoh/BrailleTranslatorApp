@@ -4,6 +4,7 @@ import SwiftUI
 struct CurriculumPracticeView: View {
     let items: [BrailleLetterItem]
     var useChosungForm: Bool = true
+    var useAbbreviations: Bool = true
     var cellsPerLine: Int = 1
     var skipLeadingCells: Int = 0
     var maxCellWidth: CGFloat = 120
@@ -55,6 +56,7 @@ struct CurriculumPracticeView: View {
             // MARK: 점자 캔버스
             BrailleCanvasView(
                 text: current.rawDots != nil ? "" : current.letter,
+                useAbbreviations: useAbbreviations,
                 cellsPerLineOverride: current.cellsPerLine ?? cellsPerLine,
                 useChosungForm: useChosungForm,
                 isInteracting: $isInteracting,

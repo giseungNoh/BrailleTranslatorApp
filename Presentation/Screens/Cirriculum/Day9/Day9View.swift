@@ -1,0 +1,110 @@
+import SwiftUI
+import SwiftData
+import UIKit
+
+/// 9일차 학습 플로우: Intro → 두 자리 숫자 설명/실습 → 수표 효력 설명/실습
+struct Day9View: View {
+    @Bindable var item: LearningItem
+    @Environment(\.dismiss) private var dismiss
+    @State private var currentStep: Day9Step = .intro
+
+    enum Day9Step: Int, CaseIterable {
+        case intro = 0
+        case explainMultiDigit = 1
+        case practiceMultiDigit = 2
+        case explainEffectEnd = 3
+        case practiceEffectEnd = 4
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Day9ProgressBar(current: currentStep.rawValue, total: Day9Step.allCases.count)
+                .padding(.horizontal, 20)
+
+            switch currentStep {
+            case .intro:
+                Day9IntroView(
+                    onStart: { goTo(.explainMultiDigit) },
+                    onBack: { dismiss() }
+                )
+
+            case .explainMultiDigit:
+                CurriculumExplanationView(
+                    title: day9MultiDigitTitle,
+                    subtitle: day9MultiDigitSubtitle,
+                    description: day9MultiDigitDescription,
+                    items: day9MultiDigitItems,
+                    nextTitle: "만져보기",
+                    nextHint: "두 자리 이상 숫자 점자 터치 실습 화면으로 이동합니다",
+                    onNext: { goTo(.practiceMultiDigit) },
+                    onBack: { goTo(.intro) }
+                )
+
+            case .practiceMultiDigit:
+                CurriculumPracticeView(
+                    items: day9MultiDigitPracticeItems,
+                    useChosungForm: false,
+                    onNext: { goTo(.explainEffectEnd) },
+                    onBack: { goTo(.explainMultiDigit) }
+                )
+
+            case .explainEffectEnd:
+                CurriculumExplanationView(
+                    title: day9EffectEndTitle,
+                    subtitle: day9EffectEndSubtitle,
+                    description: day9EffectEndDescription,
+                    items: day9EffectEndItems,
+                    nextTitle: "만져보기",
+                    nextHint: "숫자와 한글 띄어쓰기 비교 실습 화면으로 이동합니다",
+                    onNext: { goTo(.practiceEffectEnd) },
+                    onBack: { goTo(.practiceMultiDigit) }
+                )
+
+            case .practiceEffectEnd:
+                CurriculumPracticeView(
+                    items: day9EffectEndPracticeItems,
+                    useChosungForm: false,
+                    finalNextTitle: "학습 완료",
+                    finalNextHint: "9일차 학습을 완료하고 학습홈으로 돌아갑니다",
+                    onNext: {
+                        item.isCompleted = true
+                        item.isInProgress = false
+                        UIAccessibility.post(notification: .announcement, argument: "9일차 학습을 완료했습니다")
+                        dismiss()
+                    },
+                    onBack: { goTo(.explainEffectEnd) }
+                )
+            }
+        }
+        .background(Color.appMainColor)
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private func goTo(_ step: Day9Step) {
+        withAnimation(.easeInOut(duration: 0.25)) {
+            currentStep = step
+        }
+        UIAccessibility.post(notification: .screenChanged, argument: nil)
+    }
+}
+
+// MARK: - 진행 바
+
+private struct Day9ProgressBar: View {
+    let current: Int
+    let total: Int
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<total, id: \.self) { index in
+                Capsule()
+                    .fill(index <= current ? Color.appSubColor : Color.gray.opacity(0.3))
+                    .frame(height: 4)
+            }
+        }
+        .padding(.vertical, 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("학습 진행 상황, \(total)단계 중 \(current + 1)단계")
+        .accessibilityValue("\(Int(Double(current + 1) / Double(total) * 100))퍼센트 진행")
+    }
+}
