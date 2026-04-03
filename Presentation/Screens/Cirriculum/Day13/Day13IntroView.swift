@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// 12일차 시작하기 화면
-struct Day12IntroView: View {
+/// 13일차 시작하기 화면
+struct Day13IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
 
@@ -16,11 +16,11 @@ struct Day12IntroView: View {
             Spacer(minLength: 40)
 
             VStack(spacing: 20) {
-                Text("12일차")
+                Text("13일차")
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("'ㅏ' 생략 약자의\n예외 규칙")
+                Text("묶음 약자 1\n(억, 언, 얼, 연, 열, 영)")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
@@ -30,7 +30,7 @@ struct Day12IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("무조건 'ㅏ'를 살려 적어야 하는\n'라, 차'를 기억하고, 약자 바로 뒤에\n모음이 이어질 때 반드시 'ㅏ'를\n부활시켜야 하는 예외 규칙을\n완벽히 마스터합니다.")
+                Text("'ㅓ'와 'ㅕ' 계열의 모음과 받침이\n하나로 합쳐진 묶음 약자를 익히고,\n특정 자음 뒤에서 '영'이 '엉'으로\n소리가 바뀌는 점자만의 신기한\n마법 규칙을 이해합니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day12IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("12일차, ㅏ 생략 약자의 함정 피하기, 예외 규칙. 오늘의 목표: 무조건 ㅏ를 살려 적어야 하는 라, 차를 기억하고, 약자 바로 뒤에 모음이 이어질 때 반드시 ㅏ를 부활시켜야 하는 예외 규칙을 완벽히 마스터합니다.")
+            .accessibilityLabel("13일차, 묶음 약자 1, 억, 언, 얼, 연, 열, 영. 오늘의 목표: ㅓ와 ㅕ 계열의 모음과 받침이 하나로 합쳐진 묶음 약자를 익히고, 특정 자음 뒤에서 영이 엉으로 소리가 바뀌는 점자만의 신기한 마법 규칙을 이해합니다.")
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)
@@ -61,6 +61,6 @@ struct Day12IntroView: View {
 }
 
 #Preview {
-    Day12IntroView(onStart: {}, onBack: {})
+    Day13IntroView(onStart: {}, onBack: {})
         .background(Color(.systemGroupedBackground))
 }

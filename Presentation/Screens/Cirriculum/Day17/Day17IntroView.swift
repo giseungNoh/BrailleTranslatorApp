@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// 12일차 시작하기 화면
-struct Day12IntroView: View {
+/// 17일차 시작하기 화면
+struct Day17IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
 
@@ -16,11 +16,11 @@ struct Day12IntroView: View {
             Spacer(minLength: 40)
 
             VStack(spacing: 20) {
-                Text("12일차")
+                Text("17일차")
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("'ㅏ' 생략 약자의\n예외 규칙")
+                Text("알파벳 점 추가 원리\n(k~z)와 대문자 기호")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
@@ -30,7 +30,7 @@ struct Day12IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("무조건 'ㅏ'를 살려 적어야 하는\n'라, 차'를 기억하고, 약자 바로 뒤에\n모음이 이어질 때 반드시 'ㅏ'를\n부활시켜야 하는 예외 규칙을\n완벽히 마스터합니다.")
+                Text("어제 배운 a~j 점형에 특정 점을\n추가하여 나머지 알파벳을 만드는\n원리를 두 단계로 나누어 깨우치고,\n대문자를 표기하는 3가지 마법의 기호를\n완벽히 마스터합니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day12IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("12일차, ㅏ 생략 약자의 함정 피하기, 예외 규칙. 오늘의 목표: 무조건 ㅏ를 살려 적어야 하는 라, 차를 기억하고, 약자 바로 뒤에 모음이 이어질 때 반드시 ㅏ를 부활시켜야 하는 예외 규칙을 완벽히 마스터합니다.")
+            .accessibilityLabel("17일차, 알파벳 점 추가 원리 k부터 z와 대문자 기호. 오늘의 목표: 어제 배운 a부터 j 점형에 특정 점을 추가하여 나머지 알파벳을 만드는 원리를 두 단계로 나누어 깨우치고, 대문자를 표기하는 3가지 마법의 기호 6점, 6 6점, 6 6 6점을 완벽히 마스터합니다.")
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)
@@ -61,6 +61,6 @@ struct Day12IntroView: View {
 }
 
 #Preview {
-    Day12IntroView(onStart: {}, onBack: {})
+    Day17IntroView(onStart: {}, onBack: {})
         .background(Color(.systemGroupedBackground))
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// 12일차 시작하기 화면
-struct Day12IntroView: View {
+/// 14일차 시작하기 화면
+struct Day14IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
 
@@ -16,11 +16,11 @@ struct Day12IntroView: View {
             Spacer(minLength: 40)
 
             VStack(spacing: 20) {
-                Text("12일차")
+                Text("14일차")
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("'ㅏ' 생략 약자의\n예외 규칙")
+                Text("묶음 약자 2와\n특수 약자 총정리")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
@@ -30,7 +30,7 @@ struct Day12IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("무조건 'ㅏ'를 살려 적어야 하는\n'라, 차'를 기억하고, 약자 바로 뒤에\n모음이 이어질 때 반드시 'ㅏ'를\n부활시켜야 하는 예외 규칙을\n완벽히 마스터합니다.")
+                Text("나머지 묶음 약자(옥~인)와\n특수 약자(것, 받침 ㅆ)를 익히고,\n오독을 막아주는 띄어쓰기 규칙(운) 및\n된소리 예외 규칙(껐)을 3단계로\n깔끔하게 마스터합니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day12IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("12일차, ㅏ 생략 약자의 함정 피하기, 예외 규칙. 오늘의 목표: 무조건 ㅏ를 살려 적어야 하는 라, 차를 기억하고, 약자 바로 뒤에 모음이 이어질 때 반드시 ㅏ를 부활시켜야 하는 예외 규칙을 완벽히 마스터합니다.")
+            .accessibilityLabel("14일차, 묶음 약자 2와 특수 약자 총정리. 오늘의 목표: 나머지 묶음 약자 옥에서 인까지와 특수 약자 것, 받침 쌍시옷을 익히고, 오독을 막아주는 띄어쓰기 규칙과 된소리 예외 규칙을 3단계로 깔끔하게 마스터합니다.")
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)
@@ -61,6 +61,6 @@ struct Day12IntroView: View {
 }
 
 #Preview {
-    Day12IntroView(onStart: {}, onBack: {})
+    Day14IntroView(onStart: {}, onBack: {})
         .background(Color(.systemGroupedBackground))
 }

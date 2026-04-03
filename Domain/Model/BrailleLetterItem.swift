@@ -7,6 +7,7 @@ struct BrailleLetterItem {
     let dotLabel: String    // 점형 설명 ("4점", "1·2·6점")
     var cellsPerLine: Int?  // nil이면 뷰의 기본값 사용
     var rawDots: String?    // 번역기 우회, 직접 점형 표시 ("1", "25" 등)
+    var rawDotLabels: String?  // rawDots 셀별 레이블 ("ㄱ,억" — 콤마 구분, rawDots 셀 수와 동일)
     var fromDotLabel: String?  // 변환 전 점형 (설명뷰에서 → 표시용)
 
     /// "4점" → [4], "1·4점" → [1, 4]
@@ -39,7 +40,15 @@ struct BrailleLetterItem {
     }
 
     private func parseDots(from label: String) -> Set<Int> {
-        Set(label.replacingOccurrences(of: "점", with: "")
+        // "연(1·6점)" 같은 형식이면 괄호 안 내용만 추출
+        let target: String
+        if let open = label.firstIndex(of: "("),
+           let close = label.firstIndex(of: ")") {
+            target = String(label[label.index(after: open)..<close])
+        } else {
+            target = label
+        }
+        return Set(target.replacingOccurrences(of: "점", with: "")
             .split(separator: "·")
             .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) })
     }

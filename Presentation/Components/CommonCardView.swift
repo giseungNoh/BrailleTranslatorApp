@@ -39,11 +39,11 @@ struct CommonCardView<Content: View>: View {
             CommonCardView {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("점자 기초")
-                        .font(.headline)
+                        .font(.headline) //headline
                         //.foregroundColor(.appTextPrimary)
 
                     Text("기초 점자를 학습해 보세요.")
-                        .font(.subheadline)
+                        .font(.subheadline)//subheadline
                         //.foregroundColor(.appTextSecondary)
                 }
             }

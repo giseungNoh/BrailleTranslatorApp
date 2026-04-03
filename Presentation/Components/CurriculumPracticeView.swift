@@ -55,7 +55,7 @@ struct CurriculumPracticeView: View {
 
             // MARK: 점자 캔버스
             BrailleCanvasView(
-                text: current.rawDots != nil ? "" : current.letter,
+                text: current.letter,
                 useAbbreviations: useAbbreviations,
                 cellsPerLineOverride: current.cellsPerLine ?? cellsPerLine,
                 useChosungForm: useChosungForm,
@@ -65,7 +65,12 @@ struct CurriculumPracticeView: View {
                 hideLabels: false,
                 enableOneFingerSwipe: true,
                 rawDotPatterns: current.rawDots.map { dotsStr in
-                    dotsStr.split(separator: ",").map { (dots: String($0), label: current.letter) }
+                    let dotParts = dotsStr.split(separator: ",")
+                    let labels = current.rawDotLabels?.split(separator: ",").map(String.init)
+                    return dotParts.enumerated().map { idx, dots in
+                        let label = (labels != nil && idx < labels!.count) ? labels![idx] : current.letter
+                        return (dots: String(dots), label: label)
+                    }
                 },
                 skipLeadingCells: skipLeadingCells,
                 centerVertically: true,

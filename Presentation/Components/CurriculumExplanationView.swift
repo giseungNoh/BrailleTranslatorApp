@@ -57,7 +57,9 @@ struct CurriculumExplanationView: View {
                         }
                     }
                     .padding(.horizontal, 20)
+                    .padding(.bottom, 4)
                 }
+                .scrollIndicators(.hidden)
 
                 Spacer(minLength: isCompact ? 12 : 20)
 
@@ -151,10 +153,11 @@ private struct LetterRowCard: View {
     // MARK: - 공용 서브뷰
 
     private var letterLabel: some View {
-        Text(item.letter)
-            .font(isCompact ? .title2.bold() : .title.bold())
+        let isLong = item.letter.count > 2
+        return Text(item.letter)
+            .font(isLong ? (isCompact ? .callout.bold() : .body.bold()) : (isCompact ? .title2.bold() : .title.bold()))
             .foregroundColor(.appTextColor)
-            .frame(width: isCompact ? 48 : 56)
+            .frame(width: isLong ? (isCompact ? 56 : 64) : (isCompact ? 48 : 56))
     }
 
     private var verticalDivider: some View {
@@ -172,11 +175,11 @@ private struct LetterRowCard: View {
 
             if hasTransformation {
                 Text("\(item.fromDotLabel!) → \(item.dotLabel)")
-                    .font(isCompact ? .footnote.bold() : .subheadline.bold())
+                    .font(.caption.bold())
                     .foregroundColor(.appSubColor)
             } else {
                 Text(item.dotLabel)
-                    .font(isCompact ? .footnote.bold() : .subheadline.bold())
+                    .font(.caption.bold())
                     .foregroundColor(.appSubColor)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -239,23 +242,28 @@ private struct LetterRowCard: View {
 
     private var compoundDiagramRow: some View {
         let tokens = item.dotLabel.components(separatedBy: " + ")
+        let cellCount = item.compoundDotSets.count
+        let isMany = cellCount >= 6
+        let dotSize: CGFloat = isMany ? 7 : (isCompact ? 8 : 9)
+        let dotSpacing: CGFloat = isMany ? 3 : (isCompact ? 3 : 4)
+        let hSpacing: CGFloat = isMany ? 8 : (isCompact ? 12 : 16)
 
-        return HStack(spacing: isCompact ? 12 : 16) {
+        return HStack(spacing: hSpacing) {
             ForEach(Array(item.compoundDotSets.enumerated()), id: \.offset) { idx, dots in
-                if idx > 0 {
+                if idx > 0 && !isMany {
                     Text("+")
                         .font(.caption2.bold())
                         .foregroundColor(.appSubColor)
                 }
-                VStack(spacing: 4) {
+                VStack(spacing: 3) {
                     BrailleDotDiagram(
                         activeDots: dots,
-                        dotSize: isCompact ? 8 : 9,
-                        spacing: isCompact ? 3 : 4
+                        dotSize: dotSize,
+                        spacing: dotSpacing
                     )
                     if idx < tokens.count {
                         Text(tokenName(from: tokens[idx]))
-                            .font(.caption2)
+                            .font(isMany ? .system(size: 9) : .caption2)
                             .foregroundColor(.appTextSubColor)
                             .accessibilityHidden(true)
                     }

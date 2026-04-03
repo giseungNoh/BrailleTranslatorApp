@@ -6,7 +6,7 @@ import Foundation
 
 let day11UniqueAbbrTitle = "특별한 모양을 가진 고유 약자"
 let day11UniqueAbbrSubtitle = "가 · 사 · 까 · 싸"
-let day11UniqueAbbrDescription = "점자에는 글자 수를 줄여 손가락이 읽는 속도를 높여주는 '약자'가 있습니다.\n\n그중 '가, 사, 까, 싸'는 첫소리 자음이나 모음과는 전혀 다른 모양으로, 그 글자만을 위해 특별하게 만들어진 독립적인 점형을 하나씩 꽉 찍어서 사용합니다."
+let day11UniqueAbbrDescription = "점자에는 글자 수를 줄여 손가락이 읽는 속도를 높여주는 '약자'가 있습니다.\n\n그중 '가, 사, 까, 싸'는 첫소리 자음이나 모음과는 전혀 다른 모양으로, 그 글자만을 위해 특별하게 만들어진 독립적인 점형을 사용합니다."
 
 /// 설명뷰 1 아이템 — 고유 약자
 let day11UniqueAbbrItems: [BrailleLetterItem] = [
@@ -27,9 +27,9 @@ let day11UniqueAbbrPracticeItems: [BrailleLetterItem] = [
 
 // MARK: 설명뷰 2 — 'ㅏ' 생략 약자
 
-let day11AomitTitle = "모음 'ㅏ'를 꿀꺽 삼키는 약자들"
+let day11AomitTitle = "모음 'ㅏ'를 생략하는 약자들"
 let day11AomitSubtitle = "나 · 다 · 마 · 바 · 자 · 카 · 타 · 파 · 하"
-let day11AomitDescription = "아주 재미있는 규칙입니다! '나, 다, 마, 바, 자, 카, 타, 파, 하' 그리고 '따, 빠, 짜'는 모음 'ㅏ'를 굳이 적지 않고 첫소리 자음만 딱! 적어두면, 그 자음이 통째로 'ㅏ'가 포함된 글자로 변신합니다.\n\n예를 들어 '바다'는 모음 없이 자음 'ㅂ'과 'ㄷ'만 연달아 적으면 완성됩니다!"
+let day11AomitDescription = "아주 재미있는 규칙입니다! '나, 다, 마, 바, 자, 카, 타, 파, 하' 그리고 '따, 빠, 짜'는 모음 'ㅏ'를 굳이 적지 않고 첫소리 자음만 적어두면, 그 자음이 통째로 'ㅏ'가 포함된 글자로 변신합니다.\n\n예를 들어 '바다'는 모음 없이 자음 'ㅂ'과 'ㄷ'만 연달아 적으면 완성됩니다!"
 
 /// 설명뷰 2 아이템 — 'ㅏ' 생략 약자
 let day11AomitItems: [BrailleLetterItem] = [

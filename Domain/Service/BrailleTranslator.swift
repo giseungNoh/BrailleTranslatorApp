@@ -97,7 +97,7 @@ class BrailleTranslator {
 
     // 약어 (Private Use Area 마커로 전처리)
     private let abbrKeys = ["그래서", "그러나", "그러면", "그러므로", "그런데", "그리고", "그리하여"]
-    private let abbrDots = ["4,234", "1,14", "1,25", "1,26", "1,1345", "1,136", "1,56"]
+    private let abbrDots = ["1,234", "1,14", "1,25", "1,26", "1,1345", "1,136", "1,56"]
 
     // MARK: - Translation Logic
 

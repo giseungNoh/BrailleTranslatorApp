@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// 12일차 시작하기 화면
-struct Day12IntroView: View {
+/// 16일차 시작하기 화면
+struct Day16IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
 
@@ -16,11 +16,11 @@ struct Day12IntroView: View {
             Spacer(minLength: 40)
 
             VStack(spacing: 20) {
-                Text("12일차")
+                Text("16일차")
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("'ㅏ' 생략 약자의\n예외 규칙")
+                Text("영어 알파벳 1\n거저먹는 a~j")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
@@ -30,7 +30,7 @@ struct Day12IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("무조건 'ㅏ'를 살려 적어야 하는\n'라, 차'를 기억하고, 약자 바로 뒤에\n모음이 이어질 때 반드시 'ㅏ'를\n부활시켜야 하는 예외 규칙을\n완벽히 마스터합니다.")
+                Text("영어 알파벳 a부터 j까지의 점형이\n숫자 1~0과 완벽하게 똑같다는\n놀라운 비밀을 이해하고,\n가장 쉽게 영어 점자에 입문합니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day12IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("12일차, ㅏ 생략 약자의 함정 피하기, 예외 규칙. 오늘의 목표: 무조건 ㅏ를 살려 적어야 하는 라, 차를 기억하고, 약자 바로 뒤에 모음이 이어질 때 반드시 ㅏ를 부활시켜야 하는 예외 규칙을 완벽히 마스터합니다.")
+            .accessibilityLabel("16일차, 영어 알파벳 1 거저먹는 a부터 j. 오늘의 목표: 영어 알파벳 a부터 j까지의 점형이 숫자 1에서 0과 완벽하게 똑같다는 놀라운 비밀을 이해하고, 가장 쉽게 영어 점자에 입문합니다.")
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)
@@ -61,6 +61,6 @@ struct Day12IntroView: View {
 }
 
 #Preview {
-    Day12IntroView(onStart: {}, onBack: {})
+    Day16IntroView(onStart: {}, onBack: {})
         .background(Color(.systemGroupedBackground))
 }

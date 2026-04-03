@@ -39,6 +39,22 @@ struct PracticeView: View {
                 Day11View(item: item)
             case 12:
                 Day12View(item: item)
+            case 13:
+                Day13View(item: item)
+            case 14:
+                Day14View(item: item)
+            case 15:
+                Day15View(item: item)
+            case 16:
+                Day16View(item: item)
+            case 17:
+                Day17View(item: item)
+            case 18:
+                Day18View(item: item)
+            case 19:
+                Day19View(item: item)
+            case 20:
+                Day20View(item: item)
             default:
                 defaultPracticeView
             }
