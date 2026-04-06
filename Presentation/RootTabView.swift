@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RootTabView: View {
     @AppStorage("appFontSize") private var appFontSize: Int = 0
+    @State private var selectedTab: Int = 0
 
     private var dynamicTypeSize: DynamicTypeSize {
         switch appFontSize {
@@ -21,20 +22,24 @@ struct RootTabView: View {
     }
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             CirriculumView()
+                .tag(0)
                 .tabItem { Label("학습", systemImage: "dot.square") }
                 .accessibilityLabel("학습 탭, 커리큘럼")
 
             TranslatorView()
+                .tag(1)
                 .tabItem { Label("점자번역", systemImage: "pencil") }
                 .accessibilityLabel("점자번역 탭")
 
             QuizView()
+                .tag(2)
                 .tabItem { Label("퀴즈", systemImage: "questionmark") }
                 .accessibilityLabel("퀴즈 탭")
 
             SettingView()
+                .tag(3)
                 .tabItem { Label("설정", systemImage: "gearshape") }
                 .accessibilityLabel("설정 탭")
         }

@@ -10,11 +10,11 @@ let day7CompoundDescription1 = "점자에서 겹받침을 만드는 방법은\n�
 
 /// 설명뷰 1 아이템 — 겹받침 앞 5개
 let day7CompoundItems1: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "기역시옷", letter: "ㄳ", dotLabel: "ㄱ(1점) + ㅅ(3점)"),
-    BrailleLetterItem(name: "니은지읒", letter: "ㄵ", dotLabel: "ㄴ(2·5점) + ㅈ(1·3점)"),
-    BrailleLetterItem(name: "니은히읗", letter: "ㄶ", dotLabel: "ㄴ(2·5점) + ㅎ(3·5·6점)"),
-    BrailleLetterItem(name: "리을기역", letter: "ㄺ", dotLabel: "ㄹ(2점) + ㄱ(1점)"),
-    BrailleLetterItem(name: "리을미음", letter: "ㄻ", dotLabel: "ㄹ(2점) + ㅁ(2·6점)"),
+    BrailleLetterItem(name: "기역시옷", letter: "ㄳ", dotLabel: "ㄱ(1점) + ㅅ(3점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "니은지읒", letter: "ㄵ", dotLabel: "ㄴ(2·5점) + ㅈ(1·3점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "니은히읗", letter: "ㄶ", dotLabel: "ㄴ(2·5점) + ㅎ(3·5·6점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "리을기역", letter: "ㄺ", dotLabel: "ㄹ(2점) + ㄱ(1점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "리을미음", letter: "ㄻ", dotLabel: "ㄹ(2점) + ㅁ(2·6점)", cellsPerLine: 2),
 ]
 
 // MARK: 설명뷰 2 — 나란히 이어 붙이는 겹받침 (뒤 6개)
@@ -25,12 +25,12 @@ let day7CompoundDescription2 = "나머지 겹받침도 같은 원리입니다.\n
 
 /// 설명뷰 2 아이템 — 겹받침 뒤 6개
 let day7CompoundItems2: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "리을비읍", letter: "ㄼ", dotLabel: "ㄹ(2점) + ㅂ(1·2점)"),
-    BrailleLetterItem(name: "리을시옷", letter: "ㄽ", dotLabel: "ㄹ(2점) + ㅅ(3점)"),
-    BrailleLetterItem(name: "리을티읕", letter: "ㄾ", dotLabel: "ㄹ(2점) + ㅌ(2·3·6점)"),
-    BrailleLetterItem(name: "리을피읖", letter: "ㄿ", dotLabel: "ㄹ(2점) + ㅍ(2·5·6점)"),
-    BrailleLetterItem(name: "리을히읗", letter: "ㅀ", dotLabel: "ㄹ(2점) + ㅎ(3·5·6점)"),
-    BrailleLetterItem(name: "비읍시옷", letter: "ㅄ", dotLabel: "ㅂ(1·2점) + ㅅ(3점)"),
+    BrailleLetterItem(name: "리을비읍", letter: "ㄼ", dotLabel: "ㄹ(2점) + ㅂ(1·2점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "리을시옷", letter: "ㄽ", dotLabel: "ㄹ(2점) + ㅅ(3점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "리을티읕", letter: "ㄾ", dotLabel: "ㄹ(2점) + ㅌ(2·3·6점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "리을피읖", letter: "ㄿ", dotLabel: "ㄹ(2점) + ㅍ(2·5·6점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "리을히읗", letter: "ㅀ", dotLabel: "ㄹ(2점) + ㅎ(3·5·6점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "비읍시옷", letter: "ㅄ", dotLabel: "ㅂ(1·2점) + ㅅ(3점)", cellsPerLine: 2),
 ]
 
 /// 실습뷰 1 — 겹받침 조합 훈련 (번역기 + skipLeadingCells로 온표 제거)

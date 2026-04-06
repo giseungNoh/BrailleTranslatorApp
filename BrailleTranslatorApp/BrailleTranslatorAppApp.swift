@@ -9,7 +9,8 @@ struct BrailleApp: App {
         do {
             let schema = Schema([
                 LearningItem.self,
-                SavedWord.self
+                SavedWord.self,
+                QuizAttempt.self
             ])
             let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
             container = try ModelContainer(for: schema, configurations: [modelConfiguration])
