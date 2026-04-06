@@ -4,7 +4,12 @@ import SwiftData
 /// 퀴즈 카테고리 선택 리스트
 struct QuizCategoryListView: View {
     @ObservedObject var viewModel: QuizViewModel
-    @Query(filter: #Predicate<QuizAttempt> { !$0.isCorrect })
+    @Query(filter: #Predicate<QuizAttempt> {
+        !$0.isCorrect
+        && $0.userSelectedLetter != "북마크"
+        && $0.userSelectedLetter != "O"
+        && $0.userSelectedLetter != "X"
+    })
     private var wrongAnswers: [QuizAttempt]
     @Query(filter: #Predicate<QuizAttempt> { $0.isCorrect })
     private var correctAnswers: [QuizAttempt]
@@ -85,6 +90,21 @@ struct QuizCategoryListView: View {
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("전체 진행률. \(totalQuestions)문제 중 \(totalSolved)문제 완료")
 
+                    // MARK: 이어서하기 카드
+                    if viewModel.hasActiveSession,
+                       let category = viewModel.currentCategory {
+                        ResumeCard(
+                            categoryTitle: category.title,
+                            answeredCount: viewModel.sessionResults.count,
+                            totalCount: viewModel.questions.count,
+                            progress: viewModel.activeSessionProgress
+                        ) {
+                            viewModel.resumeQuiz()
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 12)
+                    }
+
                     // MARK: 오답노트 카드
                     WrongAnswerNoteCard(wrongCount: wrongAnswers.count) {
                         viewModel.goTo(.wrongAnswerList)
@@ -154,7 +174,7 @@ private struct WrongAnswerNoteCard: View {
     let wrongCount: Int
     let onTap: () -> Void
 
-    @ScaledMetric(relativeTo: .title2) private var iconSize: CGFloat = 52
+    @ScaledMetric(relativeTo: .title2) private var iconSize: CGFloat = 45
 
     var body: some View {
         Button(action: onTap) {
@@ -169,11 +189,11 @@ private struct WrongAnswerNoteCard: View {
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text("오답노트")
-                        .font(.title3.bold())
+                        .font(.subheadline)
                         .foregroundColor(.appTextColor)
 
                     Text("틀린 문제를 다시 복습하세요")
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundColor(.appTextSubColor)
                 }
                 Spacer(minLength: 8)
@@ -256,6 +276,84 @@ private struct QuizCategoryCard: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(category.title). \(category.subtitle). \(category.questionCount)문제. \(solvedCount)문제 정답")
         .accessibilityHint("두번 탭하여 퀴즈를 시작합니다")
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
+// MARK: - 이어서하기 카드
+
+private struct ResumeCard: View {
+    let categoryTitle: String
+    let answeredCount: Int
+    let totalCount: Int
+    let progress: Double
+    let onTap: () -> Void
+
+    @ScaledMetric(relativeTo: .title2) private var iconSize: CGFloat = 54
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 12) {
+
+                // 상단: 아이콘 + 타이틀 + 문제 수
+                HStack(spacing: 14) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .frame(width: iconSize, height: iconSize)
+                        .background(Color.appSubColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("이어서 풀기")
+                            .font(.headline.bold())
+                            .foregroundColor(.appTextColor)
+
+                        Text(categoryTitle)
+                            .font(.subheadline)
+                            .foregroundColor(.appTextSubColor)
+                            .lineLimit(1)
+                    }
+
+                    Spacer(minLength: 8)
+
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("\(answeredCount)/\(totalCount)")
+                            .font(.title3.bold())
+                            .foregroundColor(.appSubColor)
+
+                        Text("문제")
+                            .font(.caption2)
+                            .foregroundColor(.appTextSubColor)
+                    }
+                }
+
+                // 하단: 진행률 바
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(height: 8)
+
+                        Capsule()
+                            .fill(Color.appSubColor)
+                            .frame(
+                                width: geo.size.width * CGFloat(progress),
+                                height: 8
+                            )
+                    }
+                }
+                .frame(height: 8)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 20)
+            .appCard(cornerRadius: 18)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("이어서 풀기. \(categoryTitle). \(totalCount)문제 중 \(answeredCount)문제 완료")
+        .accessibilityHint("두번 탭하여 이어서 풀기로 이동합니다")
         .accessibilityAddTraits(.isButton)
     }
 }

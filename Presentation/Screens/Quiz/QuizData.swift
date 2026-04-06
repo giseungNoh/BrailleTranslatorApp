@@ -269,3 +269,136 @@ enum QuizGenerator {
         return questions
     }
 }
+
+// MARK: - 해설 제공 (커리큘럼 데이터 기반)
+
+enum QuizExplanationProvider {
+
+    /// 카테고리 + 글자로 해설 반환
+    static func explanation(for letter: String, categoryId: String) -> String {
+        switch categoryId {
+
+        // MARK: 기본 자음
+        case "consonant_basic":
+            for group in day2ConsonantGroups {
+                if group.items.contains(where: { $0.letter == letter }) {
+                    let item = group.items.first { $0.letter == letter }!
+                    return "\(group.title) 그룹입니다.\n\(item.name)(\(item.letter))은 \(item.dotLabel)으로 구성됩니다.\n\n\(group.description)"
+                }
+            }
+
+        // MARK: 거센소리·된소리
+        case "consonant_extra":
+            if let item = day3ConsonantGroup.items.first(where: { $0.letter == letter }) {
+                return "\(day3ConsonantGroup.title) 그룹입니다.\n\(item.name)(\(item.letter))은 \(item.dotLabel)으로 구성됩니다.\n\n\(day3ConsonantGroup.description)"
+            }
+            if let item = day3DoubleConsonantItems.first(where: { $0.letter == letter }) {
+                return "된소리 자음입니다.\n\(item.name)(\(item.letter))은 \(item.dotLabel)으로 구성됩니다.\n\n된소리는 해당 자음 앞에 된소리표(6점)를 붙여서 표현합니다."
+            }
+
+        // MARK: 기본 모음
+        case "vowel_basic":
+            for group in day4VowelGroups {
+                if group.items.contains(where: { $0.letter == letter }) {
+                    let item = group.items.first { $0.letter == letter }!
+                    return "\(group.title) 그룹입니다.\n\(item.name)(\(item.letter))은 \(item.dotLabel)으로 구성됩니다.\n\n\(group.description)"
+                }
+            }
+
+        // MARK: 이중 모음
+        case "vowel_double":
+            if let item = day5SingleCellVowelItems.first(where: { $0.letter == letter }) {
+                return "한 칸 이중 모음입니다.\n\(item.name)(\(item.letter))은 \(item.dotLabel)으로 한 칸에 표현됩니다.\n\n\(day5ExplanationDescription)"
+            }
+
+        // MARK: 밀기 받침
+        case "jongseong_push":
+            if let item = day6PushItems.first(where: { $0.letter == letter }) {
+                return "밀기 받침입니다.\n\(item.name)(\(item.letter)) 초성은 \(item.fromDotLabel ?? "")이지만, 받침은 왼쪽으로 밀어서 \(item.dotLabel)이 됩니다.\n\n\(day6PushDescription)"
+            }
+
+        // MARK: 내리기 받침
+        case "jongseong_drop":
+            if let item = day6DropItems.first(where: { $0.letter == letter }) {
+                return "내리기 받침입니다.\n\(item.name)(\(item.letter)) 초성은 \(item.fromDotLabel ?? "")이지만, 받침은 아래로 내려서 \(item.dotLabel)이 됩니다.\n\n\(day6DropDescription)"
+            }
+
+        // MARK: 겹받침
+        case "jongseong_compound":
+            if let item = (day7CompoundItems1 + day7CompoundItems2).first(where: { $0.letter == letter }) {
+                return "겹받침입니다.\n\(item.name)(\(item.letter))은 홑받침 두 개를 나란히 이어 적습니다.\n점형: \(item.dotLabel)\n\n\(day7CompoundDescription1)"
+            }
+
+        // MARK: ㅏ 생략 약자
+        case "abbr_a_omit":
+            if let item = day11AomitItems.first(where: { $0.letter == letter }) {
+                return "모음 'ㅏ' 생략 약자입니다.\n\(item.letter)은 자음만 적으면 'ㅏ'가 자동으로 포함됩니다.\n점형: \(item.dotLabel)\n\n\(day11AomitDescription)"
+            }
+
+        // MARK: 묶음 약자
+        case "abbreviations":
+            if let item = day13EoSeriesItems.first(where: { $0.letter == letter }) {
+                return "'ㅓ' 계열 묶음 약자입니다.\n\(item.letter)은 한 칸으로 압축된 약자입니다.\n점형: \(item.dotLabel)\n\n\(day13EoSeriesDescription)"
+            }
+            if let item = day13YeoSeriesItems.first(where: { $0.letter == letter }) {
+                return "'ㅕ' 계열 묶음 약자입니다.\n\(item.letter)은 한 칸으로 압축된 약자입니다.\n점형: \(item.dotLabel)\n\n\(day13YeoSeriesDescription)"
+            }
+            if let item = day14AbbrOhItems.first(where: { $0.letter == letter }) {
+                return "'ㅗ' 계열 묶음 약자입니다.\n\(item.letter)은 한 칸으로 압축된 약자입니다.\n점형: \(item.dotLabel)\n\n\(day14AbbrOhDescription)"
+            }
+            if let item = day14AbbrUEuInItems.first(where: { $0.letter == letter }) {
+                return "'ㅜ/ㅡ/ㅣ' 계열 묶음 약자입니다.\n\(item.letter)은 한 칸으로 압축된 약자입니다.\n점형: \(item.dotLabel)\n\n\(day14AbbrUEuInDescription)"
+            }
+            if let item = day14SpecialAbbrItems.first(where: { $0.letter == letter }) {
+                return "특수 약자입니다.\n점형: \(item.dotLabel)\n\n\(day14SpecialAbbrDescription)"
+            }
+
+        // MARK: 접속사 약어
+        case "abbr_conjunction":
+            if let item = day15AbbrIntroItems.first(where: { $0.letter == letter }) {
+                return "접속사 약어입니다.\n\(item.letter)은 두 칸으로 압축됩니다.\n점형: \(item.dotLabel)\n\n\(day15AbbrIntroDescription)"
+            }
+
+        // MARK: 숫자와 연산 기호
+        case "numbers":
+            if let item = day8NumberItems2.first(where: { $0.letter == letter }) {
+                return "숫자입니다.\n\(item.name)은 수표(3·4·5·6점) 뒤에 \(item.dotLabel)을 적어 표현합니다.\n\n\(day8NumberDescription2)"
+            }
+            if let item = day8NumberItems3.first(where: { $0.letter == letter }) {
+                return "숫자입니다.\n\(item.name)은 수표(3·4·5·6점) 뒤에 \(item.dotLabel)을 적어 표현합니다.\n\n\(day8NumberDescription3)"
+            }
+            if let item = day19MathItems.first(where: { $0.letter == letter }) {
+                return "연산 기호입니다.\n\(item.name)은 \(item.dotLabel)으로 표현됩니다.\n\n\(day19MathDescription)"
+            }
+
+        // MARK: 영어 a~j
+        case "alpha_aj":
+            if let item = (day16AlphaAEItems + day16AlphaFJItems).first(where: { $0.letter == letter }) {
+                return "영어 알파벳입니다.\n\(item.letter)은 \(item.dotLabel)으로 표현됩니다.\n\n영어 a~j의 점형은 숫자 1~0과 동일합니다. 로마자표(3·5·6점)로 영어임을 표시합니다."
+            }
+
+        // MARK: 영어 k~z
+        case "alpha_kz":
+            if let item = day17KTItems.first(where: { $0.letter == letter }) {
+                return "영어 알파벳입니다.\n\(item.letter)은 \(item.dotLabel)으로 표현됩니다.\n\n\(day17KTDescription)"
+            }
+            if let item = day17UZItems.first(where: { $0.letter == letter }) {
+                return "영어 알파벳입니다.\n\(item.letter)은 \(item.dotLabel)으로 표현됩니다.\n\n\(day17UZDescription)"
+            }
+
+        // MARK: 문장 부호
+        case "punctuation":
+            if let item = day18BasicPuncItems.first(where: { $0.letter == letter }) {
+                return "기본 문장 부호입니다.\n\(item.name)은 \(item.dotLabel)으로 표현됩니다.\n\n\(day18BasicPuncDescription)"
+            }
+            if let item = day18PairPuncItems.first(where: { $0.letter == letter }) {
+                return "묶음 부호입니다.\n\(item.name)은 \(item.dotLabel)으로 표현됩니다.\n\n\(day18PairPuncDescription)"
+            }
+
+        default:
+            break
+        }
+
+        return "이 글자의 점형을 직접 만져보며 익혀보세요."
+    }
+}

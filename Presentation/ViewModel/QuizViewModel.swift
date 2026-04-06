@@ -77,6 +77,19 @@ class QuizViewModel: ObservableObject {
         currentQuestionIndex >= questions.count - 1
     }
 
+    /// 이어서 풀 수 있는 활성 세션이 있는지
+    var hasActiveSession: Bool {
+        currentCategory != nil
+        && !questions.isEmpty
+        && sessionResults.count < questions.count
+    }
+
+    /// 활성 세션 진행률 (0.0 ~ 1.0)
+    var activeSessionProgress: Double {
+        guard !questions.isEmpty else { return 0 }
+        return Double(sessionResults.count) / Double(questions.count)
+    }
+
     var isFirstQuestion: Bool {
         currentQuestionIndex == 0
     }
@@ -133,18 +146,51 @@ class QuizViewModel: ObservableObject {
     }
 
     func proceedToNext(context: ModelContext) {
-        // 정답/오답 모두 SwiftData에 저장
+        // 정답/오답 SwiftData에 저장
         if let lastResult = sessionResults.last {
-            let attempt = QuizAttempt(
-                categoryId: lastResult.categoryId,
-                questionText: lastResult.questionText,
-                correctLetter: lastResult.correctLetter,
-                correctDotLabel: lastResult.correctDotLabel,
-                correctRawDots: lastResult.correctRawDots,
-                userSelectedLetter: lastResult.userSelectedLetter,
-                isCorrect: lastResult.isCorrect
-            )
-            context.insert(attempt)
+            // O/X 문제는 오답노트에 저장하지 않음 (규칙 문제라 글자 복습 대상 아님)
+            let isOXAnswer = lastResult.userSelectedLetter == "O"
+                || lastResult.userSelectedLetter == "X"
+
+            if lastResult.isCorrect {
+                // 정답: 그대로 저장 (진행률 추적용)
+                let attempt = QuizAttempt(
+                    categoryId: lastResult.categoryId,
+                    questionText: lastResult.questionText,
+                    correctLetter: lastResult.correctLetter,
+                    correctDotLabel: lastResult.correctDotLabel,
+                    correctRawDots: lastResult.correctRawDots,
+                    userSelectedLetter: lastResult.userSelectedLetter,
+                    isCorrect: true
+                )
+                context.insert(attempt)
+            } else if !isOXAnswer {
+                // 객관식 오답: 같은 글자의 기존 오답이 없을 때만 저장
+                let letter = lastResult.correctLetter
+                let descriptor = FetchDescriptor<QuizAttempt>(
+                    predicate: #Predicate {
+                        $0.correctLetter == letter
+                        && !$0.isCorrect
+                        && $0.userSelectedLetter != "북마크"
+                        && $0.userSelectedLetter != "O"
+                        && $0.userSelectedLetter != "X"
+                    }
+                )
+                let existing = (try? context.fetch(descriptor)) ?? []
+                if existing.isEmpty {
+                    let attempt = QuizAttempt(
+                        categoryId: lastResult.categoryId,
+                        questionText: lastResult.questionText,
+                        correctLetter: lastResult.correctLetter,
+                        correctDotLabel: lastResult.correctDotLabel,
+                        correctRawDots: lastResult.correctRawDots,
+                        userSelectedLetter: lastResult.userSelectedLetter,
+                        isCorrect: false
+                    )
+                    context.insert(attempt)
+                }
+            }
+            // O/X 오답은 저장하지 않음
         }
 
         showResult = false
@@ -268,6 +314,32 @@ class QuizViewModel: ObservableObject {
         default:
             break
         }
+    }
+
+    /// 기존 O/X 오답 + 중복 오답 정리 (한 번만 실행)
+    func cleanUpWrongAnswers(context: ModelContext) {
+        let descriptor = FetchDescriptor<QuizAttempt>(
+            predicate: #Predicate { !$0.isCorrect && $0.userSelectedLetter != "북마크" }
+        )
+        guard let allWrong = try? context.fetch(descriptor) else { return }
+
+        // 1) O/X 오답 삭제
+        let oxAnswers = allWrong.filter { $0.userSelectedLetter == "O" || $0.userSelectedLetter == "X" }
+        for item in oxAnswers {
+            context.delete(item)
+        }
+
+        // 2) 같은 correctLetter 중복 제거 (가장 최신만 유지)
+        let realWrong = allWrong.filter { $0.userSelectedLetter != "O" && $0.userSelectedLetter != "X" }
+        let grouped = Dictionary(grouping: realWrong) { $0.correctLetter }
+        for (_, items) in grouped where items.count > 1 {
+            let sorted = items.sorted { $0.timestamp > $1.timestamp }
+            for duplicate in sorted.dropFirst() {
+                context.delete(duplicate)
+            }
+        }
+
+        try? context.save()
     }
 
     func goTo(_ step: QuizStep) {
