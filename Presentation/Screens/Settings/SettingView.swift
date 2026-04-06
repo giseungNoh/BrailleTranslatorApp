@@ -30,9 +30,9 @@ struct SettingView: View {
             }
             .padding(.horizontal, 16)
             .frame(height: 56)
-            .background(Color.white)
+            .background(Color.clear)
             .overlay(
-                Divider().alignmentGuide(.bottom) { d in d[.bottom] },
+                Divider().opacity(0.12),
                 alignment: .bottom
             )
 
@@ -94,7 +94,10 @@ struct SettingView: View {
                             )
                         }
                     }
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.4))
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 16)
 
                     Divider().padding(.vertical, 8)
 
@@ -108,7 +111,10 @@ struct SettingView: View {
                             isOn: $settings.isDotNumberAnnouncementEnabled
                         )
                     }
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.4))
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 16)
 
                     Divider().padding(.vertical, 8)
 
@@ -152,7 +158,10 @@ struct SettingView: View {
                             isIncrementDisabled: settings.appFontSize >= 2
                         )
                     }
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.4))
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 16)
 
                     Divider().padding(.vertical, 8)
 
@@ -200,12 +209,16 @@ struct SettingView: View {
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel("버전 정보, 1.0.4")
                     }
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.4))
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 16)
                     .padding(.bottom, 40)
                 }
             }
-            .background(Color.white)
+            .background(Color.clear)
         }
+        .meshBackground()
         .toolbar(.hidden, for: .navigationBar)
     }
 

@@ -63,7 +63,7 @@ struct QuizSolvingView: View {
                 }
             }
         }
-        .background(Color(.systemBackground))
+        .meshBackground()
         .accessibilityAction(.escape) {
             viewModel.goTo(.categorySelection)
         }

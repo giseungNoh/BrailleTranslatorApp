@@ -27,7 +27,7 @@ struct CommonNavigationBar<Leading: View, Trailing: View>: View {
             ZStack {
                 // 배경
                 Rectangle()
-                    .fill(.background)
+                    .fill(Color.clear)
                     .ignoresSafeArea(edges: .top)
 
                 HStack {

@@ -208,7 +208,7 @@ struct WrongAnswerDetailView: View {
                 Spacer()
             }
         }
-        .background(Color(.systemBackground))
+        .meshBackground()
         .accessibilityAction(.escape) {
             viewModel.goTo(.wrongAnswerList)
         }
@@ -405,7 +405,7 @@ private struct WrongAnswerTouchView: View {
                 )
             }
         }
-        .background(Color(.systemBackground))
+        .meshBackground()
         .accessibilityAction(.escape) {
             onBack()
         }

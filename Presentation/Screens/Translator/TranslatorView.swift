@@ -132,10 +132,12 @@ struct TranslatorView: View {
                             .animation(.easeInOut, value: isBrailleInteracting)
                             
                             ZStack {
-                                // 배경 카드
+                                // 배경 카드 (글래스 효과 적용)
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.white)
-                                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                                    .fill(Color.white.opacity(0.8))
+                                    .background(.ultraThinMaterial)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 4)
                                 
                                 if viewModel.inputText.isEmpty {
                                     // 텍스트가 없을 때 안내 문구
@@ -163,7 +165,7 @@ struct TranslatorView: View {
                 .scrollDisabled(isBrailleInteracting) // 점자 터치 중일 때 스크롤 잠금
                 // 번역 결과 뷰는 요청에 따라 제외함
             }
-            .background(Color.white)
+            .meshBackground()
             .toolbar(.hidden, for: .navigationBar)
             .onTapGesture {
                 isFocused = false

@@ -185,7 +185,7 @@ struct CirriculumView: View {
                         }
                     }
                 }
-                .background(Color.appMainColor)
+                .meshBackground()
             }
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $navigateToLastStudied) {
@@ -238,9 +238,9 @@ private struct CurriculumDayRow: View {
     let item: LearningItem
 
     private var statusColor: Color {
-        if item.isCompleted { return .green }
-        if item.isInProgress == true { return .orange }
-        return .gray
+        if item.isCompleted { return Color.green }
+        if item.isInProgress == true { return Color.orange }
+        return Color.gray
     }
 
     private var statusLabel: String {
@@ -250,26 +250,32 @@ private struct CurriculumDayRow: View {
     }
 
     var body: some View {
-        CommonCardView {
-            HStack(alignment: .top, spacing: 14) {
-                // 일차 번호 원형 뱃지
-                Text("\(item.day)")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
-                    .background(item.isCompleted ? Color.green : (item.isInProgress == true ? Color.orange : Color.appSubColor))
-                    .clipShape(Circle())
+        CommonCardView(padding: 12) {
+            HStack(alignment: .center, spacing: 14) {
+                // 일차 표시 배지 (N일차)
+                VStack(spacing: 2) {
+                    Text("\(item.day)")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                    Text("일차")
+                        .font(.system(size: 10, weight: .medium))
+                }
+                .foregroundColor(.white)
+                .frame(width: 50, height: 50)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(item.isCompleted ? Color.green : (item.isInProgress == true ? Color.orange : Color.appSubColor))
+                )
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     // 상태 배지
                     Text(statusLabel)
                         .font(.caption2)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(statusColor.opacity(0.15))
+                        .padding(.vertical, 3)
+                        .background(statusColor.opacity(0.12))
                         .foregroundColor(statusColor)
-                        .cornerRadius(7)
+                        .cornerRadius(6)
 
                     // 제목
                     Text(item.title)
@@ -283,15 +289,16 @@ private struct CurriculumDayRow: View {
                         .foregroundColor(.appTextSubColor)
                         .lineLimit(2)
                 }
+                .padding(.vertical, 2)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.appSubColor)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.appSubColor.opacity(0.6))
                     .accessibilityHidden(true)
-                    .padding(.top, 40)
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 4)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(item.day)일차, \(item.title), \(item.subtitle), \(statusLabel)")
             .accessibilityHint("두번 탭하여 연습 화면으로 이동")

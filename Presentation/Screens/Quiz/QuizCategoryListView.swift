@@ -159,7 +159,7 @@ struct QuizCategoryListView: View {
                 }
             }
         }
-        .background(Color(.systemBackground))
+            .meshBackground()
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isTitleFocused = true
