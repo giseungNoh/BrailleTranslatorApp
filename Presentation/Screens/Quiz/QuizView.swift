@@ -22,6 +22,9 @@ struct QuizView: View {
 
             case .wrongAnswerDetail(let letter):
                 WrongAnswerDetailView(viewModel: viewModel, correctLetter: letter)
+
+            case .wrongAnswerOXDetail(let attemptId):
+                WrongAnswerOXDetailView(viewModel: viewModel, attemptId: attemptId)
             }
         }
         .accessibilityAction(.escape) {

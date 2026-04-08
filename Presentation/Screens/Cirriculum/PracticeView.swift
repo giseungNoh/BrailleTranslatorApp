@@ -113,7 +113,7 @@ struct PracticeView: View {
             }
             .padding(20)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color.appMainColor)
+            .meshBackground()
         }
         .toolbar(.hidden, for: .navigationBar)
     }

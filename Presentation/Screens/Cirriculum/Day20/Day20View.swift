@@ -101,7 +101,8 @@ struct Day20View: View {
                 )
             }
         }
-        .background(Color.appMainColor)
+                .meshBackground()
+
         .toolbar(.hidden, for: .navigationBar)
     }
 

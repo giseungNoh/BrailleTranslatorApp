@@ -6,11 +6,15 @@ struct QuizCategoryListView: View {
     @ObservedObject var viewModel: QuizViewModel
     @Query(filter: #Predicate<QuizAttempt> {
         !$0.isCorrect
+        && $0.isOXQuestion == false
         && $0.userSelectedLetter != "북마크"
-        && $0.userSelectedLetter != "O"
-        && $0.userSelectedLetter != "X"
     })
     private var wrongAnswers: [QuizAttempt]
+    @Query(filter: #Predicate<QuizAttempt> {
+        !$0.isCorrect
+        && $0.isOXQuestion == true
+    })
+    private var oxWrongAnswers: [QuizAttempt]
     @Query(filter: #Predicate<QuizAttempt> { $0.isCorrect })
     private var correctAnswers: [QuizAttempt]
     @AccessibilityFocusState private var isTitleFocused: Bool
@@ -106,7 +110,7 @@ struct QuizCategoryListView: View {
                     }
 
                     // MARK: 오답노트 카드
-                    WrongAnswerNoteCard(wrongCount: wrongAnswers.count) {
+                    WrongAnswerNoteCard(wrongCount: wrongAnswers.count + oxWrongAnswers.count) {
                         viewModel.goTo(.wrongAnswerList)
                     }
                     .padding(.horizontal, 20)

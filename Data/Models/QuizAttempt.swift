@@ -13,6 +13,10 @@ class QuizAttempt {
     var userSelectedLetter: String
     var isCorrect: Bool
     var timestamp: Date
+    /// O/X 규칙 문제 여부
+    var isOXQuestion: Bool = false
+    /// O/X 해설 텍스트
+    var explanation: String?
 
     init(
         categoryId: String,
@@ -21,7 +25,9 @@ class QuizAttempt {
         correctDotLabel: String,
         correctRawDots: String? = nil,
         userSelectedLetter: String,
-        isCorrect: Bool
+        isCorrect: Bool,
+        isOXQuestion: Bool = false,
+        explanation: String? = nil
     ) {
         self.id = UUID()
         self.categoryId = categoryId
@@ -32,5 +38,7 @@ class QuizAttempt {
         self.userSelectedLetter = userSelectedLetter
         self.isCorrect = isCorrect
         self.timestamp = Date()
+        self.isOXQuestion = isOXQuestion
+        self.explanation = explanation
     }
 }

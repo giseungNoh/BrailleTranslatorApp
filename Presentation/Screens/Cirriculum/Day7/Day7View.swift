@@ -96,7 +96,8 @@ struct Day7View: View {
                 )
             }
         }
-        .background(Color.appMainColor)
+                .meshBackground()
+
         .toolbar(.hidden, for: .navigationBar)
     }
 

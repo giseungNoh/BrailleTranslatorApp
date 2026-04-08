@@ -84,7 +84,8 @@ struct Day4View: View {
                 )
             }
         }
-        .background(Color.appMainColor)
+                .meshBackground()
+
         .toolbar(.hidden, for: .navigationBar)
     }
 

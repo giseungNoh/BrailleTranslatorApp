@@ -89,7 +89,7 @@ struct Day2View: View {
                 )
             }
         }
-        .background(Color.appMainColor)
+        .meshBackground()
         .toolbar(.hidden, for: .navigationBar)
     }
 

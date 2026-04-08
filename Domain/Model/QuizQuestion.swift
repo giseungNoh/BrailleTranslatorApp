@@ -1,13 +1,13 @@
 import Foundation
 
 /// 퀴즈 문제 유형
-enum QuizType: Sendable {
+enum QuizType: Sendable, Codable {
     case multipleChoice   // 객관식: 3개 보기 중 정답 선택
     case oxQuestion       // O/X: 제시된 점자가 맞는지 판별
 }
 
 /// 퀴즈 문제 데이터
-struct QuizQuestion: Identifiable, Sendable {
+struct QuizQuestion: Identifiable, Sendable, Codable {
     let id: UUID
     let type: QuizType
     let questionText: String            // "다음 중 'ㄱ'의 점자를 고르세요"
