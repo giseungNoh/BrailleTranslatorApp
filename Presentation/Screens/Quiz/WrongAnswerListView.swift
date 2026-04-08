@@ -9,20 +9,34 @@ struct WrongAnswerListView: View {
         filter: #Predicate<QuizAttempt> {
             !$0.isCorrect
             && $0.userSelectedLetter != "북마크"
-            && $0.userSelectedLetter != "O"
-            && $0.userSelectedLetter != "X"
+            && $0.isOXQuestion == false
         },
         sort: \QuizAttempt.timestamp,
         order: .reverse
     ) private var wrongAnswers: [QuizAttempt]
+    @Query(
+        filter: #Predicate<QuizAttempt> {
+            !$0.isCorrect
+            && $0.isOXQuestion == true
+        },
+        sort: \QuizAttempt.timestamp,
+        order: .reverse
+    ) private var oxWrongAnswers: [QuizAttempt]
     @AccessibilityFocusState private var isTitleFocused: Bool
 
-    /// 카테고리별로 그룹핑 (quizCategories 순서 유지)
-    private var groupedWrongAnswers: [(category: QuizCategory, attempts: [QuizAttempt])] {
-        let byCategory = Dictionary(grouping: wrongAnswers) { $0.categoryId }
+    private var allWrongCount: Int {
+        wrongAnswers.count + oxWrongAnswers.count
+    }
+
+    /// 카테고리별로 그룹핑 (객관식 + OX 통합, quizCategories 순서 유지)
+    private var groupedWrongAnswers: [(category: QuizCategory, regulars: [QuizAttempt], oxItems: [QuizAttempt])] {
+        let regularByCategory = Dictionary(grouping: wrongAnswers) { $0.categoryId }
+        let oxByCategory = Dictionary(grouping: oxWrongAnswers) { $0.categoryId }
         return quizCategories.compactMap { category in
-            guard let attempts = byCategory[category.id], !attempts.isEmpty else { return nil }
-            return (category: category, attempts: attempts)
+            let regulars = regularByCategory[category.id] ?? []
+            let oxItems = oxByCategory[category.id] ?? []
+            guard !regulars.isEmpty || !oxItems.isEmpty else { return nil }
+            return (category: category, regulars: regulars, oxItems: oxItems)
         }
     }
 
@@ -40,14 +54,14 @@ struct WrongAnswerListView: View {
                 .accessibilityHint("카테고리 선택으로 돌아갑니다")
             }
 
-            if wrongAnswers.isEmpty {
+            if allWrongCount == 0 {
                 emptyView
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         // 상단 요약
                         HStack {
-                            Text("총 \(wrongAnswers.count)개의 틀린 문제")
+                            Text("총 \(allWrongCount)개의 틀린 문제")
                                 .font(.subheadline)
                                 .foregroundColor(.appTextSubColor)
                             Spacer()
@@ -57,6 +71,7 @@ struct WrongAnswerListView: View {
 
                         // 카테고리별 섹션
                         ForEach(groupedWrongAnswers, id: \.category.id) { group in
+                            let totalCount = group.regulars.count + group.oxItems.count
                             VStack(alignment: .leading, spacing: 10) {
                                 // 섹션 헤더
                                 HStack(spacing: 8) {
@@ -64,7 +79,7 @@ struct WrongAnswerListView: View {
                                         .font(.subheadline.bold())
                                         .foregroundColor(.appTextSubColor)
 
-                                    Text("\(group.attempts.count)")
+                                    Text("\(totalCount)")
                                         .font(.caption2.bold())
                                         .foregroundColor(.white)
                                         .padding(.horizontal, 7)
@@ -74,13 +89,24 @@ struct WrongAnswerListView: View {
                                 }
                                 .padding(.horizontal, 20)
                                 .accessibilityElement(children: .ignore)
-                                .accessibilityLabel("\(group.category.title), 틀린 문제 \(group.attempts.count)개")
+                                .accessibilityLabel("\(group.category.title), 틀린 문제 \(totalCount)개")
 
                                 // 카드 목록
                                 VStack(spacing: 8) {
-                                    ForEach(group.attempts, id: \.id) { attempt in
+                                    // 객관식 오답
+                                    ForEach(group.regulars, id: \.id) { attempt in
                                         WrongAnswerCard(attempt: attempt) {
                                             viewModel.goTo(.wrongAnswerDetail(attempt.correctLetter))
+                                        } onDelete: {
+                                            modelContext.delete(attempt)
+                                            try? modelContext.save()
+                                        }
+                                    }
+
+                                    // OX 오답
+                                    ForEach(group.oxItems, id: \.id) { attempt in
+                                        WrongAnswerOXCard(attempt: attempt) {
+                                            viewModel.goTo(.wrongAnswerOXDetail(attempt.id.uuidString))
                                         } onDelete: {
                                             modelContext.delete(attempt)
                                             try? modelContext.save()
@@ -126,29 +152,57 @@ struct WrongAnswerListView: View {
     }
 }
 
-// MARK: - 오답 카드
+// MARK: - 글자 → VoiceOver 이름 조회
+
+/// 카테고리 questionPool에서 letter에 해당하는 name을 찾아 반환
+private func spokenName(for letter: String, categoryId: String) -> String {
+    guard let category = quizCategories.first(where: { $0.id == categoryId }) else {
+        return letter
+    }
+    return category.questionPool().first(where: { $0.letter == letter })?.name ?? letter
+}
+
+// MARK: - 객관식 오답 카드
 
 private struct WrongAnswerCard: View {
     let attempt: QuizAttempt
     let onTap: () -> Void
     let onDelete: () -> Void
 
+    /// 글자 길이에 따라 썸네일 폰트 크기 조정
+    private var thumbnailFont: Font {
+        attempt.correctLetter.count >= 3
+            ? .callout.bold()
+            : .title2.bold()
+    }
+
+    /// 긴 글자는 썸네일 너비 확장
+    private var thumbnailWidth: CGFloat {
+        attempt.correctLetter.count >= 3 ? 56 : 44
+    }
+
+    private var userAnswerName: String {
+        spokenName(for: attempt.userSelectedLetter, categoryId: attempt.categoryId)
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 14) {
                 // 정답 글자
                 Text(attempt.correctLetter)
-                    .font(.title2.bold())
+                    .font(thumbnailFont)
                     .foregroundColor(.appTextColor)
-                    .frame(width: 44, height: 44)
+                    .frame(width: thumbnailWidth, height: 44)
+                    .minimumScaleFactor(0.6)
                     .background(Color.appSubColor.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(attempt.correctDotLabel)
+                    Text(attempt.questionText)
                         .font(.subheadline)
                         .foregroundColor(.appTextColor)
-                        .lineLimit(1)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     HStack(spacing: 4) {
                         Text("내 답:")
@@ -161,19 +215,7 @@ private struct WrongAnswerCard: View {
                     }
                 }
 
-                Spacer(minLength: 8)
-
-                // 삭제 버튼
-                Button {
-                    onDelete()
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .frame(width: 36, height: 36)
-                }
-                .accessibilityLabel("삭제")
-                .accessibilityHint("\(attempt.correctLetter) 오답 기록을 삭제합니다")
+                Spacer(minLength: 0)
 
                 Image(systemName: "chevron.right")
                     .font(.caption)
@@ -185,8 +227,85 @@ private struct WrongAnswerCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("정답: \(attempt.correctLetter), \(attempt.correctDotLabel). 내 답: \(attempt.userSelectedLetter)")
-        .accessibilityHint("두번 탭하여 점자를 복습합니다")
+        .accessibilityLabel("\(attempt.questionText). 내 답: \(userAnswerName)")
+        .accessibilityHint("두번 탭하여 복습합니다. 위로 스와이프하여 삭제를 선택한 후 두번 탭하면 삭제됩니다")
         .accessibilityAddTraits(.isButton)
+        .accessibilityAction(named: "삭제") {
+            onDelete()
+        }
+    }
+}
+
+// MARK: - O/X 오답 카드
+
+private struct WrongAnswerOXCard: View {
+    let attempt: QuizAttempt
+    let onTap: () -> Void
+    let onDelete: () -> Void
+
+    private var correctAnswer: String {
+        attempt.correctLetter
+    }
+
+    private var isCorrectO: Bool {
+        correctAnswer == "O"
+    }
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 14) {
+                // O/X 썸네일 (정답 표시)
+                Text(correctAnswer)
+                    .font(.title2.bold())
+                    .foregroundColor(isCorrectO ? .green : .red)
+                    .frame(width: 44, height: 44)
+                    .background(
+                        (isCorrectO ? Color.green : Color.red).opacity(0.1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(
+                                (isCorrectO ? Color.green : Color.red).opacity(0.2),
+                                lineWidth: 1
+                            )
+                    )
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(attempt.questionText)
+                        .font(.subheadline)
+                        .foregroundColor(.appTextColor)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    HStack(spacing: 4) {
+                        Text("내 답:")
+                            .font(.caption)
+                            .foregroundColor(.appTextSubColor)
+
+                        Text(attempt.userSelectedLetter)
+                            .font(.caption.bold())
+                            .foregroundColor(.red.opacity(0.7))
+                    }
+                }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.gray.opacity(0.5))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .appCard(cornerRadius: 14)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(attempt.questionText). 내 답: \(attempt.userSelectedLetter)")
+        .accessibilityHint("두번 탭하여 해설을 확인합니다. 위로 스와이프하여 삭제를 선택한 후 두번 탭하면 삭제됩니다")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(named: "삭제") {
+            onDelete()
+        }
     }
 }

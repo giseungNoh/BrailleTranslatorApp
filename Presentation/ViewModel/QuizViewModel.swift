@@ -177,18 +177,47 @@ class QuizViewModel: ObservableObject {
     func proceedToNext(context: ModelContext) {
         if let lastResult = sessionResults.last {
             if lastResult.isCorrect {
-                // 정답 저장 (진행률 추적용)
-                let attempt = QuizAttempt(
-                    categoryId: lastResult.categoryId,
-                    questionText: lastResult.questionText,
-                    correctLetter: lastResult.correctLetter,
-                    correctDotLabel: lastResult.correctDotLabel,
-                    correctRawDots: lastResult.correctRawDots,
-                    userSelectedLetter: lastResult.userSelectedLetter,
-                    isCorrect: true,
-                    isOXQuestion: lastResult.isOXQuestion
-                )
-                context.insert(attempt)
+                // 정답 저장 (진행률 추적용) — 중복 방지
+                let isDuplicate: Bool
+                if lastResult.isOXQuestion {
+                    // OX: 같은 questionText 정답이 이미 있으면 스킵
+                    let qText = lastResult.questionText
+                    let descriptor = FetchDescriptor<QuizAttempt>(
+                        predicate: #Predicate {
+                            $0.questionText == qText
+                            && $0.isCorrect
+                            && $0.isOXQuestion == true
+                        }
+                    )
+                    isDuplicate = ((try? context.fetch(descriptor)) ?? []).isEmpty == false
+                } else {
+                    // 객관식: 같은 correctLetter 정답이 이미 있으면 스킵
+                    let letter = lastResult.correctLetter
+                    let catId = lastResult.categoryId
+                    let descriptor = FetchDescriptor<QuizAttempt>(
+                        predicate: #Predicate {
+                            $0.correctLetter == letter
+                            && $0.categoryId == catId
+                            && $0.isCorrect
+                            && $0.isOXQuestion == false
+                        }
+                    )
+                    isDuplicate = ((try? context.fetch(descriptor)) ?? []).isEmpty == false
+                }
+
+                if !isDuplicate {
+                    let attempt = QuizAttempt(
+                        categoryId: lastResult.categoryId,
+                        questionText: lastResult.questionText,
+                        correctLetter: lastResult.correctLetter,
+                        correctDotLabel: lastResult.correctDotLabel,
+                        correctRawDots: lastResult.correctRawDots,
+                        userSelectedLetter: lastResult.userSelectedLetter,
+                        isCorrect: true,
+                        isOXQuestion: lastResult.isOXQuestion
+                    )
+                    context.insert(attempt)
+                }
             } else if lastResult.isOXQuestion {
                 // O/X 오답: 같은 문제(questionText) 중복 방지
                 let qText = lastResult.questionText
@@ -367,7 +396,7 @@ class QuizViewModel: ObservableObject {
         }
     }
 
-    /// 기존 중복 오답 정리
+    /// 기존 중복 오답 및 정답 정리
     func cleanUpWrongAnswers(context: ModelContext) {
         let descriptor = FetchDescriptor<QuizAttempt>(
             predicate: #Predicate {
@@ -403,6 +432,32 @@ class QuizViewModel: ObservableObject {
             let sorted = items.sorted { $0.timestamp > $1.timestamp }
             for duplicate in sorted.dropFirst() {
                 context.delete(duplicate)
+            }
+        }
+
+        // 4) 정답 중복 제거 (누적된 중복 정답 정리)
+        let correctDescriptor = FetchDescriptor<QuizAttempt>(
+            predicate: #Predicate { $0.isCorrect }
+        )
+        if let allCorrect = try? context.fetch(correctDescriptor) {
+            // 객관식 정답: categoryId + correctLetter 기준 최신만 유지
+            let regularCorrect = allCorrect.filter { !$0.isOXQuestion }
+            let correctGrouped = Dictionary(grouping: regularCorrect) { "\($0.categoryId)_\($0.correctLetter)" }
+            for (_, items) in correctGrouped where items.count > 1 {
+                let sorted = items.sorted { $0.timestamp > $1.timestamp }
+                for duplicate in sorted.dropFirst() {
+                    context.delete(duplicate)
+                }
+            }
+
+            // OX 정답: questionText 기준 최신만 유지
+            let oxCorrect = allCorrect.filter { $0.isOXQuestion }
+            let oxCorrectGrouped = Dictionary(grouping: oxCorrect) { $0.questionText }
+            for (_, items) in oxCorrectGrouped where items.count > 1 {
+                let sorted = items.sorted { $0.timestamp > $1.timestamp }
+                for duplicate in sorted.dropFirst() {
+                    context.delete(duplicate)
+                }
             }
         }
 

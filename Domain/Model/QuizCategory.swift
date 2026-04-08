@@ -8,8 +8,10 @@ struct QuizCategory: Identifiable, Sendable {
     let section: Int            // 섹션 번호 (1: 감각 깨우기, 2: 한글 기초, 3: 실전 규칙)
     let questionPool: @Sendable () -> [BrailleLetterItem]
 
-    /// 문제 수 = 아이템 수
+    /// 문제 수 = 객관식 아이템 수 + O/X 규칙 문제 수
     var questionCount: Int {
-        questionPool().count
+        let poolCount = questionPool().count
+        let oxCount = quizOXRules[id]?.count ?? 0
+        return poolCount + oxCount
     }
 }

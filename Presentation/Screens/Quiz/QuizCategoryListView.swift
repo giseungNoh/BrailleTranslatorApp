@@ -19,14 +19,25 @@ struct QuizCategoryListView: View {
     private var correctAnswers: [QuizAttempt]
     @AccessibilityFocusState private var isTitleFocused: Bool
 
-    /// 카테고리별 정답 수 (중복 글자 제외 — 고유 글자 기준)
+    /// 카테고리별 정답 수 (객관식: 고유 글자 기준, OX: 고유 questionText 기준)
     private func solvedCount(for categoryId: String) -> Int {
+        let categoryCorrects = correctAnswers.filter { $0.categoryId == categoryId }
+
+        // 객관식: correctLetter 기준 중복 제거
         let uniqueLetters = Set(
-            correctAnswers
-                .filter { $0.categoryId == categoryId }
+            categoryCorrects
+                .filter { !$0.isOXQuestion }
                 .map { $0.correctLetter }
         )
-        return uniqueLetters.count
+
+        // OX: questionText 기준 중복 제거
+        let uniqueOX = Set(
+            categoryCorrects
+                .filter { $0.isOXQuestion }
+                .map { $0.questionText }
+        )
+
+        return uniqueLetters.count + uniqueOX.count
     }
 
     /// 전체 완료 진행률
