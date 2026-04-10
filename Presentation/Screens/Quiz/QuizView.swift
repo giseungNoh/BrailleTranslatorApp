@@ -44,6 +44,9 @@ struct QuizView: View {
         } message: {
             Text("풀던 문제가 있습니다. 이어서 푸시겠습니까?")
         }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ResetQuizTab"))) { _ in
+            viewModel.goTo(.categorySelection)
+        }
     }
 }
 

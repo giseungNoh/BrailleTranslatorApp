@@ -74,7 +74,10 @@ class QuizViewModel: ObservableObject {
     @Published var showResumeAlert: Bool = false
     @Published var pendingCategory: QuizCategory?
 
-    private static let sessionKey = "savedQuizSession"
+    private static func sessionKey(for categoryId: String) -> String {
+        return "savedQuizSession_\(categoryId)"
+    }
+    private static let lastActiveCategoryKey = "lastActiveQuizCategoryId"
 
     // MARK: - Computed
 
@@ -113,7 +116,9 @@ class QuizViewModel: ObservableObject {
     // MARK: - Init (저장된 세션 복원)
 
     init() {
-        loadSavedSession()
+        if let lastId = UserDefaults.standard.string(forKey: Self.lastActiveCategoryKey) {
+            loadSavedSession(for: lastId)
+        }
     }
 
     // MARK: - Actions
@@ -347,10 +352,16 @@ class QuizViewModel: ObservableObject {
 
     /// 카테고리 탭 — 진행 중인 세션이 있으면 이어풀기 Alert 표시
     func handleCategoryTap(category: QuizCategory) {
+        // 이미 현재 메모리에 활성화되어 이어풀 수 있는 경우
         if let current = currentCategory,
            current.id == category.id,
            !questions.isEmpty,
            sessionResults.count < questions.count {
+            pendingCategory = category
+            showResumeAlert = true
+        } 
+        // 메모리에 없지만 UserDefaults에 기록이 남아 있는 경우
+        else if hasSavedSession(for: category.id) {
             pendingCategory = category
             showResumeAlert = true
         } else {
@@ -361,8 +372,26 @@ class QuizViewModel: ObservableObject {
     /// 이어풀기
     func resumeQuiz() {
         showResumeAlert = false
-        pendingCategory = nil
-        goTo(.solving)
+        
+        // 1. 하단 리스트에서 임의의 카테고리를 눌러 Alert를 통해 넘어온 경우
+        if let categoryToResume = pendingCategory {
+            pendingCategory = nil
+            
+            if currentCategory?.id == categoryToResume.id && !questions.isEmpty {
+                goTo(.solving)
+            } else {
+                loadSavedSession(for: categoryToResume.id)
+                if currentCategory != nil {
+                    goTo(.solving)
+                } else {
+                    startQuiz(category: categoryToResume)
+                }
+            }
+        } 
+        // 2. 상단 '이어서 하기 카드'를 터치한 경우 (pendingCategory가 없음)
+        else if currentCategory != nil && !questions.isEmpty {
+            goTo(.solving)
+        }
     }
 
     /// 새로 풀기
@@ -370,6 +399,8 @@ class QuizViewModel: ObservableObject {
         showResumeAlert = false
         if let category = pendingCategory {
             pendingCategory = nil
+            // 이전에 저장된 쓰레기 데이터 폐기
+            UserDefaults.standard.removeObject(forKey: Self.sessionKey(for: category.id))
             startQuiz(category: category)
         }
     }
@@ -477,6 +508,10 @@ class QuizViewModel: ObservableObject {
 
     // MARK: - 세션 영구 저장 (UserDefaults)
 
+    func hasSavedSession(for categoryId: String) -> Bool {
+        return UserDefaults.standard.data(forKey: Self.sessionKey(for: categoryId)) != nil
+    }
+
     private func saveSession() {
         guard let category = currentCategory, !questions.isEmpty else {
             clearSavedSession()
@@ -489,19 +524,36 @@ class QuizViewModel: ObservableObject {
             sessionResults: sessionResults
         )
         if let data = try? JSONEncoder().encode(session) {
-            UserDefaults.standard.set(data, forKey: Self.sessionKey)
+            let key = Self.sessionKey(for: category.id)
+            UserDefaults.standard.set(data, forKey: key)
+            UserDefaults.standard.set(category.id, forKey: Self.lastActiveCategoryKey)
         }
     }
 
     private func clearSavedSession() {
-        UserDefaults.standard.removeObject(forKey: Self.sessionKey)
+        guard let category = currentCategory else { return }
+        UserDefaults.standard.removeObject(forKey: Self.sessionKey(for: category.id))
+        
+        if UserDefaults.standard.string(forKey: Self.lastActiveCategoryKey) == category.id {
+            UserDefaults.standard.removeObject(forKey: Self.lastActiveCategoryKey)
+        }
     }
 
-    private func loadSavedSession() {
-        guard let data = UserDefaults.standard.data(forKey: Self.sessionKey),
+    private func loadSavedSession(for categoryId: String) {
+        let key = Self.sessionKey(for: categoryId)
+        guard let data = UserDefaults.standard.data(forKey: key),
               let saved = try? JSONDecoder().decode(SavedQuizSession.self, from: data),
               let category = quizCategories.first(where: { $0.id == saved.categoryId })
         else { return }
+
+        // 방어 로직: 앱 업데이트 등으로 문제 풀이 범위 밖으로 인덱스가 어긋나거나 개수가 변형된 경우 파기
+        guard saved.currentQuestionIndex < saved.questions.count else {
+            UserDefaults.standard.removeObject(forKey: key)
+            if UserDefaults.standard.string(forKey: Self.lastActiveCategoryKey) == categoryId {
+                UserDefaults.standard.removeObject(forKey: Self.lastActiveCategoryKey)
+            }
+            return
+        }
 
         currentCategory = category
         questions = saved.questions

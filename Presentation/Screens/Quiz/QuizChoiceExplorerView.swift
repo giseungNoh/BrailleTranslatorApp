@@ -105,19 +105,64 @@ struct QuizChoiceExplorerView: View {
                 .id("\(viewModel.currentQuestionIndex)-\(viewModel.currentChoiceIndex)")
             }
 
-            // MARK: 하단 버튼
-            LearningButtonSection(
-                nextTitle: "이 점자 선택",
-                backTitle: "이전 보기",
-                nextHint: "현재 보기를 정답으로 선택합니다",
-                backHint: isFirst ? "첫 번째 보기입니다" : "이전 보기로 이동합니다",
-                onNext: {
-                    viewModel.selectCurrentChoice()
-                },
-                onBack: {
-                    goPreviousChoice()
+            // MARK: 하단 버튼 영역
+            VStack(spacing: 12) {
+                // 상단: 이전/다음 보기 (HStack)
+                HStack(spacing: 12) {
+                    // 이전 보기 보조 버튼 (아웃라인)
+                    Button(action: {
+                        goPreviousChoice()
+                    }) {
+                        Text("이전 보기")
+                            .font(.title3.bold())
+                            .foregroundColor(isFirst ? .gray : .appSubColor)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(isFirst ? Color.gray : Color.appSubColor, lineWidth: 1.5)
+                            )
+                    }
+                    .disabled(isFirst)
+                    .accessibilityLabel("이전 보기")
+                    .accessibilityHint(isFirst ? "첫 번째 보기입니다" : "이전 보기로 이동합니다")
+
+                    // 다음 보기 보조 버튼 (아웃라인)
+                    Button(action: {
+                        goNextChoice()
+                    }) {
+                        Text("다음 보기")
+                            .font(.title3.bold())
+                            .foregroundColor(isLast ? .gray : .appSubColor)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(isLast ? Color.gray : Color.appSubColor, lineWidth: 1.5)
+                            )
+                    }
+                    .disabled(isLast)
+                    .accessibilityLabel("다음 보기")
+                    .accessibilityHint(isLast ? "마지막 보기입니다" : "다음 보기로 이동합니다")
                 }
-            )
+
+                // 하단: 이 점자 선택 (단색 채움)
+                Button(action: {
+                    viewModel.selectCurrentChoice()
+                }) {
+                    Text("이 점자 선택")
+                        .font(.title3.bold())
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.appSubColor)
+                        .cornerRadius(16)
+                }
+                .accessibilityLabel("이 점자 선택")
+                .accessibilityHint("현재 보기를 정답으로 선택합니다")
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
         }
         .disabled(viewModel.showResult)
     }

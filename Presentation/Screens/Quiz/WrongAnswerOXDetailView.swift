@@ -122,6 +122,27 @@ struct WrongAnswerOXDetailView: View {
                             .padding(.bottom, 16)
                             .accessibilityElement(children: .combine)
                         }
+
+                        // MARK: 이전으로 버튼
+                        Button {
+                            viewModel.goTo(.wrongAnswerList)
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.uturn.backward")
+                                    .font(.subheadline)
+                                Text("이전으로")
+                                    .font(.title3.bold())
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.appSubColor)
+                            .cornerRadius(16)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 40)
+                        .accessibilityLabel("이전으로")
+                        .accessibilityHint("오답 노트 목록 화면으로 돌아갑니다")
                     }
                 }
             } else {

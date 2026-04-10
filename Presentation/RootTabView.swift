@@ -21,8 +21,20 @@ struct RootTabView: View {
         }
     }
 
+    var tabSelectionBinding: Binding<Int> {
+        Binding(
+            get: { self.selectedTab },
+            set: { newTab in
+                if newTab == self.selectedTab && newTab == 2 {
+                    NotificationCenter.default.post(name: Notification.Name("ResetQuizTab"), object: nil)
+                }
+                self.selectedTab = newTab
+            }
+        )
+    }
+
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: tabSelectionBinding) {
             CirriculumView()
                 .tag(0)
                 .tabItem { Label("학습", systemImage: "dot.square") }

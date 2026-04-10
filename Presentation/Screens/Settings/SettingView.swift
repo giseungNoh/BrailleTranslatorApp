@@ -140,11 +140,13 @@ struct SettingView: View {
                         }
                         .accessibilityLabel("설정 초기화")
                         .accessibilityHint("모든 설정을 기본값으로 되돌립니다")
-                        .confirmationDialog("설정을 초기화할까요?", isPresented: $showResetConfirm, titleVisibility: .visible) {
+                        .alert("설정 초기화", isPresented: $showResetConfirm) {
+                            Button("취소", role: .cancel) { }
                             Button("초기화", role: .destructive) {
                                 settings.resetToDefaults()
                             }
-                            Button("취소", role: .cancel) { }
+                        } message: {
+                            Text("모든 설정을 기본값으로 되돌릴까요?")
                         }
 
                         Divider().padding(.leading, 16)

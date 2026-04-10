@@ -189,6 +189,29 @@ struct WrongAnswerDetailView: View {
                                 Text("점자 비교하며 만져보기")
                                     .font(.title3.bold())
                             }
+                            .foregroundColor(.appSubColor)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.appSubColor, lineWidth: 1.5)
+                            )
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 12)
+                        .accessibilityLabel("점자 비교하며 만져보기")
+                        .accessibilityHint("정답과 내 답의 점자를 직접 만져볼 수 있습니다")
+
+                        // MARK: 이전으로 버튼 (추가됨)
+                        Button {
+                            viewModel.goTo(.wrongAnswerList)
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.uturn.backward")
+                                    .font(.subheadline)
+                                Text("이전으로")
+                                    .font(.title3.bold())
+                            }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -197,8 +220,8 @@ struct WrongAnswerDetailView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 40)
-                        .accessibilityLabel("점자 비교하며 만져보기")
-                        .accessibilityHint("정답과 내 답의 점자를 직접 만져볼 수 있습니다")
+                        .accessibilityLabel("이전으로")
+                        .accessibilityHint("오답 노트 목록 화면으로 돌아갑니다")
                     }
                 }
             } else {
@@ -367,43 +390,60 @@ private struct WrongAnswerTouchView: View {
                     }
                 },
                 skipLeadingCells: isJongseong ? 1 : 0,
-                centerVertically: true
+                centerVertically: true,
+                onSwipeNext: {
+                    if UIAccessibility.isVoiceOverRunning {
+                        toggleShowingCorrect()
+                    }
+                },
+                onSwipePrevious: {
+                    if UIAccessibility.isVoiceOverRunning {
+                        toggleShowingCorrect()
+                    }
+                }
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 20)
             .id("touch-\(showingCorrect ? "correct" : "user")")
 
-            // 하단 버튼
-            if canShowUserBraille {
-                LearningButtonSection(
-                    nextTitle: showingCorrect ? "내 답 점자 보기" : "정답 점자 보기",
-                    backTitle: "돌아가기",
-                    nextHint: showingCorrect
-                        ? "내가 선택한 답의 점자를 만져봅니다"
-                        : "정답 점자를 만져봅니다",
-                    backHint: "오답 복습 화면으로 돌아갑니다",
-                    onNext: {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            showingCorrect.toggle()
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            isLabelFocused = true
-                        }
-                    },
-                    onBack: {
-                        onBack()
+            // MARK: 하단 버튼 영역
+            VStack(spacing: 12) {
+                if canShowUserBraille {
+                    // 보조 버튼 (정답/내 답 전환)
+                    Button(action: {
+                        toggleShowingCorrect()
+                    }) {
+                        Text(showingCorrect ? "내 답 점자 보기" : "정답 점자 보기")
+                            .font(.title3.bold())
+                            .foregroundColor(.appSubColor)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.appSubColor, lineWidth: 1.5)
+                            )
                     }
-                )
-            } else {
-                LearningButtonSection(
-                    nextTitle: "돌아가기",
-                    backTitle: "",
-                    nextHint: "오답 복습 화면으로 돌아갑니다",
-                    backHint: "",
-                    onNext: { onBack() },
-                    onBack: {}
-                )
+                    .accessibilityLabel(showingCorrect ? "내 답 점자 보기" : "정답 점자 보기")
+                    .accessibilityHint(showingCorrect ? "내가 선택한 답의 점자를 만져봅니다" : "정답 점자를 만져봅니다")
+                }
+
+                // 주 버튼 (돌아가기)
+                Button(action: {
+                    onBack()
+                }) {
+                    Text("돌아가기")
+                        .font(.title3.bold())
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.appSubColor)
+                        .cornerRadius(16)
+                }
+                .accessibilityLabel("돌아가기")
+                .accessibilityHint("오답 복습 화면으로 돌아갑니다")
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
         }
         .meshBackground()
         .accessibilityAction(.escape) {
@@ -411,6 +451,16 @@ private struct WrongAnswerTouchView: View {
         }
         .onChange(of: showingCorrect) {
             UIAccessibility.post(notification: .screenChanged, argument: nil)
+        }
+    }
+
+    private func toggleShowingCorrect() {
+        guard canShowUserBraille else { return }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showingCorrect.toggle()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            isLabelFocused = true
         }
     }
 }

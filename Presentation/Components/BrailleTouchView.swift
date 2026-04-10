@@ -241,21 +241,8 @@ class BrailleTouchCanvasView: UIView {
         setupSwipeGestures()
     }
 
-    /// 좌우 스와이프로 글자/단계 전환 (1손가락: VoiceOver OFF, 2손가락: 공통)
+    /// 좌우 스와이프로 글자/단계 전환 (2손가락: VoiceOver ON/OFF 공통)
     private func setupSwipeGestures() {
-        // 1손가락 스와이프 (VoiceOver OFF 전용)
-        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleOneFingerSwipe(_:)))
-        swipeLeft.direction = .left
-        swipeLeft.cancelsTouchesInView = false
-        self.addGestureRecognizer(swipeLeft)
-        swipeGestureRecognizers.append(swipeLeft)
-
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleOneFingerSwipe(_:)))
-        swipeRight.direction = .right
-        swipeRight.cancelsTouchesInView = false
-        self.addGestureRecognizer(swipeRight)
-        swipeGestureRecognizers.append(swipeRight)
-
         // 2손가락 스와이프 (VoiceOver ON/OFF 공통)
         let twoFingerLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleTwoFingerSwipe(_:)))
         twoFingerLeft.direction = .left
@@ -270,17 +257,6 @@ class BrailleTouchCanvasView: UIView {
         twoFingerRight.cancelsTouchesInView = false
         self.addGestureRecognizer(twoFingerRight)
         swipeGestureRecognizers.append(twoFingerRight)
-    }
-
-    @objc private func handleOneFingerSwipe(_ gesture: UISwipeGestureRecognizer) {
-        guard !UIAccessibility.isVoiceOverRunning, enableOneFingerSwipe else { return }
-        guard lastFeedbackID == nil else { return } // 점자 터치 중에는 무시
-
-        switch gesture.direction {
-        case .left:  onSwipeNext?()
-        case .right: onSwipePrevious?()
-        default: break
-        }
     }
 
     @objc private func handleTwoFingerSwipe(_ gesture: UISwipeGestureRecognizer) {
