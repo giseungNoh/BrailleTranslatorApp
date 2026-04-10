@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 /// 1일차 학습 플로우: Intro → Learning1 (6점 구조) → Learning2 (촉각 훈련) → Learning3 (점자 체험)
 struct Day1View: View {
@@ -12,6 +13,15 @@ struct Day1View: View {
         case learning1 = 1
         case learning2 = 2
         case learning3 = 3
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .learning1: return "6점 구조 이해"
+            case .learning2: return "촉각 훈련"
+            case .learning3: return "점자 체험"
+            }
+        }
     }
 
     var body: some View {
@@ -22,18 +32,18 @@ struct Day1View: View {
             switch currentStep {
             case .intro:
                 Day1IntroView(
-                    onStart: { withAnimation { currentStep = .learning1 } },
+                    onStart: { goTo(.learning1) },
                     onBack: { dismiss() }
                 )
             case .learning1:
                 Day1Learning1View(
-                    onNext: { withAnimation { currentStep = .learning2 } },
-                    onBack: { withAnimation { currentStep = .intro } }
+                    onNext: { goTo(.learning2) },
+                    onBack: { goTo(.intro) }
                 )
             case .learning2:
                 Day1Learning2View(
-                    onNext: { withAnimation { currentStep = .learning3 } },
-                    onBack: { withAnimation { currentStep = .learning1 } }
+                    onNext: { goTo(.learning3) },
+                    onBack: { goTo(.learning1) }
                 )
             case .learning3:
                 Day1Learning3View(
@@ -42,12 +52,27 @@ struct Day1View: View {
                         item.isInProgress = false
                         dismiss()
                     },
-                    onBack: { withAnimation { currentStep = .learning2 } }
+                    onBack: { goTo(.learning2) }
                 )
             }
         }
         .meshBackground()
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day1Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
+    }
+
+    private func goTo(_ step: Day1Step) {
+        withAnimation(.easeInOut(duration: 0.25)) {
+            currentStep = step
+        }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
+        UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }
 

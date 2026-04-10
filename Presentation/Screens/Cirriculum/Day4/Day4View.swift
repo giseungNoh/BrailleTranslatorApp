@@ -16,6 +16,18 @@ struct Day4View: View {
         case practiceUD = 4
         case explainLR2 = 5
         case practiceLR2 = 6
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .explainLR1: return "좌우 모음① 설명"
+            case .practiceLR1: return "좌우 모음① 실습"
+            case .explainUD: return "상하 모음 설명"
+            case .practiceUD: return "상하 모음 실습"
+            case .explainLR2: return "좌우 모음② 설명"
+            case .practiceLR2: return "좌우 모음② 실습"
+            }
+        }
     }
 
     private func vowelGroup(_ index: Int) -> Day4VowelGroup {
@@ -80,19 +92,27 @@ struct Day4View: View {
                         UIAccessibility.post(notification: .announcement, argument: "4일차 학습을 완료했습니다")
                         dismiss()
                     },
-                    onBack: { goTo(.practiceLR2) }
+                    onBack: { goTo(.explainLR2) }
                 )
             }
         }
                 .meshBackground()
 
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day4Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
     }
 
     private func goTo(_ step: Day4Step) {
         withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

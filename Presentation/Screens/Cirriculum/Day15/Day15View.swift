@@ -16,6 +16,18 @@ struct Day15View: View {
         case practiceAbbrTail = 4
         case explainAbbrTrap = 5
         case practiceAbbrTrap = 6
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .explainAbbrIntro: return "약어 소개 설명"
+            case .practiceAbbrIntro: return "약어 소개 실습"
+            case .explainAbbrTail: return "약어 뒤 결합 설명"
+            case .practiceAbbrTail: return "약어 뒤 결합 실습"
+            case .explainAbbrTrap: return "약어 앞 함정 설명"
+            case .practiceAbbrTrap: return "약어 앞 함정 실습"
+            }
+        }
     }
 
     var body: some View {
@@ -104,12 +116,20 @@ struct Day15View: View {
                 .meshBackground()
 
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day15Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
     }
 
     private func goTo(_ step: Day15Step) {
         withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

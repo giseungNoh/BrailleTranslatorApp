@@ -5,7 +5,7 @@ struct CirriculumView: View {
     @Query(sort: \LearningItem.day, order: .forward) var items: [LearningItem]
     @State private var searchText: String = ""
     @AppStorage("lastStudiedDay") private var lastStudiedDay: Int = 0
-    @State private var navigateToLastStudied: Bool = false
+    @State private var navigateToContinue: Bool = false
     @AccessibilityFocusState private var focusedDay: Int?
 
     private var totalCount: Int { items.count }
@@ -24,32 +24,23 @@ struct CirriculumView: View {
         }
     }
 
+    /// 마지막으로 학습한 아이템 (완료 여부 무관, step 기록이 있는 경우)
     private var lastStudiedItem: LearningItem? {
-        items.first(where: { $0.day == lastStudiedDay })
+        guard lastStudiedDay > 0 else { return nil }
+        guard let item = items.first(where: { $0.day == lastStudiedDay }) else { return nil }
+        return item.lastStepIndex != nil ? item : nil
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                CommonNavigationBar(title: "학습") {
-                    if lastStudiedDay > 0, lastStudiedItem != nil {
-                        Button {
-                            navigateToLastStudied = true
-                        } label: {
-                            Text("이어하기")
-                                .font(.subheadline.bold())
-                                .foregroundColor(.appSubColor)
-                        }
-                        .accessibilityLabel("이어하기")
-                        .accessibilityHint("마지막으로 학습한 \(lastStudiedDay)일차로 이동합니다")
-                    }
-                }
+                CommonNavigationBar(title: "학습")
 
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("커리큘럼 검색")
-                                .font(.headline)
+                                .font(.subheadline.bold())
                                 .foregroundColor(.appTextColor)
                                 .padding(.leading, 5)
 
@@ -102,18 +93,55 @@ struct CirriculumView: View {
                                                 .font(.subheadline)
                                                 .foregroundColor(.appTextSubColor)
                                         }
+
+                                        // 이어하기 섹션
+                                        if let current = lastStudiedItem {
+                                            Divider()
+
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "book.fill")
+                                                        .font(.caption)
+                                                        .foregroundColor(.orange)
+                                                    Text("학습 중")
+                                                        .font(.caption.bold())
+                                                        .foregroundColor(.orange)
+                                                }
+
+                                                Text("Day \(String(format: "%02d", current.day)): \(current.title)")
+                                                    .font(.subheadline.weight(.semibold))
+                                                    .foregroundColor(.appTextColor)
+
+                                                Text(current.subtitle)
+                                                    .font(.caption)
+                                                    .foregroundColor(.appTextSubColor)
+
+                                                Button {
+                                                    navigateToContinue = true
+                                                } label: {
+                                                    Text("이어서 학습하기")
+                                                        .font(.subheadline.bold())
+                                                        .foregroundColor(.white)
+                                                        .frame(maxWidth: .infinity)
+                                                        .padding(.vertical, 12)
+                                                        .background(Color.appSubColor)
+                                                        .cornerRadius(10)
+                                                }
+                                                .accessibilityLabel("\(current.day)일차 \(current.title) 이어서 학습하기")
+                                                .accessibilityHint("\(current.subtitle)를 이어서 학습합니다")
+                                            }
+                                        }
                                     }
                                     .padding(.horizontal)
-                                    .accessibilityElement(children: .ignore)
+                                    .accessibilityElement(children: .contain)
                                     .accessibilityLabel("나의 학습 현황. \(totalCount)일 중 \(completedCount)일 완료. \(Int(progress * 100))퍼센트")
                                 }
                                 .padding(.top, 10)
 
                                 Text("20일 과정 리스트")
+                                    .font(.title2.bold())
                                     .foregroundColor(.appTextColor)
-                                    .bold()
                                     .padding(.top, 20)
-                                    .font(.title2)
 
                                 // 4주차 섹션 구분
                                 VStack(alignment: .leading, spacing: 24) {
@@ -185,10 +213,10 @@ struct CirriculumView: View {
                         }
                     }
                 }
-                .meshBackground()
             }
+            .meshBackground()
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(isPresented: $navigateToLastStudied) {
+            .navigationDestination(isPresented: $navigateToContinue) {
                 if let item = lastStudiedItem {
                     PracticeView(item: item)
                 }
@@ -243,6 +271,12 @@ private struct CurriculumDayRow: View {
         return Color.gray
     }
 
+    private var statusIcon: String {
+        if item.isCompleted { return "checkmark" }
+        if item.isInProgress == true { return "book.fill" }
+        return "lock.fill"
+    }
+
     private var statusLabel: String {
         if item.isCompleted { return "완료" }
         if item.isInProgress == true { return "학습중" }
@@ -250,55 +284,34 @@ private struct CurriculumDayRow: View {
     }
 
     var body: some View {
-        CommonCardView(padding: 12) {
+        CommonCardView(padding: 14) {
             HStack(alignment: .center, spacing: 14) {
-                // 일차 표시 배지 (N일차)
-                VStack(spacing: 2) {
-                    Text("\(item.day)")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                    Text("일차")
-                        .font(.system(size: 10, weight: .medium))
-                }
-                .foregroundColor(.white)
-                .frame(width: 50, height: 50)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(item.isCompleted ? Color.green : (item.isInProgress == true ? Color.orange : Color.appSubColor))
-                )
-
                 VStack(alignment: .leading, spacing: 4) {
                     // 상태 배지
                     Text(statusLabel)
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
                         .background(statusColor.opacity(0.12))
                         .foregroundColor(statusColor)
-                        .cornerRadius(6)
+                        .cornerRadius(4)
 
                     // 제목
-                    Text(item.title)
+                    Text("Day \(String(format: "%02d", item.day)): \(item.title)")
                         .font(.headline)
                         .foregroundColor(.appTextColor)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     // 부제
                     Text(item.subtitle)
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundColor(.appTextSubColor)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.vertical, 2)
 
                 Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.appSubColor.opacity(0.6))
-                    .accessibilityHidden(true)
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 2)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(item.day)일차, \(item.title), \(item.subtitle), \(statusLabel)")
             .accessibilityHint("두번 탭하여 연습 화면으로 이동")
@@ -308,5 +321,20 @@ private struct CurriculumDayRow: View {
 }
 
 #Preview {
-    CirriculumView()
+    let container = try! ModelContainer(
+        for: LearningItem.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    let context = container.mainContext
+    let samples: [(Int, String, String, Bool, Bool)] = [
+        (1, "점자의 첫걸음", "점자 구조 익히기", true, false),
+        (2, "초성 자음 ①", "ㄱ, ㄴ, ㄷ, ㄹ 점자 배우기", false, true),
+        (3, "초성 자음 ②", "ㅁ, ㅂ, ㅅ, ㅇ 점자 배우기", false, false),
+    ]
+    for s in samples {
+        context.insert(LearningItem(day: s.0, title: s.1, subtitle: s.2, isCompleted: s.3, isInProgress: s.4))
+    }
+
+    return CirriculumView()
+        .modelContainer(container)
 }

@@ -8,6 +8,8 @@ class LearningItem {
     var subtitle: String             // "구조 익히기"
     var isCompleted: Bool            // 학습 완료 여부 (체크박스)
     var isInProgress: Bool?          // 현재 학습 중 여부 (optional for migration)
+    var lastStepIndex: Int?          // 마지막 학습 Step 인덱스 (optional for migration)
+    var lastStepLabel: String?       // 마지막 학습 Step 표시 텍스트 (optional for migration)
 
     init(day: Int, title: String, subtitle: String, isCompleted: Bool = false, isInProgress: Bool = false) {
         self.day = day

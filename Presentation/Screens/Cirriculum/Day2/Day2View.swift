@@ -17,6 +17,19 @@ struct Day2View: View {
         case explain_dot6 = 5
         case practice_dot6 = 6
         case ieungRule = 7
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .explain_dot4: return "4점 중심 자음 설명"
+            case .practice_dot4: return "4점 중심 자음 실습"
+            case .explain_dot5: return "5점 중심 자음 설명"
+            case .practice_dot5: return "5점 중심 자음 실습"
+            case .explain_dot6: return "6점 중심 자음 설명"
+            case .practice_dot6: return "6점 중심 자음 실습"
+            case .ieungRule: return "ㅇ 생략 원리"
+            }
+        }
     }
 
     private func group(_ index: Int) -> Day2ConsonantGroup {
@@ -91,12 +104,20 @@ struct Day2View: View {
         }
         .meshBackground()
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day2Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
     }
 
     private func goTo(_ step: Day2Step) {
         withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

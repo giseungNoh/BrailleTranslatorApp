@@ -14,6 +14,16 @@ struct Day12View: View {
         case practiceRaCha = 2
         case explainVowelException = 3
         case practiceVowelException = 4
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .explainRaCha: return "라/차 설명"
+            case .practiceRaCha: return "라/차 실습"
+            case .explainVowelException: return "모음 예외 설명"
+            case .practiceVowelException: return "모음 예외 실습"
+            }
+        }
     }
 
     var body: some View {
@@ -81,12 +91,20 @@ struct Day12View: View {
                 .meshBackground()
 
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day12Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
     }
 
     private func goTo(_ step: Day12Step) {
         withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

@@ -14,6 +14,16 @@ struct Day3View: View {
         case practiceConsonants = 2
         case doubleConsonantRule = 3
         case practiceDoubleConsonants = 4
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .explainConsonants: return "ㅋㅌㅍㅎ 설명"
+            case .practiceConsonants: return "ㅋㅌㅍㅎ 실습"
+            case .doubleConsonantRule: return "된소리표 규칙"
+            case .practiceDoubleConsonants: return "된소리 실습"
+            }
+        }
     }
 
     var body: some View {
@@ -69,12 +79,20 @@ struct Day3View: View {
                 .meshBackground()
 
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day3Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
     }
 
     private func goTo(_ step: Day3Step) {
         withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

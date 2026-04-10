@@ -18,6 +18,7 @@ struct QuizCategoryListView: View {
     @Query(filter: #Predicate<QuizAttempt> { $0.isCorrect })
     private var correctAnswers: [QuizAttempt]
     @AccessibilityFocusState private var isTitleFocused: Bool
+    @State private var selectedSection: Int = 0 // 0 = 전체
 
     /// 카테고리별 정답 수 (객관식: 고유 글자 기준, OX: 고유 questionText 기준)
     private func solvedCount(for categoryId: String) -> Int {
@@ -51,13 +52,62 @@ struct QuizCategoryListView: View {
         quizCategories.reduce(0) { $0 + $1.questionCount }
     }
 
-    private var groupedCategories: [(section: Int, name: String, categories: [QuizCategory])] {
+    /// 섹션 필터 옵션 목록 (0=전체 포함)
+    private var sectionOptions: [(id: Int, name: String)] {
+        var options: [(id: Int, name: String)] = [(0, "전체")]
+        let sections = Dictionary(grouping: quizCategories) { $0.section }.keys.sorted()
+        for section in sections {
+            let name = quizSectionNames[section] ?? ""
+            options.append((section, name))
+        }
+        return options
+    }
+
+    private var allGroupedCategories: [(section: Int, name: String, categories: [QuizCategory])] {
         let grouped = Dictionary(grouping: quizCategories) { $0.section }
         return grouped.keys.sorted().compactMap { section in
             guard let cats = grouped[section] else { return nil }
             let name = quizSectionNames[section] ?? ""
             return (section: section, name: name, categories: cats)
         }
+    }
+
+    private var sectionFilterButton: some View {
+        Menu {
+            ForEach(sectionOptions, id: \.id) { option in
+                Button {
+                    selectedSection = option.id
+                } label: {
+                    if option.id == selectedSection {
+                        Label(option.name, systemImage: "checkmark")
+                    } else {
+                        Text(option.name)
+                    }
+                }
+            }
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.callout)
+                    .foregroundColor(.appTextColor)
+                    .frame(width: 30, height: 30)
+                    .background(
+                        Circle()
+                            .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+
+                if selectedSection != 0 {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.appSubColor)
+                        .background(Circle().fill(Color.white).frame(width: 10, height: 10))
+                        .offset(x: 2, y: -2)
+                }
+            }
+            .frame(width: 36, height: 36)
+        }
+        .accessibilityLabel("섹션 필터. 현재 \(sectionOptions.first(where: { $0.id == selectedSection })?.name ?? "전체")")
+        .accessibilityHint("두번 탭하여 섹션을 선택합니다")
     }
 
     var body: some View {
@@ -132,6 +182,7 @@ struct QuizCategoryListView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 12)
 
+                    // MARK: 섹션 헤더 + 필터
                     // MARK: 섹션 헤더
                     VStack(alignment: .leading, spacing: 4) {
                         Text("퀴즈")
@@ -143,27 +194,35 @@ struct QuizCategoryListView: View {
                             .foregroundColor(.appTextSubColor)
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 8)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("퀴즈. 퀴즈테마를 선택하여 점자를 직접만지고 문제를 풀어보세요")
 
                     // MARK: 카테고리 카드 목록
                     VStack(spacing: 24) {
-                        ForEach(groupedCategories, id: \.section) { group in
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text(group.name)
-                                    .font(.subheadline.bold())
-                                    .foregroundColor(.appTextSubColor)
-                                    .padding(.horizontal, 20)
-                                    .accessibilityAddTraits(.isStaticText)
+                        ForEach(allGroupedCategories, id: \.section) { group in
+                            if selectedSection == 0 || group.section == selectedSection {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    HStack(spacing: 8) {
+                                        if group.section == (allGroupedCategories.first(where: { selectedSection == 0 || $0.section == selectedSection })?.section) {
+                                            sectionFilterButton
+                                        }
 
-                                VStack(spacing: 12) {
-                                    ForEach(group.categories) { category in
-                                        QuizCategoryCard(
-                                            category: category,
-                                            solvedCount: solvedCount(for: category.id)
-                                        ) {
-                                            viewModel.handleCategoryTap(category: category)
+                                        Text(group.name)
+                                            .font(.title3.bold())
+                                            .foregroundColor(.appTextColor)
+                                            .accessibilityAddTraits(.isStaticText)
+                                    }
+                                    .padding(.horizontal, 20)
+
+                                    VStack(spacing: 12) {
+                                        ForEach(group.categories) { category in
+                                            QuizCategoryCard(
+                                                category: category,
+                                                solvedCount: solvedCount(for: category.id)
+                                            ) {
+                                                viewModel.handleCategoryTap(category: category)
+                                            }
                                         }
                                     }
                                 }
@@ -254,7 +313,7 @@ private struct QuizCategoryCard: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(category.title)
-                        .font(.headline.bold())
+                        .font(.headline)
                         .foregroundColor(.appTextColor)
                         .lineLimit(1)
 
@@ -269,7 +328,7 @@ private struct QuizCategoryCard: View {
                             .foregroundColor(.appSubColor)
 
                         Text("\(category.questionCount)문제")
-                            .font(.caption.bold())
+                            .font(.caption2.bold())
                             .foregroundColor(.appSubColor)
                     }
                 }

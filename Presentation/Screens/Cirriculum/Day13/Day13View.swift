@@ -16,6 +16,18 @@ struct Day13View: View {
         case practiceYeoSeries = 4
         case explainYeongMagic = 5
         case practiceYeongMagic = 6
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .explainEoSeries: return "ㅓ계열 설명"
+            case .practiceEoSeries: return "ㅓ계열 실습"
+            case .explainYeoSeries: return "ㅕ계열 설명"
+            case .practiceYeoSeries: return "ㅕ계열 실습"
+            case .explainYeongMagic: return "영/엉 마법 설명"
+            case .practiceYeongMagic: return "영/엉 마법 실습"
+            }
+        }
     }
 
     var body: some View {
@@ -104,12 +116,20 @@ struct Day13View: View {
                 .meshBackground()
 
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day13Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
     }
 
     private func goTo(_ step: Day13Step) {
         withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

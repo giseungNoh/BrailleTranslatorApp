@@ -6,7 +6,10 @@
       "Bash(find '/Users/juks86/Desktop/untitled folder/practice/BrailleTranslatorApp' -name *.swift -path */Presentation/* -type f)",
       "Bash(xcodebuild -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16' build)",
       "Bash(xcodebuild -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17' build)",
-      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16' build)"
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16' build)",
+      "Bash(find Presentation/Screens/Cirriculum -name \"Day*View.swift\" -exec sed -i '' '/item\\\\.lastStepIndex = nil/d;/item\\\\.lastStepLabel = nil/d' {} +)",
+      "Bash(grep -rn \"isInProgress == true\" Presentation/Screens/Cirriculum/Day*/Day*View.swift)",
+      "Bash(find Presentation/Screens/Cirriculum -name \"Day*View.swift\" -exec sed -i '' '/item\\\\.isInProgress == true {/d' {} +)"
     ]
   }
 }

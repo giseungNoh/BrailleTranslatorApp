@@ -14,35 +14,13 @@ struct SettingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // MARK: - Header
-            HStack {
-                Spacer()
-
-                Text("설정")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                    .accessibilityAddTraits(.isHeader)
-
-                Spacer()
-
-                Color.clear.frame(width: 32, height: 32)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, 16)
-            .frame(height: 56)
-            .background(Color.clear)
-            .overlay(
-                Divider().opacity(0.12),
-                alignment: .bottom
-            )
+            CommonNavigationBar(title: "설정")
 
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: 20) {
 
                     // MARK: - 진동 알림 (Haptic Settings)
-                    SectionHeader(title: "진동 알림")
-
-                    VStack(spacing: 0) {
+                    SettingSectionView(title: "진동 알림") {
                         SettingAdjustmentRow(
                             title: "활성화된 점 진동 세기",
                             value: "\(Int(settings.activeDotIntensity * 100))%",
@@ -94,34 +72,18 @@ struct SettingView: View {
                             )
                         }
                     }
-                    .background(Color.white.opacity(0.4))
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal, 16)
-
-                    Divider().padding(.vertical, 8)
 
                     // MARK: - 음성 안내 (Voice Settings)
-                    SectionHeader(title: "음성 안내")
-
-                    VStack(spacing: 0) {
+                    SettingSectionView(title: "음성 안내") {
                         SettingToggleRow(
                             title: "점 번호 읽기",
                             subtitle: "점자를 터치할 때 해당 점의 번호를 안내합니다",
                             isOn: $settings.isDotNumberAnnouncementEnabled
                         )
                     }
-                    .background(Color.white.opacity(0.4))
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal, 16)
-
-                    Divider().padding(.vertical, 8)
 
                     // MARK: - 화면 설정 (Screen Settings)
-                    SectionHeader(title: "화면 설정")
-
-                    VStack(spacing: 0) {
+                    SettingSectionView(title: "화면 설정") {
                         SettingAdjustmentRow(
                             title: "점자 크기 (한 줄 표시 개수)",
                             value: "\(settings.cellsPerLine)개",
@@ -158,27 +120,19 @@ struct SettingView: View {
                             isIncrementDisabled: settings.appFontSize >= 2
                         )
                     }
-                    .background(Color.white.opacity(0.4))
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal, 16)
-
-                    Divider().padding(.vertical, 8)
 
                     // MARK: - 애플리케이션 정보 (App Info & Reset)
-                    SectionHeader(title: "애플리케이션 정보")
-
-                    VStack(spacing: 0) {
+                    SettingSectionView(title: "애플리케이션 정보") {
                         Button {
                             showResetConfirm = true
                         } label: {
                             HStack {
                                 Text("설정 초기화")
-                                    .font(.body.weight(.medium))
+                                    .font(.headline)
                                     .foregroundColor(.red)
                                 Spacer()
                                 Image(systemName: "arrow.counterclockwise")
-                                    .font(.footnote)
+                                    .font(.caption)
                                     .foregroundColor(.red.opacity(0.7))
                             }
                             .padding(.horizontal, 16)
@@ -197,26 +151,23 @@ struct SettingView: View {
 
                         HStack {
                             Text("버전 정보")
-                                .font(.body)
-                                .foregroundColor(.primary)
+                                .font(.headline)
+                                .foregroundColor(.appTextColor)
                             Spacer()
                             Text("1.0.4 (v24)")
-                                .font(.callout.weight(.medium))
-                                .foregroundColor(.secondary)
+                                .font(.subheadline)
+                                .foregroundColor(.appTextSubColor)
                         }
                         .padding(.horizontal, 16)
                         .frame(height: 52)
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel("버전 정보, 1.0.4")
                     }
-                    .background(Color.white.opacity(0.4))
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 40)
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 15)
+                .padding(.bottom, 40)
             }
-            .background(Color.clear)
         }
         .meshBackground()
         .toolbar(.hidden, for: .navigationBar)
@@ -233,6 +184,34 @@ struct SettingView: View {
     }
 }
 
+// MARK: - 설정 섹션 (CommonCardView 기반)
+
+private struct SettingSectionView<Content: View>: View {
+    let title: String
+    let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption.bold())
+                .foregroundColor(.appTextSubColor)
+                .padding(.leading, 4)
+                .accessibilityAddTraits(.isHeader)
+
+            CommonCardView(padding: 0) {
+                VStack(spacing: 0) {
+                    content
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Helper Views
 
 struct SectionHeader: View {
@@ -242,8 +221,7 @@ struct SectionHeader: View {
         HStack {
             Text(title)
                 .font(.caption.bold())
-                .foregroundColor(.secondary)
-                .tracking(1)
+                .foregroundColor(.appTextSubColor)
             Spacer()
         }
         .padding(.horizontal, 16)
@@ -262,18 +240,18 @@ struct SettingToggleRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.body.weight(.medium))
-                    .foregroundColor(.primary)
+                    .font(.headline)
+                    .foregroundColor(.appTextColor)
                 if let subtitle = subtitle {
                     Text(subtitle)
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .font(.caption)
+                        .foregroundColor(.appTextSubColor)
                 }
             }
             Spacer()
             Toggle(title, isOn: $isOn)
                 .labelsHidden()
-                .tint(.blue)
+                .tint(.appSubColor)
         }
         .padding(.horizontal, 16)
         .frame(minHeight: 52)
@@ -293,13 +271,13 @@ struct SettingAdjustmentRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.body.weight(.medium))
-                .foregroundColor(.primary)
+                .font(.headline)
+                .foregroundColor(.appTextColor)
 
             HStack(spacing: 16) {
                 Text(value)
-                    .font(.body.bold())
-                    .foregroundColor(.blue)
+                    .font(.subheadline.bold())
+                    .foregroundColor(.appSubColor)
                     .frame(minWidth: 50, alignment: .leading)
                     .accessibilityHidden(true)
 
@@ -308,7 +286,7 @@ struct SettingAdjustmentRow: View {
                 Button(action: onDecrement) {
                     Image(systemName: "minus.circle.fill")
                         .font(.title2)
-                        .foregroundColor(isDecrementDisabled ? Color(.systemGray4) : .blue)
+                        .foregroundColor(isDecrementDisabled ? Color(.systemGray4) : .appSubColor)
                 }
                 .disabled(isDecrementDisabled)
                 .accessibilityLabel("\(title) 줄이기")
@@ -317,7 +295,7 @@ struct SettingAdjustmentRow: View {
                 Button(action: onIncrement) {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
-                        .foregroundColor(isIncrementDisabled ? Color(.systemGray4) : .blue)
+                        .foregroundColor(isIncrementDisabled ? Color(.systemGray4) : .appSubColor)
                 }
                 .disabled(isIncrementDisabled)
                 .accessibilityLabel("\(title) 늘리기")

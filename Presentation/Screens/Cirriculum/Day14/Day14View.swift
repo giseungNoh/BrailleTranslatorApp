@@ -18,6 +18,20 @@ struct Day14View: View {
         case practiceSpecialAbbr = 6
         case explainFortis = 7
         case practiceFortis = 8
+
+        var label: String {
+            switch self {
+            case .intro: return "시작"
+            case .explainAbbrOh: return "ㅗ계열 약자 설명"
+            case .practiceAbbrOh: return "ㅗ계열 약자 실습"
+            case .explainAbbrUEuIn: return "ㅜ/ㅡ/ㅣ계열 설명"
+            case .practiceAbbrUEuIn: return "ㅜ/ㅡ/ㅣ계열 실습"
+            case .explainSpecialAbbr: return "것/ㅆ 설명"
+            case .practiceSpecialAbbr: return "것/ㅆ 실습"
+            case .explainFortis: return "된소리 설명"
+            case .practiceFortis: return "된소리 실습"
+            }
+        }
     }
 
     var body: some View {
@@ -127,12 +141,20 @@ struct Day14View: View {
                 .meshBackground()
 
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if let saved = item.lastStepIndex,
+               let step = Day14Step(rawValue: saved) {
+                currentStep = step
+            }
+        }
     }
 
     private func goTo(_ step: Day14Step) {
         withAnimation(.easeInOut(duration: 0.25)) {
             currentStep = step
         }
+        item.lastStepIndex = step.rawValue
+        item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

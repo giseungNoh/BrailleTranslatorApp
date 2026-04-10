@@ -23,13 +23,26 @@ struct WrongAnswerListView: View {
         order: .reverse
     ) private var oxWrongAnswers: [QuizAttempt]
     @AccessibilityFocusState private var isTitleFocused: Bool
+    @State private var selectedSection: Int = 0 // 0 = 전체
 
     private var allWrongCount: Int {
         wrongAnswers.count + oxWrongAnswers.count
     }
 
-    /// 카테고리별로 그룹핑 (객관식 + OX 통합, quizCategories 순서 유지)
-    private var groupedWrongAnswers: [(category: QuizCategory, regulars: [QuizAttempt], oxItems: [QuizAttempt])] {
+    /// 오답이 있는 섹션 목록 (필터 옵션용)
+    private var sectionFilterOptions: [(id: Int, name: String)] {
+        var options: [(id: Int, name: String)] = [(0, "전체")]
+        let allCategoryIds = Set(wrongAnswers.map { $0.categoryId } + oxWrongAnswers.map { $0.categoryId })
+        let sections = Set(quizCategories.filter { allCategoryIds.contains($0.id) }.map { $0.section }).sorted()
+        for section in sections {
+            let name = quizSectionNames[section] ?? ""
+            options.append((section, name))
+        }
+        return options
+    }
+
+    /// 카테고리별로 그룹핑 (객관식 + OX 통합, quizCategories 순서 유지, 필터 없이 전체)
+    private var allGroupedWrongAnswers: [(category: QuizCategory, regulars: [QuizAttempt], oxItems: [QuizAttempt])] {
         let regularByCategory = Dictionary(grouping: wrongAnswers) { $0.categoryId }
         let oxByCategory = Dictionary(grouping: oxWrongAnswers) { $0.categoryId }
         return quizCategories.compactMap { category in
@@ -38,6 +51,56 @@ struct WrongAnswerListView: View {
             guard !regulars.isEmpty || !oxItems.isEmpty else { return nil }
             return (category: category, regulars: regulars, oxItems: oxItems)
         }
+    }
+
+    /// 섹션에 해당하는지 확인
+    private func isCategoryVisible(_ category: QuizCategory) -> Bool {
+        selectedSection == 0 || category.section == selectedSection
+    }
+
+    /// 필터된 오답 수
+    private var filteredWrongCount: Int {
+        allGroupedWrongAnswers
+            .filter { isCategoryVisible($0.category) }
+            .reduce(0) { $0 + $1.regulars.count + $1.oxItems.count }
+    }
+
+    private var sectionFilterButton: some View {
+        Menu {
+            ForEach(sectionFilterOptions, id: \.id) { option in
+                Button {
+                    selectedSection = option.id
+                } label: {
+                    if option.id == selectedSection {
+                        Label(option.name, systemImage: "checkmark")
+                    } else {
+                        Text(option.name)
+                    }
+                }
+            }
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.callout)
+                    .foregroundColor(.appTextColor)
+                    .frame(width: 30, height: 30)
+                    .background(
+                        Circle()
+                            .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+
+                if selectedSection != 0 {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.appSubColor)
+                        .background(Circle().fill(Color.white).frame(width: 10, height: 10))
+                        .offset(x: 2, y: -2)
+                }
+            }
+            .frame(width: 36, height: 36)
+        }
+        .accessibilityLabel("섹션 필터. 현재 \(sectionFilterOptions.first(where: { $0.id == selectedSection })?.name ?? "전체")")
+        .accessibilityHint("두번 탭하여 섹션을 선택합니다")
     }
 
     var body: some View {
@@ -60,21 +123,24 @@ struct WrongAnswerListView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         // 상단 요약
-                        HStack {
-                            Text("총 \(allWrongCount)개의 틀린 문제")
-                                .font(.subheadline)
-                                .foregroundColor(.appTextSubColor)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 12)
+                        Text("총 \(filteredWrongCount)개의 틀린 문제")
+                            .font(.subheadline)
+                            .foregroundColor(.appTextSubColor)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 12)
 
+                        // 섹션 필터
                         // 카테고리별 섹션
-                        ForEach(groupedWrongAnswers, id: \.category.id) { group in
+                        ForEach(allGroupedWrongAnswers, id: \.category.id) { group in
+                            if isCategoryVisible(group.category) {
                             let totalCount = group.regulars.count + group.oxItems.count
                             VStack(alignment: .leading, spacing: 10) {
                                 // 섹션 헤더
                                 HStack(spacing: 8) {
+                                    if group.category.id == allGroupedWrongAnswers.first(where: { isCategoryVisible($0.category) })?.category.id {
+                                        sectionFilterButton
+                                    }
+
                                     Text(group.category.title)
                                         .font(.subheadline.bold())
                                         .foregroundColor(.appTextSubColor)
@@ -114,6 +180,7 @@ struct WrongAnswerListView: View {
                                     }
                                 }
                                 .padding(.horizontal, 20)
+                            }
                             }
                         }
                     }

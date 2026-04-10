@@ -19,7 +19,7 @@ struct TranslatorView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // 상단 네비게이션 바 (기존 유지)
-                CommonNavigationBar(title: "점자 번역기")
+                CommonNavigationBar(title: "점자 변환기")
                 
                 ScrollView {
                     VStack(spacing: 0) {
