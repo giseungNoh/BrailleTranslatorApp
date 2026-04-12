@@ -81,7 +81,11 @@ struct Day6View: View {
                 )
 
             case .ieungRule:
-                Day6IeungRuleView(
+                CurriculumExplanationView(
+                    title: day6IeungTitle,
+                    subtitle: day6IeungSubtitle,
+                    description: day6IeungDescription,
+                    items: day6IeungExplainItems,
                     onNext: { goTo(.practiceIeung) },
                     onBack: { goTo(.practiceDrop) }
                 )

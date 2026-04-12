@@ -85,7 +85,11 @@ struct Day7View: View {
                 )
 
             case .doubleRule:
-                Day7DoubleJongseongRuleView(
+                CurriculumExplanationView(
+                    title: day7DoubleJongseongTitle,
+                    subtitle: day7DoubleJongseongSubtitle,
+                    description: day7DoubleJongseongDescription,
+                    items: day7DoubleJongseongItems,
                     onNext: { goTo(.practiceDouble) },
                     onBack: { goTo(.practiceCompound2) }
                 )
@@ -95,7 +99,6 @@ struct Day7View: View {
                     items: day7DoublePracticeItems,
                     useChosungForm: false,
                     cellsPerLine: 2,
-                    skipLeadingCells: 1,
                     finalNextTitle: "학습 완료",
                     finalNextHint: "7일차 학습을 완료하고 학습홈으로 돌아갑니다",
                     onNext: {

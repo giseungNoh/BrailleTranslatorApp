@@ -33,19 +33,28 @@ let day11AomitDescription = "아주 재미있는 규칙입니다! '나, 다, 마
 
 /// 설명뷰 2 아이템 — 'ㅏ' 생략 약자
 let day11AomitItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "나 약자, 첫소리 니은만 적으면 나가 됩니다", letter: "나", dotLabel: "1·4점"),
-    BrailleLetterItem(name: "다 약자, 첫소리 디귿만 적으면 다가 됩니다", letter: "다", dotLabel: "2·4점"),
-    BrailleLetterItem(name: "마 약자, 첫소리 미음만 적으면 마가 됩니다", letter: "마", dotLabel: "1·5점"),
-    BrailleLetterItem(name: "바 약자, 첫소리 비읍만 적으면 바가 됩니다", letter: "바", dotLabel: "4·5점"),
-    BrailleLetterItem(name: "자 약자, 첫소리 지읒만 적으면 자가 됩니다", letter: "자", dotLabel: "4·6점"),
-    BrailleLetterItem(name: "하 약자, 첫소리 히읗만 적으면 하가 됩니다", letter: "하", dotLabel: "2·4·5점"),
+    BrailleLetterItem(name: "나 약자", letter: "나", dotLabel: "1·4점"),
+    BrailleLetterItem(name: "다 약자", letter: "다", dotLabel: "2·4점"),
+    BrailleLetterItem(name: "마 약자", letter: "마", dotLabel: "1·5점"),
+    BrailleLetterItem(name: "바 약자", letter: "바", dotLabel: "4·5점"),
+    BrailleLetterItem(name: "자 약자", letter: "자", dotLabel: "4·6점"),
+    BrailleLetterItem(name: "카 약자", letter: "카", dotLabel: "1·2·4점"),
+    BrailleLetterItem(name: "타 약자", letter: "타", dotLabel: "1·2·5점"),
+    BrailleLetterItem(name: "파 약자", letter: "파", dotLabel: "1·4·5점"),
+    BrailleLetterItem(name: "하 약자", letter: "하", dotLabel: "2·4·5점"),
 ]
 
-// MARK: 실습뷰 2 — 'ㅏ' 생략 약자로 단어 만들기
+// MARK: 실습뷰 2 — 'ㅏ' 생략 약자 직접 터치
 
 let day11AomitPracticeItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "바다, 바 약자와 다 약자 나란히, 모음 없이 자음만으로 단어가 완성됩니다", letter: "바다", dotLabel: "바(4·5점) + 다(2·4점)", cellsPerLine: 2),
-    BrailleLetterItem(name: "마자, 마 약자와 자 약자 나란히", letter: "마자", dotLabel: "마(1·5점) + 자(4·6점)", cellsPerLine: 2),
-    BrailleLetterItem(name: "하나, 하 약자와 나 약자 나란히", letter: "하나", dotLabel: "하(2·4·5점) + 나(1·4점)", cellsPerLine: 2),
-    BrailleLetterItem(name: "카타, 카 약자와 타 약자 나란히", letter: "카타", dotLabel: "카(1·2·4점) + 타(1·2·5점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "나 약자", letter: "나", dotLabel: "1·4점", cellsPerLine: 1),
+    BrailleLetterItem(name: "다 약자", letter: "다", dotLabel: "2·4점", cellsPerLine: 1),
+    BrailleLetterItem(name: "마 약자", letter: "마", dotLabel: "1·5점", cellsPerLine: 1),
+    BrailleLetterItem(name: "바 약자", letter: "바", dotLabel: "4·5점", cellsPerLine: 1),
+    BrailleLetterItem(name: "자 약자", letter: "자", dotLabel: "4·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "카 약자", letter: "카", dotLabel: "1·2·4점", cellsPerLine: 1),
+    BrailleLetterItem(name: "타 약자", letter: "타", dotLabel: "1·2·5점", cellsPerLine: 1),
+    BrailleLetterItem(name: "파 약자", letter: "파", dotLabel: "1·4·5점", cellsPerLine: 1),
+    BrailleLetterItem(name: "하 약자", letter: "하", dotLabel: "2·4·5점", cellsPerLine: 1),
+    BrailleLetterItem(name: "바다", letter: "바다", dotLabel: "바(4·5점) + 다(2·4점)", cellsPerLine: 2),
 ]

@@ -2,13 +2,19 @@ import Foundation
 
 /// 커리큘럼 전체에서 공유하는 점자 글자 데이터 모델
 struct BrailleLetterItem: Sendable, Codable {
-    let name: String        // VoiceOver용 이름 ("기역", "아")
+    let name: String        // 화면에 표시하는 짧은 이름 ("기역", "아")
     let letter: String      // 표시 글자 ("ㄱ", "ㅏ")
     let dotLabel: String    // 점형 설명 ("4점", "1·2·6점")
     var cellsPerLine: Int?  // nil이면 뷰의 기본값 사용
     var rawDots: String?    // 번역기 우회, 직접 점형 표시 ("1", "25" 등)
     var rawDotLabels: String?  // rawDots 셀별 레이블 ("ㄱ,억" — 콤마 구분, rawDots 셀 수와 동일)
     var fromDotLabel: String?  // 변환 전 점형 (설명뷰에서 → 표시용)
+    var voiceOverName: String?  // VoiceOver 전용 긴 이름. nil이면 name 사용
+
+    /// VoiceOver에서 읽어줄 이름 (voiceOverName이 있으면 그걸, 없으면 name)
+    var accessibilityName: String {
+        voiceOverName ?? name
+    }
 
     /// "4점" → [4], "1·4점" → [1, 4]
     var activeDotNumbers: Set<Int> {

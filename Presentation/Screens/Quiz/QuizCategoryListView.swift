@@ -373,9 +373,9 @@ private struct ResumeCard: View {
                 HStack(spacing: 14) {
                     Image(systemName: "play.circle.fill")
                         .font(.title)
-                        .foregroundColor(.white)
+                        .foregroundColor(.appSubColor)
                         .frame(width: iconSize, height: iconSize)
-                        .background(Color.appSubColor)
+                        .background(Color.appSubColor.opacity(0.12))
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .accessibilityHidden(true)
 

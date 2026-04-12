@@ -10,22 +10,22 @@ struct Day5View: View {
 
     enum Day5Step: Int, CaseIterable {
         case intro = 0
-        case explainVowels = 1
-        case practiceVowels = 2
-        case separatorRule = 3
-        case practiceSeparator = 4
-        case yeRule = 5
-        case practiceYe = 6
+        case explainSingleCellVowels = 1
+        case practiceSingleCellVowels = 2
+        case explainTwoCellVowels = 3
+        case practiceTwoCellVowels = 4
+        case separatorRule = 5
+        case practiceSeparator = 6
 
         var label: String {
             switch self {
             case .intro: return "시작"
-            case .explainVowels: return "이중 모음 설명"
-            case .practiceVowels: return "이중 모음 실습"
+            case .explainSingleCellVowels: return "한 칸 이중 모음 설명"
+            case .practiceSingleCellVowels: return "한 칸 이중 모음 실습"
+            case .explainTwoCellVowels: return "두 칸 이중 모음 설명"
+            case .practiceTwoCellVowels: return "두 칸 이중 모음 실습"
             case .separatorRule: return "붙임표 규칙"
             case .practiceSeparator: return "붙임표 실습"
-            case .yeRule: return "예 규칙"
-            case .practiceYe: return "예 실습"
             }
         }
     }
@@ -38,52 +38,56 @@ struct Day5View: View {
             switch currentStep {
             case .intro:
                 Day5IntroView(
-                    onStart: { goTo(.explainVowels) },
+                    onStart: { goTo(.explainSingleCellVowels) },
                     onBack: { dismiss() }
                 )
 
-            case .explainVowels:
+            case .explainSingleCellVowels:
                 CurriculumExplanationView(
                     title: day5ExplanationTitle,
                     subtitle: day5ExplanationSubtitle,
                     description: day5ExplanationDescription,
                     items: day5SingleCellVowelItems,
-                    onNext: { goTo(.practiceVowels) },
+                    onNext: { goTo(.practiceSingleCellVowels) },
                     onBack: { goTo(.intro) }
                 )
-            case .practiceVowels:
+            case .practiceSingleCellVowels:
                 CurriculumPracticeView(
-                    items: day5DoubleCellVowelItems,
+                    items: day5SingleCellPracticeItems,
+                    useChosungForm: true,
+                    cellsPerLine: 1,
+                    onNext: { goTo(.explainTwoCellVowels) },
+                    onBack: { goTo(.explainSingleCellVowels) }
+                )
+
+            case .explainTwoCellVowels:
+                CurriculumExplanationView(
+                    title: day5TwoCellExplanationTitle,
+                    subtitle: day5TwoCellExplanationSubtitle,
+                    description: day5TwoCellExplanationDescription,
+                    items: day5TwoCellVowelItems,
+                    onNext: { goTo(.practiceTwoCellVowels) },
+                    onBack: { goTo(.practiceSingleCellVowels) }
+                )
+            case .practiceTwoCellVowels:
+                CurriculumPracticeView(
+                    items: day5TwoCellPracticeItems,
                     useChosungForm: true,
                     cellsPerLine: 2,
                     onNext: { goTo(.separatorRule) },
-                    onBack: { goTo(.explainVowels) }
+                    onBack: { goTo(.explainTwoCellVowels) }
                 )
 
             case .separatorRule:
                 Day5SeparatorRuleView(
                     onNext: { goTo(.practiceSeparator) },
-                    onBack: { goTo(.practiceVowels) }
+                    onBack: { goTo(.practiceTwoCellVowels) }
                 )
             case .practiceSeparator:
                 CurriculumPracticeView(
                     items: day5SeparatorCompareItems,
                     useChosungForm: false,
                     cellsPerLine: 4,
-                    onNext: { goTo(.yeRule) },
-                    onBack: { goTo(.separatorRule) }
-                )
-
-            case .yeRule:
-                Day5YeRuleView(
-                    onNext: { goTo(.practiceYe) },
-                    onBack: { goTo(.practiceSeparator) }
-                )
-            case .practiceYe:
-                CurriculumPracticeView(
-                    items: day5YeCompareItems,
-                    useChosungForm: false,
-                    cellsPerLine: 5,
                     finalNextTitle: "학습 완료",
                     finalNextHint: "5일차 학습을 완료하고 학습홈으로 돌아갑니다",
                     onNext: {
@@ -92,7 +96,7 @@ struct Day5View: View {
                         UIAccessibility.post(notification: .announcement, argument: "5일차 학습을 완료했습니다")
                         dismiss()
                     },
-                    onBack: { goTo(.yeRule) }
+                    onBack: { goTo(.separatorRule) }
                 )
             }
         }

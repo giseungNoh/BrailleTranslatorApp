@@ -20,7 +20,7 @@ struct Day8IntroView: View {
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("숫자 익히기 1\n수표와 1~0")
+                Text("숫자 익히기 1\n수표와 0~9")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)

@@ -20,7 +20,7 @@ struct Day9IntroView: View {
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("숫자 익히기 2\n두 자리 이상과 수표의 효력")
+                Text("숫자 익히기 2\n두 자리 이상의 숫자")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)

@@ -24,6 +24,8 @@ struct WrongAnswerListView: View {
     ) private var oxWrongAnswers: [QuizAttempt]
     @AccessibilityFocusState private var isTitleFocused: Bool
     @State private var selectedSection: Int = 0 // 0 = 전체
+    @State private var isEditing = false
+    @State private var selectedForDeletion: Set<UUID> = []
 
     private var allWrongCount: Int {
         wrongAnswers.count + oxWrongAnswers.count
@@ -136,46 +138,123 @@ struct WrongAnswerListView: View {
                             let totalCount = group.regulars.count + group.oxItems.count
                             VStack(alignment: .leading, spacing: 10) {
                                 // 섹션 헤더
+                                let isFirstVisible = group.category.id == allGroupedWrongAnswers.first(where: { isCategoryVisible($0.category) })?.category.id
                                 HStack(spacing: 8) {
-                                    if group.category.id == allGroupedWrongAnswers.first(where: { isCategoryVisible($0.category) })?.category.id {
+                                    if isFirstVisible {
                                         sectionFilterButton
                                     }
 
-                                    Text(group.category.title)
-                                        .font(.subheadline.bold())
-                                        .foregroundColor(.appTextSubColor)
+                                    HStack(spacing: 6) {
+                                        Text(group.category.title)
+                                            .font(.subheadline.bold())
+                                            .foregroundColor(.appTextSubColor)
 
-                                    Text("\(totalCount)")
-                                        .font(.caption2.bold())
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 7)
-                                        .padding(.vertical, 2)
-                                        .background(Color.appSubColor)
-                                        .clipShape(Capsule())
+                                        Text("\(totalCount)")
+                                            .font(.caption2.bold())
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 7)
+                                            .padding(.vertical, 2)
+                                            .background(Color.appSubColor)
+                                            .clipShape(Capsule())
+                                    }
+                                    .accessibilityElement(children: .ignore)
+                                    .accessibilityLabel("\(group.category.title), 틀린 문제 \(totalCount)개")
+
+                                    Spacer()
+
+                                    if isFirstVisible {
+                                        Button {
+                                            withAnimation {
+                                                if isEditing {
+                                                    selectedForDeletion.removeAll()
+                                                }
+                                                isEditing.toggle()
+                                            }
+                                        } label: {
+                                            Text(isEditing ? "완료" : "편집")
+                                                .font(.footnote.bold())
+                                                .foregroundColor(.appSubColor)
+                                        }
+                                        .accessibilityLabel(isEditing ? "편집 완료" : "오답 편집")
+                                        .accessibilityHint(isEditing ? "편집 모드를 종료합니다" : "오답을 선택하여 삭제할 수 있습니다")
+                                    }
                                 }
                                 .padding(.horizontal, 20)
-                                .accessibilityElement(children: .ignore)
-                                .accessibilityLabel("\(group.category.title), 틀린 문제 \(totalCount)개")
+
+                                // 편집 모드: 전체선택 + 삭제/완료
+                                if isFirstVisible && isEditing {
+                                    HStack {
+                                        Button {
+                                            let allVisibleIds = allGroupedWrongAnswers
+                                                .filter { isCategoryVisible($0.category) }
+                                                .flatMap { $0.regulars.map(\.id) + $0.oxItems.map(\.id) }
+                                            if selectedForDeletion.count == allVisibleIds.count {
+                                                selectedForDeletion.removeAll()
+                                            } else {
+                                                selectedForDeletion = Set(allVisibleIds)
+                                            }
+                                        } label: {
+                                            Text("전체 선택")
+                                                .font(.footnote)
+                                                .foregroundColor(.appTextColor)
+                                        }
+                                        .accessibilityLabel("전체 선택")
+
+                                        Spacer()
+
+                                        Button {
+                                            deleteSelectedItems()
+                                        } label: {
+                                            Text("삭제(\(selectedForDeletion.count))")
+                                                .font(.footnote)
+                                                .foregroundColor(selectedForDeletion.isEmpty ? .gray : .red)
+                                        }
+                                        .disabled(selectedForDeletion.isEmpty)
+                                        .accessibilityLabel("\(selectedForDeletion.count)개 삭제")
+                                        .accessibilityHint(selectedForDeletion.isEmpty ? "삭제할 항목을 선택하세요" : "두번 탭하여 선택한 항목을 삭제합니다")
+                                    }
+                                    .padding(.horizontal, 20)
+                                }
 
                                 // 카드 목록
                                 VStack(spacing: 8) {
                                     // 객관식 오답
                                     ForEach(group.regulars, id: \.id) { attempt in
-                                        WrongAnswerCard(attempt: attempt) {
-                                            viewModel.goTo(.wrongAnswerDetail(attempt.correctLetter))
-                                        } onDelete: {
-                                            modelContext.delete(attempt)
-                                            try? modelContext.save()
+                                        HStack(spacing: 12) {
+                                            if isEditing {
+                                                selectionCheckmark(for: attempt.id)
+                                            }
+
+                                            WrongAnswerCard(attempt: attempt) {
+                                                if isEditing {
+                                                    toggleSelection(attempt.id)
+                                                } else {
+                                                    viewModel.goTo(.wrongAnswerDetail(attempt.correctLetter))
+                                                }
+                                            } onDelete: {
+                                                modelContext.delete(attempt)
+                                                try? modelContext.save()
+                                            }
                                         }
                                     }
 
                                     // OX 오답
                                     ForEach(group.oxItems, id: \.id) { attempt in
-                                        WrongAnswerOXCard(attempt: attempt) {
-                                            viewModel.goTo(.wrongAnswerOXDetail(attempt.id.uuidString))
-                                        } onDelete: {
-                                            modelContext.delete(attempt)
-                                            try? modelContext.save()
+                                        HStack(spacing: 12) {
+                                            if isEditing {
+                                                selectionCheckmark(for: attempt.id)
+                                            }
+
+                                            WrongAnswerOXCard(attempt: attempt) {
+                                                if isEditing {
+                                                    toggleSelection(attempt.id)
+                                                } else {
+                                                    viewModel.goTo(.wrongAnswerOXDetail(attempt.id.uuidString))
+                                                }
+                                            } onDelete: {
+                                                modelContext.delete(attempt)
+                                                try? modelContext.save()
+                                            }
                                         }
                                     }
                                 }
@@ -186,6 +265,7 @@ struct WrongAnswerListView: View {
                     }
                     .padding(.bottom, 40)
                 }
+
             }
         }
         .meshBackground()
@@ -198,6 +278,35 @@ struct WrongAnswerListView: View {
                 isTitleFocused = true
             }
         }
+    }
+
+    // MARK: - 편집 모드 헬퍼
+
+    private func toggleSelection(_ id: UUID) {
+        if selectedForDeletion.contains(id) {
+            selectedForDeletion.remove(id)
+        } else {
+            selectedForDeletion.insert(id)
+        }
+    }
+
+    private func selectionCheckmark(for id: UUID) -> some View {
+        let isSelected = selectedForDeletion.contains(id)
+        return Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+            .font(.title3)
+            .foregroundColor(isSelected ? .appSubColor : .gray.opacity(0.4))
+            .padding(.leading, 2)
+            .accessibilityHidden(true)
+    }
+
+    private func deleteSelectedItems() {
+        let allAttempts = (wrongAnswers + oxWrongAnswers)
+        for attempt in allAttempts where selectedForDeletion.contains(attempt.id) {
+            modelContext.delete(attempt)
+        }
+        try? modelContext.save()
+        selectedForDeletion.removeAll()
+        isEditing = false
     }
 
     // MARK: - 빈 상태
@@ -375,4 +484,47 @@ private struct WrongAnswerOXCard: View {
             onDelete()
         }
     }
+}
+
+@MainActor
+private let previewContainer: ModelContainer = {
+    do {
+        let container = try ModelContainer(for: QuizAttempt.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let context = container.mainContext
+        
+        if let firstCategory = quizCategories.first {
+            // 일반 오답 더미 데이터
+            let dummy1 = QuizAttempt(
+                categoryId: firstCategory.id,
+                questionText: "다음 점자에 해당하는 초성은?",
+                correctLetter: "ㄱ",
+                correctDotLabel: "4점",
+                userSelectedLetter: "ㄴ",
+                isCorrect: false
+            )
+            context.insert(dummy1)
+            
+            // O/X 오답 더미 데이터
+            let dummy2 = QuizAttempt(
+                categoryId: firstCategory.id,
+                questionText: "된소리 기호는 초성 쌍자음 앞에 적습니다.",
+                correctLetter: "O",
+                correctDotLabel: "",
+                userSelectedLetter: "X",
+                isCorrect: false,
+                isOXQuestion: true,
+                explanation: "쌍자음을 표기할 때 초성 앞에 된소리 기호(6점)를 적습니다."
+            )
+            context.insert(dummy2)
+        }
+        
+        return container
+    } catch {
+        fatalError("Failed to create preview container")
+    }
+}()
+
+#Preview {
+    WrongAnswerListView(viewModel: QuizViewModel())
+        .modelContainer(previewContainer)
 }

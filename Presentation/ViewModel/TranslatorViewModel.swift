@@ -9,6 +9,12 @@ class TranslatorViewModel: NSObject, ObservableObject {
     @Published var inputText: String = ""
     @Published var isRecording: Bool = false
     @Published var errorMessage: String? = nil
+    @Published var showPermissionAlert: Bool = false
+
+    var isSpeechDenied: Bool {
+        let status = SFSpeechRecognizer.authorizationStatus()
+        return status == .denied || status == .restricted
+    }
     
     // Private properties for speech recognition
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "ko-KR"))
@@ -29,10 +35,8 @@ class TranslatorViewModel: NSObject, ObservableObject {
                 switch status {
                 case .authorized:
                     break // Good to go
-                case .denied:
-                    self.errorMessage = "음성 인식 권한이 거부되었습니다."
-                case .restricted:
-                    self.errorMessage = "음성 인식이 제한되었습니다."
+                case .denied, .restricted:
+                    break // isSpeechDenied로 View에서 직접 표시
                 case .notDetermined:
                     self.errorMessage = "음성 인식 권한이 아직 결정되지 않았습니다."
                 @unknown default:
@@ -47,8 +51,18 @@ class TranslatorViewModel: NSObject, ObservableObject {
         if isRecording {
             stopRecording()
         } else {
+            let speechStatus = SFSpeechRecognizer.authorizationStatus()
+            if speechStatus == .denied || speechStatus == .restricted {
+                showPermissionAlert = true
+                return
+            }
             startRecording()
         }
+    }
+
+    func openSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
     }
     
     private func startRecording() {

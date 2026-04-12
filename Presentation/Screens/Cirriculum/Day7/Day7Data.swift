@@ -42,10 +42,26 @@ let day7CompoundPracticeItems: [BrailleLetterItem] = [
     BrailleLetterItem(name: "리을미음, 받침 리을과 받침 미음 나란히", letter: "ㄻ", dotLabel: "ㄹ(2점) + ㅁ(2·6점)", cellsPerLine: 2),
 ]
 
-// MARK: 실습뷰 2 — 쌍기역 vs 쌍시옷 비교 (번역기 + skipLeadingCells)
+// MARK: 설명뷰 3 — 쌍받침 규칙 + ㅆ 받침과 예의 충돌
 
-/// 쌍기역(2칸: 1점+1점), 쌍시옷(2칸: 3점+3점) — 약자 미적용
+let day7DoubleJongseongTitle = "쌍받침의 규칙"
+let day7DoubleJongseongSubtitle = "ㄲ · ㅆ"
+let day7DoubleJongseongDescription = "받침 쌍기역(ㄲ)은 받침 'ㄱ(1점)'을 두 번\n나란히 적어 두 칸으로 표기합니다.\n\n다만 쌍시옷(ㅆ) 받침은 예외로\n'3·4점' 한 칸으로 적습니다.\n\n그런데 이 점형은 이중 모음 'ㅖ(3·4점)'와똑같아 충돌이 생깁니다.'서예'처럼 모음 뒤에 '예'가 올 때는'섰'으로 잘못 읽히지 않도록 모음과 '예' 사이에 반드시 '구분표(3·6점)'를 적어야 합니다."
+
+/// 설명뷰 3 아이템 — 쌍받침 점형
+let day7DoubleJongseongItems: [BrailleLetterItem] = [
+    BrailleLetterItem(name: "쌍기역 받침", letter: "ㄲ", dotLabel: "ㄱ(1점) + ㄱ(1점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "쌍시옷 받침", letter: "ㅆ", dotLabel: "3·4점"),
+    BrailleLetterItem(name: "섰", letter: "섰", dotLabel: "ㅅ(6점) + ㅓ(2·3·4점) + ㅆ(3·4점)"),
+    BrailleLetterItem(name: "서예", letter: "서예", dotLabel: "ㅅ(6점) + ㅓ(2·3·4점) + 붙임표(3·6점) + ㅆ(3·4점)")
+]
+
+// MARK: 실습뷰 2 — 쌍기역 vs 쌍시옷 비교
+
+/// 쌍기역(2칸: 1점+1점), 쌍시옷(1칸: 3·4점) — 약자 미적용
 let day7DoublePracticeItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "쌍기역, 점자 두 칸 받침 기역 두 번", letter: "ㄲ", dotLabel: "ㄱ(1점) + ㄱ(1점), 2칸", cellsPerLine: 2),
-    BrailleLetterItem(name: "쌍시옷, 점자 두 칸 받침 시옷 두 번", letter: "ㅆ", dotLabel: "ㅅ(3점) + ㅅ(3점), 2칸", cellsPerLine: 2),
+    BrailleLetterItem(name: "쌍기역 받침", letter: "ㄲ", dotLabel: "ㄱ(1점) + ㄱ(1점)", cellsPerLine: 2, rawDots: "1,1", rawDotLabels: "ㄲ"),
+    BrailleLetterItem(name: "쌍시옷 받침", letter: "ㅆ", dotLabel: "3·4점", cellsPerLine: 1, rawDots: "34", rawDotLabels: "쌍시옷 받침"),
+    BrailleLetterItem(name: "섰", letter: "섰", dotLabel: "ㅅ(6점) + ㅓ(2·3·4점) + ㅆ(3·4점)",cellsPerLine: 3),
+    BrailleLetterItem(name: "서예", letter: "서예", dotLabel: "ㅅ(6점) + ㅓ(2·3·4점) + 붙임표(3·6점) + ㅆ(3·4점)",cellsPerLine: 4)
 ]

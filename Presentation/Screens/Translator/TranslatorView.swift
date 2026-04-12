@@ -59,13 +59,20 @@ struct TranslatorView: View {
                                 }
                             }
                         }
-                        .accessibilityLabel(viewModel.isRecording ? "음성 인식 중지" : "음성으로 입력하기")
-                        .accessibilityHint(viewModel.isRecording ? "이중 탭하면 음성 인식을 중지합니다" : "이중 탭하면 음성 인식을 시작합니다")
-                        .accessibilityValue(viewModel.isRecording ? "녹음 중" : "")
+                        .accessibilityLabel(viewModel.isSpeechDenied ? "음성 인식 권한 필요" : viewModel.isRecording ? "음성 인식 중지" : "음성으로 입력하기")
+                        .accessibilityHint(viewModel.isSpeechDenied ? "이중 탭하면 권한 설정 안내가 표시됩니다" : viewModel.isRecording ? "이중 탭하면 음성 인식을 중지합니다" : "이중 탭하면 음성 인식을 시작합니다")
+                        .accessibilityValue(viewModel.isRecording ? "녹음 중" : viewModel.isSpeechDenied ? "권한 거부됨" : "")
                         
+                        if viewModel.isSpeechDenied {
+                            Text("음성 인식 권한이 거부되었습니다.")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                                .padding(.top, 12)
+                        }
+
                         Spacer()
                             .frame(height: 50)
-                        
+
                         // 2. 입력 텍스트 필드 영역
                         VStack(alignment: .leading, spacing: 15) {
                             Text("입력된 텍스트")
@@ -75,7 +82,8 @@ struct TranslatorView: View {
                             HStack {
                                 TextField("텍스트를 입력하세요", text: $viewModel.inputText)
                                     .focused($isFocused)
-                                
+                                    .foregroundColor(.appTextColor)
+
                                 if !viewModel.inputText.isEmpty {
                                     Button(action: {
                                         viewModel.inputText = ""
@@ -169,6 +177,14 @@ struct TranslatorView: View {
             .toolbar(.hidden, for: .navigationBar)
             .onTapGesture {
                 isFocused = false
+            }
+            .alert("음성 인식 권한 필요", isPresented: $viewModel.showPermissionAlert) {
+                Button("설정으로 이동") {
+                    viewModel.openSettings()
+                }
+                Button("취소", role: .cancel) { }
+            } message: {
+                Text("음성 인식을 사용하려면 설정에서 권한을 허용해주세요.")
             }
         }
     }

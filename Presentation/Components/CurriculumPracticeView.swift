@@ -50,7 +50,7 @@ struct CurriculumPracticeView: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(items.count)개 중 \(currentIndex + 1)번째, \(current.name), \(current.dotLabel)")
+            .accessibilityLabel("\(items.count)개 중 \(currentIndex + 1)번째, \(current.accessibilityName), \(current.dotLabel)")
             .accessibilityFocused($isHeaderFocused)
 
             // MARK: 점자 캔버스
@@ -127,6 +127,6 @@ struct CurriculumPracticeView: View {
     private func moveTo(_ index: Int) {
         withAnimation(.easeInOut(duration: 0.2)) { currentIndex = index }
         let position = "\(items.count)개 중 \(currentIndex + 1)번째"
-        UIAccessibility.post(notification: .announcement, argument: "\(position), \(current.name), \(current.dotLabel)")
+        UIAccessibility.post(notification: .announcement, argument: "\(position), \(current.accessibilityName), \(current.dotLabel)")
     }
 }

@@ -6,6 +6,7 @@ struct CirriculumView: View {
     @State private var searchText: String = ""
     @AppStorage("lastStudiedDay") private var lastStudiedDay: Int = 0
     @State private var navigateToContinue: Bool = false
+    @FocusState private var isSearchFocused: Bool
     @AccessibilityFocusState private var focusedDay: Int?
 
     private var totalCount: Int { items.count }
@@ -51,9 +52,11 @@ struct CirriculumView: View {
                                     .accessibilityHidden(true)
 
                                 TextField("어떤 강의를 찾으시나요?", text: $searchText)
+                                    .focused($isSearchFocused)
                                     .foregroundColor(.appTextColor)
                                     .textInputAutocapitalization(.never)
                                     .disableAutocorrection(true)
+                                    .onSubmit { isSearchFocused = false }
 
                                 if !searchText.isEmpty {
                                     Button {
@@ -109,7 +112,7 @@ struct CirriculumView: View {
                                                 }
 
                                                 Text("Day \(String(format: "%02d", current.day)): \(current.title)")
-                                                    .font(.subheadline.weight(.semibold))
+                                                    .font(.headline)
                                                     .foregroundColor(.appTextColor)
 
                                                 Text(current.subtitle)
@@ -216,6 +219,7 @@ struct CirriculumView: View {
             }
             .meshBackground()
             .toolbar(.hidden, for: .navigationBar)
+            .onTapGesture { isSearchFocused = false }
             .navigationDestination(isPresented: $navigateToContinue) {
                 if let item = lastStudiedItem {
                     PracticeView(item: item)

@@ -16,8 +16,6 @@ struct Day14View: View {
         case practiceAbbrUEuIn = 4
         case explainSpecialAbbr = 5
         case practiceSpecialAbbr = 6
-        case explainFortis = 7
-        case practiceFortis = 8
 
         var label: String {
             switch self {
@@ -28,8 +26,6 @@ struct Day14View: View {
             case .practiceAbbrUEuIn: return "ㅜ/ㅡ/ㅣ계열 실습"
             case .explainSpecialAbbr: return "것/ㅆ 설명"
             case .practiceSpecialAbbr: return "것/ㅆ 실습"
-            case .explainFortis: return "된소리 설명"
-            case .practiceFortis: return "된소리 실습"
             }
         }
     }
@@ -105,27 +101,6 @@ struct Day14View: View {
                     items: day14SpecialAbbrPracticeItems,
                     useChosungForm: false,
                     useAbbreviations: true,
-                    onNext: { goTo(.explainFortis) },
-                    onBack: { goTo(.explainSpecialAbbr) }
-                )
-
-            case .explainFortis:
-                CurriculumExplanationView(
-                    title: day14FortisTitle,
-                    subtitle: day14FortisSubtitle,
-                    description: day14FortisDescription,
-                    items: day14FortisItems,
-                    nextTitle: "만져보기",
-                    nextHint: "껏과 껐 구별 터치 실습 화면으로 이동합니다",
-                    onNext: { goTo(.practiceFortis) },
-                    onBack: { goTo(.practiceSpecialAbbr) }
-                )
-
-            case .practiceFortis:
-                CurriculumPracticeView(
-                    items: day14FortisPracticeItems,
-                    useChosungForm: false,
-                    useAbbreviations: true,
                     finalNextTitle: "학습 완료",
                     finalNextHint: "14일차 학습을 완료하고 학습홈으로 돌아갑니다",
                     onNext: {
@@ -134,7 +109,7 @@ struct Day14View: View {
                         UIAccessibility.post(notification: .announcement, argument: "14일차 학습을 완료했습니다")
                         dismiss()
                     },
-                    onBack: { goTo(.explainFortis) }
+                    onBack: { goTo(.explainSpecialAbbr) }
                 )
             }
         }

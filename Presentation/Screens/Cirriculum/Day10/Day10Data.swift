@@ -28,7 +28,7 @@ let day10NoJongPracticeItems: [BrailleLetterItem] = [
 
 let day10WithJongTitle = "[복습] 받침 있는 글자 만들기"
 let day10WithJongSubtitle = "자음 + 모음 + 받침"
-let day10WithJongDescription = "받침이 있는 글자는 자음과 모음 뒤에\n홑받침을 연달아 붙여 완성합니다.\n\n단, 첫소리와 달리 받침 '이응(ㅇ)'은\n소리가 나기 때문에 전용 점자\n(2-3-5-6점)를 꼭 적어주어야\n한다는 점 잊지 마세요."
+let day10WithJongDescription = "받침이 있는 글자는 자음과 모음 뒤에\n홑받침을 연달아 붙여 완성합니다.\n\n단, 첫소리와 달리 받침 '이응(ㅇ)'은\n소리가 나기 때문에 점자\n(2-3-5-6점)를 꼭 적어주어야\n한다는 점 잊지 마세요."
 
 /// 설명뷰 2 아이템 — 받침 있는 글자
 let day10WithJongItems: [BrailleLetterItem] = [

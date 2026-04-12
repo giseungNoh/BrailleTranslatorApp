@@ -20,7 +20,7 @@ struct Day11IntroView: View {
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("마법의 줄임말 '약자' 1\n고유 약자와 'ㅏ' 생략")
+                Text("'약자' 1\n고유 약자와 'ㅏ' 생략")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
