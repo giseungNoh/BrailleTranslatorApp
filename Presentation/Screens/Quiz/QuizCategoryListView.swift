@@ -262,7 +262,7 @@ private struct WrongAnswerNoteCard: View {
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("오답노트")
+                    Text("오답노트/즐겨찾기")
                         .font(.subheadline)
                         .foregroundColor(.appTextColor)
 

@@ -73,5 +73,5 @@ let day6IeungExplainItems: [BrailleLetterItem] = [
 let day6IeungPracticeItems: [BrailleLetterItem] = [
     BrailleLetterItem(name: "이응 받침", letter: "ㅇ", dotLabel: "2·3·5·6점", cellsPerLine: 1, rawDots: "2356", rawDotLabels: "이응 받침", voiceOverName: "이응 받침, 2·3·5·6점"),
     BrailleLetterItem(name: "아", letter: "아", dotLabel: "ㅏ(1·2·6점)", cellsPerLine: 1, voiceOverName: "아, 첫소리 이응은 생략"),
-    BrailleLetterItem(name: "앙", letter: "앙", dotLabel: "ㅏ + ㅇ받침(2·3·5·6점)", cellsPerLine: 2, voiceOverName: "앙, 받침 이응 2·3·5·6점"),
+    BrailleLetterItem(name: "앙", letter: "앙", dotLabel: "ㅏ(1·2·6점) + ㅇ받침(2·3·5·6점)", cellsPerLine: 2, voiceOverName: "앙, 받침 이응 2·3·5·6점"),
 ]

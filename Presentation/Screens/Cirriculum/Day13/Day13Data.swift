@@ -10,17 +10,17 @@ let day13EoSeriesDescription = "모음 'ㅓ'에 받침 'ㄱ, ㄴ, ㄹ'이 결합
 
 /// 설명뷰 1 아이템 — 'ㅓ' 계열 약자
 let day13EoSeriesItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "억", letter: "억", dotLabel: "억(1·4·5·6점)", cellsPerLine: 1),
-    BrailleLetterItem(name: "언", letter: "언", dotLabel: "언(2·3·4·5·6점)", cellsPerLine: 1),
-    BrailleLetterItem(name: "얼", letter: "얼", dotLabel: "얼(2·3·4·5점)", cellsPerLine: 1),
+    BrailleLetterItem(name: "억", letter: "억", dotLabel: "1·4·5·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "언", letter: "언", dotLabel: "2·3·4·5·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "얼", letter: "얼", dotLabel: "2·3·4·5점", cellsPerLine: 1),
 ]
 
 // MARK: 실습뷰 1 — '억, 언, 얼' 약자 훈련
 
 let day13EoSeriesPracticeItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "억, 억 약자의 점형을 느껴보세요", letter: "억", dotLabel: "억(1·4·5·6점)", cellsPerLine: 1),
-    BrailleLetterItem(name: "언, 언 약자의 점형을 느껴보세요", letter: "언", dotLabel: "언(2·3·4·5·6점)", cellsPerLine: 1),
-    BrailleLetterItem(name: "얼, 얼 약자의 점형을 느껴보세요", letter: "얼", dotLabel: "얼(2·3·4·5점)", cellsPerLine: 1),
+    BrailleLetterItem(name: "억, 억 약자의 점형을 느껴보세요", letter: "억", dotLabel: "1·4·5·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "언, 언 약자의 점형을 느껴보세요", letter: "언", dotLabel: "2·3·4·5·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "얼, 얼 약자의 점형을 느껴보세요", letter: "얼", dotLabel: "2·3·4·5점", cellsPerLine: 1),
     BrailleLetterItem(name: "걱, 기억과 억 약자가 결합된 점형을 만져보세요", letter: "걱", dotLabel: "ㄱ(4점) + 억(1·4·5·6점)", cellsPerLine: 2, rawDots: "4,1456", rawDotLabels: "ㄱ,억"),
     BrailleLetterItem(name: "넌, 니은과 언 약자가 결합된 점형을 만져보세요", letter: "넌", dotLabel: "ㄴ(1·4점) + 언(2·3·4·5·6점)", cellsPerLine: 2, rawDots: "14,23456", rawDotLabels: "ㄴ,언"),
     BrailleLetterItem(name: "덜, 디귿과 얼 약자가 결합된 점형을 만져보세요", letter: "덜", dotLabel: "ㄷ(2·4점) + 얼(2·3·4·5점)", cellsPerLine: 2, rawDots: "24,2345", rawDotLabels: "ㄷ,얼"),
@@ -34,9 +34,9 @@ let day13YeoSeriesDescription = "이번엔 모음 'ㅕ'에 받침이 결합된 '
 
 /// 설명뷰 2 아이템 — 'ㅕ' 계열 약자
 let day13YeoSeriesItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "연", letter: "연", dotLabel: "연(1·6점)", cellsPerLine: 1),
-    BrailleLetterItem(name: "열", letter: "열", dotLabel: "열(1·2·5·6점)", cellsPerLine: 1),
-    BrailleLetterItem(name: "영", letter: "영", dotLabel: "영(1·2·4·5·6점)", cellsPerLine: 1),
+    BrailleLetterItem(name: "연", letter: "연", dotLabel: "1·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "열", letter: "열", dotLabel: "1·2·5·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "영", letter: "영", dotLabel: "1·2·4·5·6점", cellsPerLine: 1),
 ]
 
 // MARK: 실습뷰 2 — '연, 열, 영' 약자로 단어 만들기
@@ -46,8 +46,8 @@ let day13YeoSeriesPracticeItems: [BrailleLetterItem] = [
     BrailleLetterItem(name: "열, 열 약자의 점형을 느껴보세요", letter: "열", dotLabel: "ㅇ(1·2·4·6점) + 열(1·2·5·6점)", cellsPerLine: 1),
     BrailleLetterItem(name: "영, 영 약자의 점형을 느껴보세요", letter: "영", dotLabel: "영(1·2·4·5·6)", cellsPerLine: 1),
     BrailleLetterItem(name: "연필", letter: "자연", dotLabel: "ㅈ(4·6점) + ㅏ(1·2·6점) + 연(1·6점)", cellsPerLine: 3),
-    BrailleLetterItem(name: "열매", letter: "열매", dotLabel: "열(1·2·5·6점)", cellsPerLine: 3),
-    BrailleLetterItem(name: "영어", letter: "영어", dotLabel: "영(1·2·4·5·6점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "열매", letter: "열매", dotLabel: "열(1·2·5·6점) + ㅁ(1·5점) + ㅐ(1·2·3·5점)", cellsPerLine: 3),
+    BrailleLetterItem(name: "영어", letter: "영어", dotLabel: "영(1·2·4·5·6점) + ㅓ(2·3·4점)", cellsPerLine: 2),
 ]
 
 // MARK: 설명뷰 3 — '영' 약자의 마법 규칙 (엉으로 변신)

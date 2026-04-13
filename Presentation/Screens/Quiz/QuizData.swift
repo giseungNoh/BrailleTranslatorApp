@@ -28,9 +28,9 @@ let quizCategories: [QuizCategory] = [
     QuizCategory(
         id: "vowel_double",
         title: "이중 모음",
-        subtitle: "ㅐ·ㅔ·ㅖ·ㅘ·ㅚ·ㅝ·ㅢ",
+        subtitle: "ㅐ·ㅔ·ㅖ·ㅘ·ㅚ·ㅝ·ㅢ·ㅒ·ㅙ·ㅞ·ㅟ",
         section: 1,
-        questionPool: { day5SingleCellVowelItems }
+        questionPool: { day5SingleCellVowelItems + day5TwoCellVowelItems }
     ),
     QuizCategory(
         id: "jongseong_push",
@@ -42,9 +42,9 @@ let quizCategories: [QuizCategory] = [
     QuizCategory(
         id: "jongseong_drop",
         title: "내리기 받침",
-        subtitle: "ㄴ·ㄷ·ㅁ·ㅋ·ㅌ·ㅍ·ㅎ",
+        subtitle: "ㄴ·ㄷ·ㅁ·ㅋ·ㅌ·ㅍ·ㅎ·ㅇ",
         section: 1,
-        questionPool: { day6DropItems }
+        questionPool: { day6DropItems + day6IeungExplainItems }
     ),
     QuizCategory(
         id: "jongseong_compound",
@@ -58,9 +58,9 @@ let quizCategories: [QuizCategory] = [
     QuizCategory(
         id: "abbr_a_omit",
         title: "ㅏ 생략 약자",
-        subtitle: "나·다·마·바·자·하",
+        subtitle: "가·사·까·싸·나·다·마·바·자·카·타·파·하",
         section: 2,
-        questionPool: { day11AomitItems }
+        questionPool: { day11UniqueAbbrItems + day11AomitItems }
     ),
     QuizCategory(
         id: "abbreviations",
@@ -85,9 +85,25 @@ let quizCategories: [QuizCategory] = [
     QuizCategory(
         id: "numbers",
         title: "숫자와 연산 기호",
-        subtitle: "0~9·더하기·빼기·등호",
+        subtitle: "0~9·더하기·빼기·곱하기·나누기·등호",
         section: 3,
-        questionPool: { day8NumberItems2 + day8NumberItems3 + day19MathItems }
+        questionPool: {
+            // 숫자 아이템은 퀴즈에서 "수표 + 숫자" 2칸으로 표시되므로
+            // dotLabel도 실제 렌더링에 맞춰 수표 prefix를 포함한 복합 형식으로 변환
+            let digitItems = (day8NumberItems2 + day8NumberItems3).map { item in
+                BrailleLetterItem(
+                    name: item.name,
+                    letter: item.letter,
+                    dotLabel: "수표(3·4·5·6점) + \(item.letter)(\(item.dotLabel))",
+                    cellsPerLine: 2,
+                    rawDots: item.rawDots,
+                    rawDotLabels: item.rawDotLabels,
+                    fromDotLabel: item.fromDotLabel,
+                    voiceOverName: item.voiceOverName
+                )
+            }
+            return digitItems + day19OperatorsItems
+        }
     ),
 
     // MARK: 섹션 4: 영어 알파벳
@@ -233,15 +249,30 @@ enum QuizGenerator {
         // 1) 객관식 문제 생성
         var questions: [QuizQuestion] = pool.shuffled().map { correctItem in
             let distractors = pool
-                .filter { $0.letter != correctItem.letter }
+                .filter { candidate in
+                    guard candidate.letter != correctItem.letter else { return false }
+                    // 점형(rawDots)이 완전히 동일하면 "정답이 여러 개" 문제가 되므로 제외
+                    if let a = candidate.rawDots, let b = correctItem.rawDots, a == b {
+                        return false
+                    }
+                    return true
+                }
                 .shuffled()
                 .prefix(2)
 
             var choices = [correctItem] + Array(distractors)
             choices.shuffle()
 
+            // 모음 카테고리는 "아/야/어" 대신 "ㅏ/ㅑ/ㅓ" 원형으로 출제
+            let shortName: String
+            switch category.id {
+            case "vowel_basic", "vowel_double":
+                shortName = correctItem.letter
+            default:
+                shortName = correctItem.name.split(separator: ",", maxSplits: 1).first.map(String.init)?.trimmingCharacters(in: .whitespaces) ?? correctItem.name
+            }
             return QuizQuestion.multipleChoice(
-                questionText: "'\(correctItem.name)'의 점자를 고르세요",
+                questionText: "'\(shortName)'의 점자를 고르세요",
                 correctItem: correctItem,
                 choices: choices,
                 categoryId: category.id
@@ -367,8 +398,8 @@ enum QuizExplanationProvider {
             if let item = day8NumberItems3.first(where: { $0.letter == letter }) {
                 return "숫자입니다.\n\(item.name)은 수표(3·4·5·6점) 뒤에 \(item.dotLabel)을 적어 표현합니다.\n\n\(day8NumberDescription3)"
             }
-            if let item = day19MathItems.first(where: { $0.letter == letter }) {
-                return "연산 기호입니다.\n\(item.name)은 \(item.dotLabel)으로 표현됩니다.\n\n\(day19MathDescription)"
+            if let item = day19OperatorsItems.first(where: { $0.letter == letter }) {
+                return "연산 기호입니다.\n\(item.name)은 \(item.dotLabel)으로 표현됩니다.\n\n\(day19OperatorsDescription)"
             }
 
         // MARK: 영어 a~j

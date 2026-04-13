@@ -20,7 +20,7 @@ struct Day16IntroView: View {
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("영어 알파벳 1\n거저먹는 a~j")
+                Text("영어 알파벳 1\na~j")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
@@ -30,7 +30,7 @@ struct Day16IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("영어 알파벳 a부터 j까지의 점형이\n숫자 1~0과 완벽하게 똑같다는\n놀라운 비밀을 이해하고,\n가장 쉽게 영어 점자에 입문합니다.")
+                Text("영어 알파벳 a부터 j까지의 점형이\n숫자 0~9와 완벽하게 똑같다는\n놀라운 비밀을 이해하고,\n가장 쉽게 영어 점자에 입문합니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day16IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("16일차, 영어 알파벳 1 거저먹는 a부터 j. 오늘의 목표: 영어 알파벳 a부터 j까지의 점형이 숫자 1에서 0과 완벽하게 똑같다는 놀라운 비밀을 이해하고, 가장 쉽게 영어 점자에 입문합니다.")
+            .accessibilityLabel("16일차, 영어 알파벳 1 a부터 j. 오늘의 목표: 영어 알파벳 a부터 j까지의 점형이 숫자 0에서 9까지 완벽하게 똑같다는 놀라운 비밀을 이해하고, 가장 쉽게 영어 점자에 입문합니다.")
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

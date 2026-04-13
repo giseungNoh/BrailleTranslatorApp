@@ -82,7 +82,7 @@ class BrailleTranslator {
         ":": "5,2", ";": "56,23", "-": "35", "~": "4,35",
         "\u{201C}": "236", "\u{201D}": "356", "\u{2018}": "236", "\u{2019}": "356", //왼쪽 큰따옴표 오른쪽 큰따옴표 왼쪽 작은따옴표 오른쪽 작은 따옴표
         "(": "236,3", ")": "6,356", "•": "5,23", "@": "4,1",
-        "+": "36", "*": "16", "%": "34,34", "=": "25,25",
+        "+": "26", "*": "16", "%": "34,34", "=": "25,25",
         ">": "26,26", "<": "35,35", "/":"456,34"
     ]
 
@@ -151,7 +151,7 @@ class BrailleTranslator {
             if isNumberMode && char == "," {
                 let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
                 if nextIsDigit {
-                    result.append("5")   // 쉼표
+                    result.append("2")   // 자릿점 쉼표(2점)
                     continue
                 }
             }
@@ -399,7 +399,7 @@ class BrailleTranslator {
             if isNumberMode && char == "," {
                 let nextIsDigit = (i + 1 < chars.count) && chars[i + 1].isNumber
                 if nextIsDigit {
-                    result.append(("5", ","))   // 쉼표
+                    result.append(("2", ","))   // 자릿점 쉼표(2점)
                     continue
                 }
             }

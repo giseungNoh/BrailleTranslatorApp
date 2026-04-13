@@ -28,7 +28,7 @@ struct Day11View: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Day11ProgressBar(current: currentStep.rawValue, total: Day11Step.allCases.count)
+            CurriculumProgressBar(current: currentStep.rawValue, total: Day11Step.allCases.count)
                 .padding(.horizontal, 20)
 
             switch currentStep {
@@ -104,26 +104,5 @@ struct Day11View: View {
         item.lastStepIndex = step.rawValue
         item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
-    }
-}
-
-// MARK: - 진행 바
-
-private struct Day11ProgressBar: View {
-    let current: Int
-    let total: Int
-
-    var body: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<total, id: \.self) { index in
-                Capsule()
-                    .fill(index <= current ? Color.appSubColor : Color.gray.opacity(0.3))
-                    .frame(height: 4)
-            }
-        }
-        .padding(.vertical, 8)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("학습 진행 상황, \(total)단계 중 \(current + 1)단계")
-        .accessibilityValue("\(Int(Double(current + 1) / Double(total) * 100))퍼센트 진행")
     }
 }

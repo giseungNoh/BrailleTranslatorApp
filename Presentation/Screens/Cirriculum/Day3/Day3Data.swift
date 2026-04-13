@@ -24,7 +24,7 @@ let day3ConsonantGroup = Day3LearningGroup(
 let day3DoubleConsonantItems: [BrailleLetterItem] = [
     BrailleLetterItem(name: "된소리표", letter: "된소리표", dotLabel: "6점", cellsPerLine: 1, rawDots: "6", rawDotLabels: "된소리표"),
     BrailleLetterItem(name: "쌍기역", letter: "ㄲ", dotLabel: "된소리표(6점) + 기역(4점)", cellsPerLine: 2),
-    BrailleLetterItem(name: "쌍디귿", letter: "ㄸ", dotLabel: "된소리표(6점) + 디귿(3·5점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "쌍디귿", letter: "ㄸ", dotLabel: "된소리표(6점) + 디귿(2·4점)", cellsPerLine: 2),
     BrailleLetterItem(name: "쌍비읍", letter: "ㅃ", dotLabel: "된소리표(6점) + 비읍(4·5점)", cellsPerLine: 2),
     BrailleLetterItem(name: "쌍시옷", letter: "ㅆ", dotLabel: "된소리표(6점) + 시옷(6점)", cellsPerLine: 2),
     BrailleLetterItem(name: "쌍지읒", letter: "ㅉ", dotLabel: "된소리표(6점) + 지읒(4·6점)", cellsPerLine: 2),

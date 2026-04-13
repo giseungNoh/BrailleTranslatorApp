@@ -20,7 +20,7 @@ struct Day15IntroView: View {
                     .font(.title3.weight(.medium))
                     .foregroundColor(.appTextSubColor)
 
-                Text("마법의 접속사\n'약어' 7개")
+                Text("접속사\n'약어' 7개")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextColor)
@@ -30,7 +30,7 @@ struct Day15IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("모두 1점으로 시작하는 7개의 약어\n(그래서, 그러나 등)를 익히고,\n약어 앞뒤에 다른 글자가 붙을 때의\n마법 규칙을 완벽하게 마스터합니다.")
+                Text("모두 1점으로 시작하는 7개의 약어\n(그래서, 그러나 등)를 익히고,\n약어 앞뒤에 다른 글자가 붙을 때의\n규칙을 완벽하게 마스터합니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day15IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("15일차, 마법의 접속사 약어 7개. 오늘의 목표: 모두 1점으로 시작하는 7개의 약어 그래서, 그러나 등을 익히고, 약어 앞뒤에 다른 글자가 붙을 때의 마법 규칙을 완벽하게 마스터합니다.")
+            .accessibilityLabel("15일차, 마법의 접속사 약어 7개. 오늘의 목표: 모두 1점으로 시작하는 7개의 약어 그래서, 그러나 등을 익히고, 약어 앞뒤에 다른 글자가 붙을 때의 규칙을 완벽하게 마스터합니다.")
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

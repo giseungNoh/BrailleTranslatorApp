@@ -10,10 +10,10 @@ let day11UniqueAbbrDescription = "점자에는 글자 수를 줄여 손가락이
 
 /// 설명뷰 1 아이템 — 고유 약자
 let day11UniqueAbbrItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "가 약자, 1·2·4·6점", letter: "가", dotLabel: "1·2·4·6점"),
-    BrailleLetterItem(name: "사 약자, 1·2·3점", letter: "사", dotLabel: "1·2·3점"),
-    BrailleLetterItem(name: "까 약자, 된소리표와 가 약자", letter: "까", dotLabel: "된소리표(6점) + 가(1·2·4·6점)"),
-    BrailleLetterItem(name: "싸 약자, 된소리표와 사 약자", letter: "싸", dotLabel: "된소리표(6점) + 사(1·2·3점)"),
+    BrailleLetterItem(name: "가 약자, 1·2·4·6점", letter: "가", dotLabel: "1·2·4·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "사 약자, 1·2·3점", letter: "사", dotLabel: "1·2·3점", cellsPerLine: 1),
+    BrailleLetterItem(name: "까 약자, 된소리표와 가 약자", letter: "까", dotLabel: "된소리표(6점) + 가(1·2·4·6점)", cellsPerLine: 2),
+    BrailleLetterItem(name: "싸 약자, 된소리표와 사 약자", letter: "싸", dotLabel: "된소리표(6점) + 사(1·2·3점)", cellsPerLine: 2),
 ]
 
 // MARK: 실습뷰 1 — 고유 약자 훈련

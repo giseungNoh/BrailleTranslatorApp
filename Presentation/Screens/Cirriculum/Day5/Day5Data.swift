@@ -42,14 +42,14 @@ let day5TwoCellExplanationDescription = "'ㅒ, ㅙ, ㅞ, ㅟ'처럼 복잡한 �
 
 /// 실습2: 두 칸 이중 모음 (딴이 결합)
 let day5TwoCellPracticeItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "얘", letter: "얘", dotLabel: "ㅑ + 딴이", voiceOverName: "얘, 얘기할때 얘 입니다."),
-    BrailleLetterItem(name: "왜", letter: "왜", dotLabel: "ㅘ + 딴이", voiceOverName: "왜, 왜? 할때 왜 입니다."),
-    BrailleLetterItem(name: "웨", letter: "웨", dotLabel: "ㅝ + 딴이", voiceOverName: "웨, 웨딩할때 웨 입니다."),
-    BrailleLetterItem(name: "위", letter: "위", dotLabel: "ㅜ + 딴이"),
+    BrailleLetterItem(name: "얘", letter: "얘", dotLabel: "ㅑ(3·4·5점) + 딴이(1·2·3·5점)", voiceOverName: "얘, 얘기할때 얘 입니다."),
+    BrailleLetterItem(name: "왜", letter: "왜", dotLabel: "ㅘ(1·2·3·6점) + 딴이(1·2·3·5점)", voiceOverName: "왜, 왜? 할때 왜 입니다."),
+    BrailleLetterItem(name: "웨", letter: "웨", dotLabel: "ㅝ(1·2·3·4점) + 딴이(1·2·3·5점)", voiceOverName: "웨, 웨딩할때 웨 입니다."),
+    BrailleLetterItem(name: "위", letter: "위", dotLabel: "ㅜ(1·3·4점) + 딴이(1·2·3·5점)"),
 ]
 
 /// 실습2: 왜 vs 와애 비교
 let day5SeparatorCompareItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "왜", letter: "왜", dotLabel: "ㅘ + 딴이", cellsPerLine: 2, voiceOverName: "왜, 이중 모음 2칸"),
-    BrailleLetterItem(name: "와애", letter: "와애", dotLabel: "ㅘ + 붙임표 + ㅐ", cellsPerLine: 3, voiceOverName: "와애, 붙임표 포함 3칸"),
+    BrailleLetterItem(name: "왜", letter: "왜", dotLabel: "ㅘ(1·2·3·6점) + 딴이(1·2·3·5점)", cellsPerLine: 2, voiceOverName: "왜, 이중 모음 2칸"),
+    BrailleLetterItem(name: "와애", letter: "와애", dotLabel: "ㅘ(1·2·3·6점) +붙임표(3·6점) + ㅐ(1·2·3·5점)", cellsPerLine: 3, voiceOverName: "와애, 붙임표 포함 3칸"),
 ]

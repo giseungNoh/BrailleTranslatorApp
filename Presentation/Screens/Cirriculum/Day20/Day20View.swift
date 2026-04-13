@@ -10,8 +10,8 @@ struct Day20View: View {
 
     enum Day20Step: Int, CaseIterable {
         case intro = 0
-        case explainDaily = 1
-        case practiceDaily = 2
+        case explainArrow = 1
+        case practiceArrow = 2
         case explainCan = 3
         case practiceCan = 4
         case explainTrap = 5
@@ -20,8 +20,8 @@ struct Day20View: View {
         var label: String {
             switch self {
             case .intro: return "시작"
-            case .explainDaily: return "생활 점자 설명"
-            case .practiceDaily: return "생활 점자 실습"
+            case .explainArrow: return "엘리베이터 화살표 설명"
+            case .practiceArrow: return "엘리베이터 화살표 실습"
             case .explainCan: return "캔 음료 설명"
             case .practiceCan: return "캔 음료 실습"
             case .explainTrap: return "함정 설명"
@@ -32,35 +32,35 @@ struct Day20View: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Day20ProgressBar(current: currentStep.rawValue, total: Day20Step.allCases.count)
+            CurriculumProgressBar(current: currentStep.rawValue, total: Day20Step.allCases.count)
                 .padding(.horizontal, 20)
 
             switch currentStep {
             case .intro:
                 Day20IntroView(
-                    onStart: { goTo(.explainDaily) },
+                    onStart: { goTo(.explainArrow) },
                     onBack: { dismiss() }
                 )
 
-            case .explainDaily:
+            case .explainArrow:
                 CurriculumExplanationView(
-                    title: day20DailyTitle,
-                    subtitle: day20DailySubtitle,
-                    description: day20DailyDescription,
-                    items: day20DailyItems,
+                    title: day20ArrowTitle,
+                    subtitle: day20ArrowSubtitle,
+                    description: day20ArrowDescription,
+                    items: day20ArrowItems,
                     nextTitle: "만져보기",
-                    nextHint: "생활 속 점자 해독 터치 실습 화면으로 이동합니다",
-                    onNext: { goTo(.practiceDaily) },
+                    nextHint: "엘리베이터 화살표 촉각 훈련 화면으로 이동합니다",
+                    onNext: { goTo(.practiceArrow) },
                     onBack: { goTo(.intro) }
                 )
 
-            case .practiceDaily:
+            case .practiceArrow:
                 CurriculumPracticeView(
-                    items: day20DailyPracticeItems,
+                    items: day20ArrowPracticeItems,
                     useChosungForm: false,
-                    useAbbreviations: true,
+                    useAbbreviations: false,
                     onNext: { goTo(.explainCan) },
-                    onBack: { goTo(.explainDaily) }
+                    onBack: { goTo(.explainArrow) }
                 )
 
             case .explainCan:
@@ -72,7 +72,7 @@ struct Day20View: View {
                     nextTitle: "만져보기",
                     nextHint: "캔 음료 점자 구별 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceCan) },
-                    onBack: { goTo(.practiceDaily) }
+                    onBack: { goTo(.practiceArrow) }
                 )
 
             case .practiceCan:
@@ -131,26 +131,5 @@ struct Day20View: View {
         item.lastStepIndex = step.rawValue
         item.lastStepLabel = step.label
         UIAccessibility.post(notification: .screenChanged, argument: nil)
-    }
-}
-
-// MARK: - 진행 바
-
-private struct Day20ProgressBar: View {
-    let current: Int
-    let total: Int
-
-    var body: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<total, id: \.self) { index in
-                Capsule()
-                    .fill(index <= current ? Color.appSubColor : Color.gray.opacity(0.3))
-                    .frame(height: 4)
-            }
-        }
-        .padding(.vertical, 8)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("학습 진행 상황, \(total)단계 중 \(current + 1)단계")
-        .accessibilityValue("\(Int(Double(current + 1) / Double(total) * 100))퍼센트 진행")
     }
 }
