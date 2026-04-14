@@ -8,6 +8,7 @@ struct CirriculumView: View {
     @State private var navigateToContinue: Bool = false
     @FocusState private var isSearchFocused: Bool
     @AccessibilityFocusState private var focusedDay: Int?
+    @State private var hasAppearedOnce: Bool = false
 
     private var totalCount: Int { items.count }
     private var completedCount: Int { items.filter { $0.isCompleted }.count }
@@ -79,45 +80,52 @@ struct CirriculumView: View {
                                 // 기본 화면: 학습 현황 + 섹션별 리스트
                                 CommonCardView {
                                     VStack(alignment: .leading, spacing: 15) {
-                                        Text("나의 학습 현황")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-
-                                        Text("\(totalCount)일 중 \(completedCount)일차")
-                                            .font(.title)
-                                            .bold()
-                                            .foregroundColor(.appTextColor)
-
-                                        HStack(spacing: 12) {
-                                            ProgressView(value: progress)
-                                                .tint(.appSubColor)
-
-                                            Text("\(Int(progress * 100))%")
+                                        VStack(alignment: .leading, spacing: 15) {
+                                            Text("나의 학습 현황")
                                                 .font(.subheadline)
-                                                .foregroundColor(.appTextSubColor)
+                                                .foregroundColor(.gray)
+
+                                            Text("\(totalCount)일 중 \(completedCount)일차")
+                                                .font(.title)
+                                                .bold()
+                                                .foregroundColor(.appTextColor)
+
+                                            HStack(spacing: 12) {
+                                                ProgressView(value: progress)
+                                                    .tint(.appSubColor)
+
+                                                Text("\(Int(progress * 100))%")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.appTextSubColor)
+                                            }
                                         }
+                                        .accessibilityElement(children: .ignore)
+                                        .accessibilityLabel("나의 학습 현황. \(totalCount)일 중 \(completedCount)일 완료. \(Int(progress * 100))퍼센트")
 
                                         // 이어하기 섹션
                                         if let current = lastStudiedItem {
                                             Divider()
 
                                             VStack(alignment: .leading, spacing: 6) {
-                                                HStack(spacing: 6) {
-                                                    Image(systemName: "book.fill")
+                                                VStack(alignment: .leading, spacing: 6) {
+                                                    HStack(spacing: 6) {
+                                                        Image(systemName: "book.fill")
+                                                            .font(.caption)
+                                                            .foregroundColor(.orange)
+                                                        Text("학습 중")
+                                                            .font(.caption.bold())
+                                                            .foregroundColor(.orange)
+                                                    }
+
+                                                    Text("Day \(String(format: "%02d", current.day)): \(current.title)")
+                                                        .font(.headline)
+                                                        .foregroundColor(.appTextColor)
+
+                                                    Text(current.subtitle)
                                                         .font(.caption)
-                                                        .foregroundColor(.orange)
-                                                    Text("학습 중")
-                                                        .font(.caption.bold())
-                                                        .foregroundColor(.orange)
+                                                        .foregroundColor(.appTextSubColor)
                                                 }
-
-                                                Text("Day \(String(format: "%02d", current.day)): \(current.title)")
-                                                    .font(.headline)
-                                                    .foregroundColor(.appTextColor)
-
-                                                Text(current.subtitle)
-                                                    .font(.caption)
-                                                    .foregroundColor(.appTextSubColor)
+                                                .accessibilityElement(children: .combine)
 
                                                 Button {
                                                     navigateToContinue = true
@@ -136,8 +144,6 @@ struct CirriculumView: View {
                                         }
                                     }
                                     .padding(.horizontal)
-                                    .accessibilityElement(children: .contain)
-                                    .accessibilityLabel("나의 학습 현황. \(totalCount)일 중 \(completedCount)일 완료. \(Int(progress * 100))퍼센트")
                                 }
                                 .padding(.top, 10)
 
@@ -151,25 +157,29 @@ struct CirriculumView: View {
                                     CurriculumSectionView(
                                         title: "1주차: 점자의 기초와 기본 자모음",
                                         subtitle: "촉각 훈련, 초성 자음과 기본 모음 완성",
-                                        items: filteredItems.filter { (1...5).contains($0.day) }
+                                        items: filteredItems.filter { (1...5).contains($0.day) },
+                                        focusedDay: $focusedDay
                                     )
 
                                     CurriculumSectionView(
                                         title: "2주차: 받침, 복모음, 그리고 숫자",
                                         subtitle: "모아쓰기 구조와 실생활 숫자 읽기",
-                                        items: filteredItems.filter { (6...10).contains($0.day) }
+                                        items: filteredItems.filter { (6...10).contains($0.day) },
+                                        focusedDay: $focusedDay
                                     )
 
                                     CurriculumSectionView(
                                         title: "3주차: 핵심 약자와 약어",
                                         subtitle: "점자 읽기 속도를 높이는 필수 규칙",
-                                        items: filteredItems.filter { (11...15).contains($0.day) }
+                                        items: filteredItems.filter { (11...15).contains($0.day) },
+                                        focusedDay: $focusedDay
                                     )
 
                                     CurriculumSectionView(
                                         title: "4주차: 영어 알파벳과 실생활 읽기",
                                         subtitle: "알파벳 기초부터 실생활 점자 완전 정복",
-                                        items: filteredItems.filter { (16...20).contains($0.day) }
+                                        items: filteredItems.filter { (16...20).contains($0.day) },
+                                        focusedDay: $focusedDay
                                     )
                                 }
                                 .padding(.top, 8)
@@ -213,6 +223,10 @@ struct CirriculumView: View {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 focusedDay = first.day
                             }
+                        } else if !newValue.isEmpty && filteredItems.isEmpty {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                UIAccessibility.post(notification: .announcement, argument: "검색 결과가 없습니다")
+                            }
                         }
                     }
                 }
@@ -220,6 +234,17 @@ struct CirriculumView: View {
             .meshBackground()
             .toolbar(.hidden, for: .navigationBar)
             .onTapGesture { isSearchFocused = false }
+            .onAppear {
+                // 최초 진입은 포커스 변경 없음. 학습 화면에서 복귀(중도 이탈/학습 완료) 시
+                // 방금 학습한 일차 카드로 포커스를 이동시킨다.
+                if hasAppearedOnce, lastStudiedDay > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        focusedDay = lastStudiedDay
+                    }
+                } else {
+                    hasAppearedOnce = true
+                }
+            }
             .navigationDestination(isPresented: $navigateToContinue) {
                 if let item = lastStudiedItem {
                     PracticeView(item: item)
@@ -234,6 +259,7 @@ private struct CurriculumSectionView: View {
     let title: String
     var subtitle: String = ""
     let items: [LearningItem]
+    var focusedDay: AccessibilityFocusState<Int?>.Binding
 
     var body: some View {
         if !items.isEmpty {
@@ -249,6 +275,8 @@ private struct CurriculumSectionView: View {
                             .foregroundColor(.appTextSubColor)
                     }
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isHeader)
 
                 ForEach(items) { item in
                     NavigationLink {
@@ -258,11 +286,13 @@ private struct CurriculumSectionView: View {
                     }
                     .buttonStyle(.plain)
                     .id(item.day)
+                    .accessibilityFocused(focusedDay, equals: item.day)
                 }
             }
         }
     }
 }
+
 
 // MARK: - 일차별 카드 행 뷰
 

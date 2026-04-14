@@ -116,6 +116,7 @@ struct Day20View: View {
                 .meshBackground()
 
         .toolbar(.hidden, for: .navigationBar)
+        .environment(\.curriculumStepProgress, CurriculumStepProgress(current: currentStep.rawValue, total: Day20Step.allCases.count))
         .onAppear {
             if let saved = item.lastStepIndex,
                let step = Day20Step(rawValue: saved) {

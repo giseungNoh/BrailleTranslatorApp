@@ -14,12 +14,12 @@ struct Day1Learning2View: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("촉각 훈련")
+            Text("점자 수평으로 읽기 훈련")
                 .font(.title2.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 20)
-                .accessibilityLabel("촉각 훈련")
-                .accessibilityHint("화면 아무 곳이나 손가락을 대고, 좌우로 부드럽게 미끄러져 보세요. 꽉 찬 온표의 강한 진동을 느껴보세요.")
+                .accessibilityLabel("점자 수평으로 읽기 훈련")
+                .accessibilityHint("화면 아무 곳이나 손가락을 대고,왼쪽부터 오른쪽으로 수평을 유지하면서 이동해보세요.줄을 벗어나면 진동이 느껴집니다.")
                 .accessibilityFocused($isTitleFocused)
 
             Text(statusText)
@@ -38,17 +38,6 @@ struct Day1Learning2View: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 20)
-
-            // 범례
-            HStack(spacing: 8) {
-                Circle().fill(Color.appSubColor).frame(width: 16, height: 16)
-                    .accessibilityHidden(true)
-                Text("온표 (⠿) — 꽉 찬 점의 진동을 느껴보세요")
-                    .font(.caption)
-                    .foregroundColor(.appTextSubColor)
-            }
-            .padding(.bottom, 12)
-            .accessibilityElement(children: .combine)
 
             LearningButtonSection(
                 nextHint: "점자 체험 화면으로 이동합니다",

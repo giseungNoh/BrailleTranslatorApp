@@ -7,9 +7,8 @@ struct CurriculumProgressBar: View {
     var body: some View {
         capsules
             .padding(.vertical, 8)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(accessibilityLabelText)
-            .accessibilityValue(accessibilityValueText)
+            // 진행 정보는 step 헤더가 통합해서 읽으므로(VoiceOver 중복 방지) 시각만 유지.
+            .accessibilityHidden(true)
     }
 
     private var capsules: some View {

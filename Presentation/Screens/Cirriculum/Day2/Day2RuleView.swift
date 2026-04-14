@@ -124,7 +124,7 @@ struct Day2RuleView: View {
                         .foregroundColor(.appSubColor)
                         .accessibilityHidden(true)
 
-                    Text("모음 점자는 다음 시간에 배웁니다.\n지금은 'ㅇ'이 빠진다는 원리만\n기억하세요!")
+                    Text("모음 점자는 다음 시간에 배웁니다.\n지금은 'ㅇ'이 빠진다는 원리만 기억하세요!")
                         .font(isCompact ? .caption : .subheadline)
                         .lineSpacing(isCompact ? 3 : 5)
                 }

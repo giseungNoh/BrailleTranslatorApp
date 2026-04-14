@@ -49,9 +49,13 @@ struct CurriculumPracticeView: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(items.count)개 중 \(currentIndex + 1)번째, \(current.accessibilityName), \(current.dotLabel)")
-            .accessibilityFocused($isHeaderFocused)
+            .curriculumStepHeader(
+                title: current.accessibilityName,
+                subtitle: current.dotLabel,
+                hint: CurriculumA11yStrings.swipeNavigationHint,
+                extraLabel: "\(items.count)개 중 \(currentIndex + 1)번째",
+                focus: $isHeaderFocused
+            )
 
             // MARK: 점자 캔버스
             BrailleCanvasView(
@@ -61,7 +65,7 @@ struct CurriculumPracticeView: View {
                 useChosungForm: useChosungForm,
                 isInteracting: $isInteracting,
                 maxCellWidth: maxCellWidth,
-                accessibilityLabelOverride: "\(current.letter), \(current.dotLabel) 점자 터치 영역",
+                accessibilityLabelOverride: "점자 터치 영역",
                 hideLabels: false,
                 enableOneFingerSwipe: true,
                 rawDotPatterns: current.rawDots.map { dotsStr in
@@ -79,7 +83,6 @@ struct CurriculumPracticeView: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 20)
-            .id(currentIndex)
 
             // MARK: 버튼
             LearningButtonSection(
@@ -100,9 +103,7 @@ struct CurriculumPracticeView: View {
         }
         .onAppear {
             currentIndex = 0
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isHeaderFocused = true
-            }
+            // 헤더 자동 포커스는 curriculumStepHeader modifier 가 처리.
         }
     }
 
@@ -126,7 +127,12 @@ struct CurriculumPracticeView: View {
 
     private func moveTo(_ index: Int) {
         withAnimation(.easeInOut(duration: 0.2)) { currentIndex = index }
-        let position = "\(items.count)개 중 \(currentIndex + 1)번째"
-        UIAccessibility.post(notification: .announcement, argument: "\(position), \(current.accessibilityName), \(current.dotLabel)")
+        // 2단계 전략: 진입 시에는 헤더 전체(진행도+상태+글자+힌트)가 자동 포커스로 읽히고,
+        // 글자 이동 시에는 포커스를 흔들지 않고 간결한 announcement만 내보내서 사용자 피로를 줄인다.
+        let item = items[index]
+        let message = "\(items.count)개 중 \(index + 1)번째, \(item.accessibilityName), \(item.dotLabel)"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
     }
 }

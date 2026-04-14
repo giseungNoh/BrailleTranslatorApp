@@ -54,7 +54,7 @@ struct Day1Learning3View: View {
                 isInteracting: $isInteracting,
                 maxCellWidth: 120,
                 onSwipeNext: {
-                    UIAccessibility.post(notification: .announcement, argument: "마지막 단계입니다. 학습 완료 버튼을 눌러주세요.")
+                    UIAccessibility.post(notification: .announcement, argument: "마지막 단계입니다. 학습 완료 버튼을 눌러주세요. 학습완료 버튼은 화면 아래쪽에 위치해 있습니다.")
                 },
                 onSwipePrevious: onBack
             )

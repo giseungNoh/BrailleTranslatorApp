@@ -30,9 +30,12 @@ struct CurriculumExplanationView: View {
                         .foregroundColor(.appSubColor)
                 }
                 .padding(.top, isCompact ? 10 : 16)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("\(title), \(subtitle)")
-                .accessibilityFocused($isTitleFocused)
+                .curriculumStepHeader(
+                    title: title,
+                    subtitle: subtitle,
+                    isReplayable: true,
+                    focus: $isTitleFocused
+                )
 
                 Spacer(minLength: isCompact ? 12 : 20)
 
@@ -74,11 +77,7 @@ struct CurriculumExplanationView: View {
             }
         }
         .accessibilityAction(.escape) { onBack() }
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isTitleFocused = true
-            }
-        }
+        .curriculumReplayable(focus: $isTitleFocused)
     }
 }
 
