@@ -7,7 +7,6 @@ struct QuizCategoryListView: View {
     @Query(filter: #Predicate<QuizAttempt> {
         !$0.isCorrect
         && $0.isOXQuestion == false
-        && $0.userSelectedLetter != "북마크"
     })
     private var wrongAnswers: [QuizAttempt]
     @Query(filter: #Predicate<QuizAttempt> {
@@ -113,6 +112,7 @@ struct QuizCategoryListView: View {
     var body: some View {
         VStack(spacing: 0) {
             CommonNavigationBar(title: "퀴즈")
+                .accessibilityFocused($isTitleFocused)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -239,6 +239,15 @@ struct QuizCategoryListView: View {
                 isTitleFocused = true
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
+            if let tab = notification.object as? Int, tab == 2 {
+                isTitleFocused = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    UIAccessibility.post(notification: .screenChanged, argument: nil)
+                    isTitleFocused = true
+                }
+            }
+        }
     }
 }
 
@@ -262,7 +271,7 @@ private struct WrongAnswerNoteCard: View {
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("오답노트/즐겨찾기")
+                    Text("오답노트")
                         .font(.subheadline)
                         .foregroundColor(.appTextColor)
 

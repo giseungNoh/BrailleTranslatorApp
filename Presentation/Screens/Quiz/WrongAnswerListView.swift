@@ -8,7 +8,6 @@ struct WrongAnswerListView: View {
     @Query(
         filter: #Predicate<QuizAttempt> {
             !$0.isCorrect
-            && $0.userSelectedLetter != "북마크"
             && $0.isOXQuestion == false
         },
         sort: \QuizAttempt.timestamp,

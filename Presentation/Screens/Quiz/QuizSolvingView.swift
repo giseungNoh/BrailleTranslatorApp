@@ -41,7 +41,7 @@ struct QuizSolvingView: View {
                     .accessibilityLabel("\(viewModel.questions.count)문제 중 \(viewModel.currentQuestionIndex + 1)번째")
 
                 if !isOXType {
-                    // MARK: 객관식 전용 — 문제 텍스트 + 북마크
+                    // MARK: 객관식 전용 — 문제 텍스트
                     Text(question.questionText)
                         .font(.title3.bold())
                         .foregroundColor(.appTextColor)
@@ -50,8 +50,6 @@ struct QuizSolvingView: View {
                         .padding(.vertical, 8)
                         .accessibilityFocused($isQuestionFocused)
                         .accessibilityLabel(question.questionText)
-
-                    bookmarkButton
                 }
 
                 // MARK: 보기 영역
@@ -59,7 +57,7 @@ struct QuizSolvingView: View {
                 case .multipleChoice:
                     QuizChoiceExplorerView(viewModel: viewModel)
                 case .oxQuestion:
-                    QuizOXView(viewModel: viewModel, modelContext: modelContext)
+                    QuizOXView(viewModel: viewModel)
                 }
             }
         }
@@ -68,13 +66,11 @@ struct QuizSolvingView: View {
             viewModel.goTo(.categorySelection)
         }
         .onChange(of: viewModel.currentQuestionIndex) {
-            viewModel.updateBookmarkStatus(context: modelContext)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isQuestionFocused = true
             }
         }
         .onAppear {
-            viewModel.updateBookmarkStatus(context: modelContext)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isQuestionFocused = true
             }
@@ -135,33 +131,5 @@ struct QuizSolvingView: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 12)
-    }
-
-    // MARK: - 북마크 버튼
-
-    private var bookmarkButton: some View {
-        HStack {
-            Spacer()
-            Button {
-                viewModel.bookmarkQuestion(context: modelContext)
-            } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
-                        .font(.subheadline)
-                    Text(viewModel.isBookmarked ? "저장됨" : "저장")
-                        .font(.caption.bold())
-                }
-                .foregroundColor(.appSubColor)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.appSubColor.opacity(0.1))
-                .clipShape(Capsule())
-            }
-            .accessibilityLabel("오답 노트에 저장")
-            .accessibilityHint("이 문제를 오답 노트에 저장합니다")
-            .accessibilityValue(viewModel.isBookmarked ? "저장됨" : "저장 안 됨")
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 4)
     }
 }

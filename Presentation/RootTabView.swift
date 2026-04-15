@@ -11,13 +11,12 @@ struct RootTabView: View {
     @AppStorage("appFontSize") private var appFontSize: Int = 0
     @State private var selectedTab: Int = 0
 
-    private var dynamicTypeSize: DynamicTypeSize {
+    private var dynamicTypeSize: DynamicTypeSize? {
         switch appFontSize {
         case -1: return .small
-        case 0: return .large
         case 1: return .xLarge
         case 2: return .xxLarge
-        default: return .large
+        default: return nil
         }
     }
 
@@ -29,7 +28,7 @@ struct RootTabView: View {
                     NotificationCenter.default.post(name: Notification.Name("ResetQuizTab"), object: nil)
                 }
                 self.selectedTab = newTab
-            }
+                            }
         )
     }
 
@@ -55,7 +54,19 @@ struct RootTabView: View {
                 .tabItem { Label("설정", systemImage: "gearshape") }
                 .accessibilityLabel("설정 탭")
         }
-        .dynamicTypeSize(dynamicTypeSize)
+        .modifier(DynamicTypeModifier(size: dynamicTypeSize))
+    }
+}
+
+struct DynamicTypeModifier: ViewModifier {
+    let size: DynamicTypeSize?
+    
+    func body(content: Content) -> some View {
+        if let size = size {
+            content.dynamicTypeSize(size)
+        } else {
+            content // 기본값이면 시스템 설정(iOS 사용 설정)을 무시하지 않고 그대로 따릅니다.
+        }
     }
 }
 

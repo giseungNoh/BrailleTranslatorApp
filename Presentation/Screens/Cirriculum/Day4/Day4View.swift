@@ -114,6 +114,6 @@ struct Day4View: View {
         }
         item.lastStepIndex = step.rawValue
         item.lastStepLabel = step.label
-        UIAccessibility.post(notification: .screenChanged, argument: nil)
+        // UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 }

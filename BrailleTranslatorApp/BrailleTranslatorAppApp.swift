@@ -16,6 +16,7 @@ struct BrailleApp: App {
             container = try ModelContainer(for: schema, configurations: [modelConfiguration])
 
             checkAndSeedData()
+            purgeLegacyBookmarksIfNeeded()
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
@@ -31,6 +32,26 @@ struct BrailleApp: App {
 
     // 현재 커리큘럼 버전 (내용 변경 시 올리면 자동 업데이트)
     private static let curriculumVersion = 4
+
+    private static let legacyBookmarkPurgeKey = "legacyBookmarkPurgeDone"
+
+    /// 과거 "북마크" 마법 문자열로 QuizAttempt에 섞여 저장됐던 레코드 1회성 삭제
+    @MainActor
+    private func purgeLegacyBookmarksIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: Self.legacyBookmarkPurgeKey) else { return }
+
+        let context = container.mainContext
+        let descriptor = FetchDescriptor<QuizAttempt>(
+            predicate: #Predicate { $0.userSelectedLetter == "북마크" }
+        )
+        if let legacy = try? context.fetch(descriptor) {
+            for item in legacy {
+                context.delete(item)
+            }
+            try? context.save()
+        }
+        UserDefaults.standard.set(true, forKey: Self.legacyBookmarkPurgeKey)
+    }
 
     @MainActor
     private func checkAndSeedData() {
@@ -101,18 +122,18 @@ struct BrailleApp: App {
         (2,  "기본 자음 1 (점형의 규칙성)",
              "4점 중심: ㄱ, ㄴ, ㄷ / 5점 중심: ㄹ, ㅁ, ㅂ / 6점 중심: ㅅ, ㅈ, ㅊ"),
         (3,  "기본 자음 2 (나머지 자음과 된소리표)",
-             "1-2-4-5점 중심: ㅋ, ㅌ, ㅍ, ㅎ, 된소리표(6점)"),
+             "1·2·4·5점 중심: ㅋ, ㅌ, ㅍ, ㅎ, 된소리표(6점)"),
         (4,  "기본 모음 (대칭 구조의 이해)",
              "ㅏ~ㅣ 점형의 좌우·상하 대칭 원리"),
         (5,  "이중 모음과'붙임표'",
-             "이중 모음의 원리와 '딴이(1-2-3-5점)', '붙임표(3-6점)' 규칙"),
+             "이중 모음의 원리와 '딴이(1·2·3·5점)', '붙임표(3·6점)' 규칙"),
         // 2주차: 받침, 복모음, 그리고 숫자
         (6,  "홑받침소리 글자 (밀어라, 내려라 원리)",
              "첫소리 자음을 오른쪽으로 밀거나 한 칸 아래로 내려서 받침을 만드는 조형 원리 이해"),
         (7,  "겹받침소리 글자",
              "홑받침 두 개를 나란히 연달아 찍어 겹받침(ㄲ, ㄳ, ㄵ 등)을 만드는 원리"),
         (8,  "숫자 익히기 1 (수표와 0~9)",
-             "숫자임을 알리는 수표(3-4-5-6점)의 개념 이해"),
+             "숫자임을 알리는 수표(3·4·5·6점)의 개념 이해"),
         (9,  "숫자 익히기 2 (두 자리 이상의 숫자)",
              "수표는 맨 앞에 한 번만 찍는다는 원리와, 띄어쓰기 등 수표의 효력이 끝나는 예외 조건 익히기"),
         (10, "2주차 총정리",

@@ -41,7 +41,7 @@ let day17KTPracticeItems: [BrailleLetterItem] = [
 
 let day17UZTitle = "맨 아래 두 점 '3·6점' 추가하기 (w는 예외)"
 let day17UZSubtitle = "u · v · x · y · z · w(예외)"
-let day17UZDescription = "이번엔 맨 처음 배운 'a~e' 점형의 맨 아래 두 점 '3·6점'을 동시에 추가해 보세요. 순서대로 'u, v, x, y, z'가 완성됩니다.\n\n단, 프랑스어 점자를 처음 만들 당시 쓰이지 않았던 'w'만은 이 규칙에서 벗어나 숫자 0(2·4·5점)에 6점을 붙인 예외 모양(2·4·5·6점)을 가집니다."
+let day17UZDescription = "이번엔 맨 처음 배운 'a~e' 점형의 맨 아래 두 점 '3·6점'을 동시에 추가해 보세요. 순서대로 'u, v, x, y, z'가 완성됩니다.\n\n단,'w'만은 이 규칙에서 벗어나 숫자 0(2·4·5점)에 6점을 붙인 예외 모양(2·4·5·6점)을 가집니다."
 
 /// 설명뷰 2 아이템
 let day17UZItems: [BrailleLetterItem] = [

@@ -13,6 +13,7 @@ struct TranslatorView: View {
     @FocusState private var isFocused: Bool
     @State private var isBrailleInteracting: Bool = false
     @State private var useAbbreviations: Bool = true
+    @AccessibilityFocusState private var isTitleFocused: Bool
     
     // MARK: - Body
     var body: some View {
@@ -20,6 +21,7 @@ struct TranslatorView: View {
             VStack(spacing: 0) {
                 // 상단 네비게이션 바 (기존 유지)
                 CommonNavigationBar(title: "점자 변환기")
+                    .accessibilityFocused($isTitleFocused)
                 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -75,10 +77,27 @@ struct TranslatorView: View {
 
                         // 2. 입력 텍스트 필드 영역
                         VStack(alignment: .leading, spacing: 15) {
-                            Text("입력된 텍스트")
-                                .font(.headline)
-                                .padding(.leading, 4)
-                            
+                            HStack(spacing:10){
+                                Text("입력된 텍스트")
+                                    .font(.headline)
+                                    .padding(.leading, 4)
+
+                                Spacer()
+
+                                Button {
+                                    useAbbreviations.toggle()
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: useAbbreviations ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(useAbbreviations ? .appSubColor : .gray)
+                                        Text("약자/약어 사용")
+                                            .font(.caption)
+                                            .foregroundColor(useAbbreviations ? .appSubColor : .gray)
+                                    }
+                                }
+                                .accessibilityLabel(useAbbreviations ? "약자 사용 중. 탭하여 끄기" : "약자 미사용. 탭하여 켜기")
+                            }
+
                             HStack {
                                 TextField("텍스트를 입력하세요", text: $viewModel.inputText)
                                     .focused($isFocused)
@@ -115,28 +134,7 @@ struct TranslatorView: View {
                                 Text("점자 변환 결과 (터치하여 느끼기)")
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
-                                Spacer()
-                                if isBrailleInteracting {
-                                    Text("터치 중 - 스크롤 잠금")
-                                        .font(.caption)
-                                        .foregroundColor(.red)
-                                        .transition(.opacity)
-                                } else {
-                                    Button {
-                                        useAbbreviations.toggle()
-                                    } label: {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: useAbbreviations ? "checkmark.circle.fill" : "circle")
-                                                .foregroundColor(useAbbreviations ? .appSubColor : .gray)
-                                            Text("약자")
-                                                .font(.caption)
-                                                .foregroundColor(useAbbreviations ? .appSubColor : .gray)
-                                        }
-                                    }
-                                    .accessibilityLabel(useAbbreviations ? "약자 사용 중. 탭하여 끄기" : "약자 미사용. 탭하여 켜기")
-                                }
                             }
-                            .padding(.leading, 8)
                             .animation(.easeInOut, value: isBrailleInteracting)
                             
                             ZStack {
@@ -162,7 +160,7 @@ struct TranslatorView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal,16)
                         .padding(.top, 20)
                         
                         Spacer()
@@ -186,12 +184,22 @@ struct TranslatorView: View {
             } message: {
                 Text("음성 인식을 사용하려면 설정에서 권한을 허용해주세요.")
             }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isTitleFocused = true
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
+                if let tab = notification.object as? Int, tab == 1 {
+                    isTitleFocused = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        UIAccessibility.post(notification: .screenChanged, argument: nil)
+                        isTitleFocused = true
+                    }
+                }
+            }
         }
     }
-}
-
-#Preview {
-    TranslatorView()
 }
 
 #Preview {

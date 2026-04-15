@@ -11,11 +11,6 @@ struct BrailleLetterItem: Sendable, Codable {
     var fromDotLabel: String?  // 변환 전 점형 (설명뷰에서 → 표시용)
     var voiceOverName: String?  // VoiceOver 전용 긴 이름. nil이면 name 사용
 
-    /// VoiceOver에서 읽어줄 이름 (voiceOverName이 있으면 그걸, 없으면 name)
-    var accessibilityName: String {
-        voiceOverName ?? name
-    }
-
     /// "4점" → [4], "1·4점" → [1, 4]
     var activeDotNumbers: Set<Int> {
         parseDots(from: dotLabel)

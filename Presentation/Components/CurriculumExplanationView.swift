@@ -286,7 +286,7 @@ private struct LetterRowCard: View {
     private var cardAccessibilityLabel: String {
         let prefix = "\(total)개 중 \(index + 1)번째"
         if hasTransformation {
-            return "\(prefix), \(item.accessibilityName), 첫소리 \(item.fromDotLabel!)에서 받침 \(item.dotLabel)으로"
+            return "\(prefix), \(item.name), 첫소리 \(item.fromDotLabel!)에서 받침 \(item.dotLabel)으로"
         }
         if item.isCompoundDot {
             let parts = item.dotLabel.components(separatedBy: " + ").map { part in
@@ -298,9 +298,9 @@ private struct LetterRowCard: View {
                 }
                 return part.trimmingCharacters(in: .whitespaces)
             }
-            return "\(prefix), \(item.accessibilityName), \(parts.joined(separator: ", "))"
+            return "\(prefix), \(item.name), \(parts.joined(separator: ", "))"
         }
-        return "\(prefix), \(item.accessibilityName), \(item.dotLabel)"
+        return "\(prefix), \(item.name), \(item.dotLabel)"
     }
 }
 

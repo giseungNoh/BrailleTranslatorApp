@@ -68,7 +68,6 @@ class QuizViewModel: ObservableObject {
     @Published var showResult: Bool = false
     @Published var isCurrentAnswerCorrect: Bool = false
     @Published var sessionResults: [QuizSessionResult] = []
-    @Published var isBookmarked: Bool = false
 
     // MARK: 이어풀기 Alert
     @Published var showResumeAlert: Bool = false
@@ -130,7 +129,6 @@ class QuizViewModel: ObservableObject {
         currentChoiceIndex = 0
         sessionResults = []
         showResult = false
-        isBookmarked = false
         saveSession()
         goTo(.solving)
     }
@@ -256,7 +254,6 @@ class QuizViewModel: ObservableObject {
                         $0.correctLetter == letter
                         && !$0.isCorrect
                         && $0.isOXQuestion == false
-                        && $0.userSelectedLetter != "북마크"
                     }
                 )
                 let existing = (try? context.fetch(descriptor)) ?? []
@@ -279,7 +276,6 @@ class QuizViewModel: ObservableObject {
 
         showResult = false
         currentChoiceIndex = 0
-        isBookmarked = false
 
         if isLastQuestion {
             clearSavedSession()
@@ -296,58 +292,11 @@ class QuizViewModel: ObservableObject {
         currentQuestionIndex -= 1
         currentChoiceIndex = 0
         showResult = false
-        isBookmarked = false
         if !sessionResults.isEmpty {
             sessionResults.removeLast()
         }
         saveSession()
         UIAccessibility.post(notification: .screenChanged, argument: nil)
-    }
-
-    /// 현재 문제의 북마크 상태를 SwiftData에서 확인하여 UI 동기화
-    func updateBookmarkStatus(context: ModelContext) {
-        guard let question = currentQuestion else {
-            isBookmarked = false
-            return
-        }
-        let letter = question.correctItem.letter
-        let descriptor = FetchDescriptor<QuizAttempt>(
-            predicate: #Predicate { $0.correctLetter == letter && $0.userSelectedLetter == "북마크" }
-        )
-        isBookmarked = ((try? context.fetch(descriptor))?.isEmpty == false)
-    }
-
-    func bookmarkQuestion(context: ModelContext) {
-        guard let question = currentQuestion else { return }
-
-        if isBookmarked {
-            let letter = question.correctItem.letter
-            let descriptor = FetchDescriptor<QuizAttempt>(
-                predicate: #Predicate { $0.correctLetter == letter && $0.userSelectedLetter == "북마크" }
-            )
-            if let existing = try? context.fetch(descriptor) {
-                for item in existing {
-                    context.delete(item)
-                }
-            }
-            try? context.save()
-            isBookmarked = false
-            return
-        }
-
-        isBookmarked = true
-
-        let attempt = QuizAttempt(
-            categoryId: question.categoryId,
-            questionText: question.questionText,
-            correctLetter: question.correctItem.letter,
-            correctDotLabel: question.correctItem.dotLabel,
-            correctRawDots: question.correctItem.rawDots,
-            userSelectedLetter: "북마크",
-            isCorrect: false
-        )
-        context.insert(attempt)
-        try? context.save()
     }
 
     /// 카테고리 탭 — 진행 중인 세션이 있으면 이어풀기 Alert 표시
@@ -430,10 +379,7 @@ class QuizViewModel: ObservableObject {
     /// 기존 중복 오답 및 정답 정리
     func cleanUpWrongAnswers(context: ModelContext) {
         let descriptor = FetchDescriptor<QuizAttempt>(
-            predicate: #Predicate {
-                !$0.isCorrect
-                && $0.userSelectedLetter != "북마크"
-            }
+            predicate: #Predicate { !$0.isCorrect }
         )
         guard let allWrong = try? context.fetch(descriptor) else { return }
 

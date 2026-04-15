@@ -128,7 +128,7 @@ struct SettingView: View {
                         } label: {
                             HStack {
                                 Text("설정 초기화")
-                                    .font(.headline)
+                                    .font(.subheadline.bold())
                                     .foregroundColor(.red)
                                 Spacer()
                                 Image(systemName: "arrow.counterclockwise")
@@ -153,17 +153,17 @@ struct SettingView: View {
 
                         HStack {
                             Text("버전 정보")
-                                .font(.headline)
+                                .font(.subheadline.bold())
                                 .foregroundColor(.appTextColor)
                             Spacer()
-                            Text("1.0.4 (v24)")
+                            Text("1.0.0 (v24)")
                                 .font(.subheadline)
                                 .foregroundColor(.appTextSubColor)
                         }
                         .padding(.horizontal, 16)
                         .frame(height: 52)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("버전 정보, 1.0.4")
+                        .accessibilityLabel("버전 정보, 1.0.0")
                     }
                 }
                 .padding(.horizontal, 16)
@@ -200,7 +200,7 @@ private struct SettingSectionView<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.caption.bold())
+                .font(.headline.bold())
                 .foregroundColor(.appTextSubColor)
                 .padding(.leading, 4)
                 .accessibilityAddTraits(.isHeader)
@@ -222,7 +222,7 @@ struct SectionHeader: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.caption.bold())
+                .font(.footnote)
                 .foregroundColor(.appTextSubColor)
             Spacer()
         }
@@ -242,7 +242,7 @@ struct SettingToggleRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.headline)
+                    .font(.subheadline.bold())
                     .foregroundColor(.appTextColor)
                 if let subtitle = subtitle {
                     Text(subtitle)
@@ -273,8 +273,9 @@ struct SettingAdjustmentRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.headline)
+                .font(.subheadline.bold())
                 .foregroundColor(.appTextColor)
+                .accessibilityHint("현재 \(value)")
 
             HStack(spacing: 16) {
                 Text(value)
@@ -291,8 +292,7 @@ struct SettingAdjustmentRow: View {
                         .foregroundColor(isDecrementDisabled ? Color(.systemGray4) : .appSubColor)
                 }
                 .disabled(isDecrementDisabled)
-                .accessibilityLabel("\(title) 줄이기")
-                .accessibilityHint(isDecrementDisabled ? "최솟값입니다" : "한 단계 줄입니다")
+                .accessibilityLabel(isDecrementDisabled ? "최솟값입니다 현재 \(value)" : "\(title) 줄이기 현재 \(value)")
 
                 Button(action: onIncrement) {
                     Image(systemName: "plus.circle.fill")
@@ -300,8 +300,7 @@ struct SettingAdjustmentRow: View {
                         .foregroundColor(isIncrementDisabled ? Color(.systemGray4) : .appSubColor)
                 }
                 .disabled(isIncrementDisabled)
-                .accessibilityLabel("\(title) 늘리기")
-                .accessibilityHint(isIncrementDisabled ? "최댓값입니다" : "한 단계 늘립니다")
+                .accessibilityLabel(isDecrementDisabled ? "최댓값입니다 현재 \(value)" : "\(title) 늘리기 현재 \(value)")
             }
         }
         .padding(.horizontal, 16)

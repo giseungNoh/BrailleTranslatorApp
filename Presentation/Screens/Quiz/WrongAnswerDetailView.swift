@@ -15,7 +15,6 @@ struct WrongAnswerDetailView: View {
             predicate: #Predicate {
                 $0.correctLetter == letter
                 && !$0.isCorrect
-                && $0.userSelectedLetter != "북마크"
             },
             sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
         )
@@ -100,10 +99,10 @@ struct WrongAnswerDetailView: View {
                             if let category = category {
                                 Text(category.title)
                                     .font(.caption.bold())
-                                    .foregroundColor(.appSubColor)
+                                    .foregroundColor(.appAccentBlue)
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 4)
-                                    .background(Color.appSubColor.opacity(0.12))
+                                    .background(Color.appAccentBlue.opacity(0.12))
                                     .clipShape(Capsule())
                             }
 
@@ -143,7 +142,7 @@ struct WrongAnswerDetailView: View {
                                 label: "정답",
                                 letter: attempt.correctLetter,
                                 dotLabel: correctItem?.dotLabel ?? attempt.correctDotLabel,
-                                color: .appSubColor
+                                color: .appAccentBlue
                             )
                         }
                         .padding(.horizontal, 20)
@@ -154,10 +153,10 @@ struct WrongAnswerDetailView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "lightbulb.fill")
                                     .font(.caption)
-                                    .foregroundColor(.appSubColor)
+                                    .foregroundColor(.appAccentBlue)
                                 Text("해설")
                                     .font(.caption.bold())
-                                    .foregroundColor(.appSubColor)
+                                    .foregroundColor(.appAccentBlue)
                             }
 
                             Text(explanation)
@@ -167,11 +166,11 @@ struct WrongAnswerDetailView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(16)
-                        .background(Color.appSubColor.opacity(0.05))
+                        .background(Color.appAccentBlue.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .strokeBorder(Color.appSubColor.opacity(0.12), lineWidth: 1)
+                                .strokeBorder(Color.appAccentBlue.opacity(0.2), lineWidth: 1)
                         )
                         .padding(.horizontal, 20)
                         .padding(.bottom, 16)
@@ -183,9 +182,7 @@ struct WrongAnswerDetailView: View {
                                 showTouchView = true
                             }
                         } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "hand.point.up.fill")
-                                    .font(.subheadline)
+                            HStack {
                                 Text("점자 비교하며 만져보기")
                                     .font(.title3.bold())
                             }
@@ -206,9 +203,7 @@ struct WrongAnswerDetailView: View {
                         Button {
                             viewModel.goTo(.wrongAnswerList)
                         } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "arrow.uturn.backward")
-                                    .font(.subheadline)
+                            HStack {
                                 Text("이전으로")
                                     .font(.title3.bold())
                             }
@@ -333,13 +328,13 @@ private struct WrongAnswerTouchView: View {
     /// 내 답이 점자로 표시 가능한지 (O/X 답이면 불가)
     private var canShowUserBraille: Bool {
         let answer = attempt.userSelectedLetter
-        return answer != "O" && answer != "X" && answer != "북마크" && userItem != nil
+        return answer != "O" && answer != "X" && userItem != nil
     }
 
     var body: some View {
         VStack(spacing: 0) {
             // 상단 바
-            CommonNavigationBar(title: showingCorrect ? "정답 점자" : "내 답 점자") {
+            CommonNavigationBar(title: showingCorrect ? "정답 점자" : "내 오답 점자") {
                 Button {
                     onBack()
                 } label: {
@@ -413,7 +408,7 @@ private struct WrongAnswerTouchView: View {
                     Button(action: {
                         toggleShowingCorrect()
                     }) {
-                        Text(showingCorrect ? "내 답 점자 보기" : "정답 점자 보기")
+                        Text(showingCorrect ? "내 오답 점자 보기" : "정답 점자 보기")
                             .font(.title3.bold())
                             .foregroundColor(.appSubColor)
                             .frame(maxWidth: .infinity)

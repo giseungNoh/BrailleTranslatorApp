@@ -1,39 +1,12 @@
 import SwiftUI
-import SwiftData
 
 /// O/X 퀴즈 뷰 — 규칙 문장을 읽고 O 또는 X 선택
 struct QuizOXView: View {
     @ObservedObject var viewModel: QuizViewModel
-    let modelContext: ModelContext
     @AccessibilityFocusState private var isStatementFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
-            // MARK: 북마크
-            HStack {
-                Spacer()
-                Button {
-                    viewModel.bookmarkQuestion(context: modelContext)
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
-                            .font(.subheadline)
-                        Text(viewModel.isBookmarked ? "저장됨" : "저장")
-                            .font(.caption.bold())
-                    }
-                    .foregroundColor(.appSubColor)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.appSubColor.opacity(0.1))
-                    .clipShape(Capsule())
-                }
-                .accessibilityLabel("오답 노트에 저장")
-                .accessibilityHint("이 문제를 오답 노트에 저장합니다")
-                .accessibilityValue(viewModel.isBookmarked ? "저장됨" : "저장 안 됨")
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 4)
-
             Spacer()
 
             // MARK: 문제 텍스트

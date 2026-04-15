@@ -12,7 +12,7 @@ extension Color {
     static let appMainColor = Color(.systemBackground)
 
     /// 서브/보조 컬러
-    static let appSubColor = Color(.appSecondary)
+    static let appSubColor = Color(hex: "4F46E5")//Color(.appSecondary)
 
     /// 기본 배경 컬러
     static let appBackgroundColor = Color("AppBackground")
@@ -28,6 +28,9 @@ extension Color {
 
     /// 서브 텍스트 컬러
     static let appTextSubColor = Color(.label).opacity(0.7)
+
+    /// 초록 계열 배경 위에서 강조용으로 쓰는 파란색 (뱃지/해설 박스 등)
+    static let appAccentBlue = Color(hex: "2563EB")
     
     /// 배경 그라디언트 (따뜻한 오렌지 테마)
     /// 여기서 색상을 변경하여 앱 전체의 분위기를 쉽게 바꿀 수 있습니다.
@@ -63,6 +66,23 @@ extension Color {
             green: Double(g) / 255,
             blue:  Double(b) / 255,
             opacity: Double(a) / 255
+        )
+    }
+}
+
+extension ShapeStyle where Self == Color {
+    static var appSubColor: Color { Color(hex: "2563EB") }
+}
+
+// 그라디언트를 사용하고 싶을 때
+extension ShapeStyle where Self == AnyShapeStyle {
+    static var appSubGradient: AnyShapeStyle {
+        AnyShapeStyle(
+            LinearGradient(
+                colors: [Color(hex: "8B5CF6"), Color(hex: "EC4899")],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
         )
     }
 }

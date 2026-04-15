@@ -52,10 +52,10 @@ struct WrongAnswerOXDetailView: View {
                         if let category = category {
                             Text(category.title)
                                 .font(.caption.bold())
-                                .foregroundColor(.appSubColor)
+                                .foregroundColor(.appAccentBlue)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
-                                .background(Color.appSubColor.opacity(0.12))
+                                .background(Color.appAccentBlue.opacity(0.12))
                                 .clipShape(Capsule())
                                 .padding(.horizontal, 20)
                                 .padding(.top, 16)
@@ -99,10 +99,10 @@ struct WrongAnswerOXDetailView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "lightbulb.fill")
                                         .font(.caption)
-                                        .foregroundColor(.appSubColor)
+                                        .foregroundColor(.appAccentBlue)
                                     Text("해설")
                                         .font(.caption.bold())
-                                        .foregroundColor(.appSubColor)
+                                        .foregroundColor(.appAccentBlue)
                                 }
 
                                 Text(explanation)
@@ -112,11 +112,11 @@ struct WrongAnswerOXDetailView: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(16)
-                            .background(Color.appSubColor.opacity(0.05))
+                            .background(Color.appAccentBlue.opacity(0.08))
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .strokeBorder(Color.appSubColor.opacity(0.12), lineWidth: 1)
+                                    .strokeBorder(Color.appAccentBlue.opacity(0.2), lineWidth: 1)
                             )
                             .padding(.horizontal, 20)
                             .padding(.bottom, 16)
@@ -127,9 +127,7 @@ struct WrongAnswerOXDetailView: View {
                         Button {
                             viewModel.goTo(.wrongAnswerList)
                         } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "arrow.uturn.backward")
-                                    .font(.subheadline)
+                            HStack{
                                 Text("이전으로")
                                     .font(.title3.bold())
                             }
