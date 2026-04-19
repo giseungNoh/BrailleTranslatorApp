@@ -110,14 +110,14 @@ struct TranslatorView: View {
                                     }) {
                                         Image(systemName: "xmark.circle.fill")
                                             .font(.title3)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.gray.opacity(0.6))
                                     }
                                     .accessibilityLabel("입력 텍스트 지우기".toAccessibilityPronunciation())
                                     .accessibilityHint("이중 탭하면 입력된 텍스트를 모두 지웁니다")
                                 }
                             }
                             .padding(16)
-                            .background(Color(.systemGray6)) // 연한 회색 배경
+                            .background(Color.white) // 연한 회색 배경
                             .cornerRadius(10)
                         }
                         .padding(.horizontal, 16)

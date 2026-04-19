@@ -7,6 +7,7 @@ struct Day1View: View {
     @Bindable var item: LearningItem
     @Environment(\.dismiss) private var dismiss
     @State private var currentStep: Day1Step = .intro
+    @State private var showCompleteAlert: Bool = false
 
     enum Day1Step: Int, CaseIterable {
         case intro = 0
@@ -48,9 +49,7 @@ struct Day1View: View {
             case .learning3:
                 Day1Learning3View(
                     onComplete: {
-                        item.isCompleted = true
-                        item.isInProgress = false
-                        dismiss()
+                        showCompleteAlert = true
                     },
                     onBack: { goTo(.learning2) }
                 )
@@ -58,6 +57,14 @@ struct Day1View: View {
         }
         .meshBackground()
         .toolbar(.hidden, for: .navigationBar)
+        .alert("학습 완료", isPresented: $showCompleteAlert) {
+            Button("완료하기") {
+                completeLearning() // 실제 저장 및 dismiss 로직 실행
+            }
+            Button("취소", role: .cancel) { }
+        } message: {
+            Text("학습을 완료하시겠습니까?")
+        }
         .environment(\.curriculumStepProgress, CurriculumStepProgress(current: currentStep.rawValue, total: Day1Step.allCases.count))
         .onAppear {
             if let saved = item.lastStepIndex,
@@ -65,6 +72,18 @@ struct Day1View: View {
                 currentStep = step
             }
         }
+    }
+
+    private func completeLearning() {
+        // 모델의 속성 업데이트 (SwiftData가 자동으로 변경 감지)
+        item.isCompleted = true
+        item.isInProgress = false // 완료했으니 더 이상 진행 중이 아님
+
+        // 마지막 위치 정보 초기화 (선택 사항: 다시 들어올 때 처음부터 보게 하려면)
+        // item.lastStepIndex = 0
+
+        // 화면 닫기
+        dismiss()
     }
 
     private func goTo(_ step: Day1Step) {
