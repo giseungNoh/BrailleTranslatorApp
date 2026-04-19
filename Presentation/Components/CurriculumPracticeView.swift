@@ -15,6 +15,7 @@ struct CurriculumPracticeView: View {
 
     @State private var isInteracting = false
     @State private var currentIndex: Int = 0
+    @State private var showCompleteAlert = false
     @AccessibilityFocusState private var isHeaderFocused: Bool
 
     private var current: BrailleLetterItem {
@@ -23,6 +24,11 @@ struct CurriculumPracticeView: View {
 
     private var isLast: Bool {
         currentIndex >= items.count - 1
+    }
+
+    /// Day 전체의 마지막 실습 단계인지 (finalNextTitle이 기본값이 아니면 최종 단계)
+    private var isFinalPractice: Bool {
+        finalNextTitle != "다음으로"
     }
 
     var body: some View {
@@ -78,8 +84,8 @@ struct CurriculumPracticeView: View {
                 },
                 skipLeadingCells: skipLeadingCells,
                 centerVertically: true,
-                onSwipeNext: { goNext() },
-                onSwipePrevious: { goPrevious() }
+                onSwipeNext: { handleSwipeNext() },
+                onSwipePrevious: { handleSwipePrevious() }
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 20)
@@ -90,8 +96,8 @@ struct CurriculumPracticeView: View {
                 backTitle: currentIndex == 0 ? "이전으로" : "이전 글자",
                 nextHint: isLast ? finalNextHint : "다음 글자로 이동합니다",
                 backHint: currentIndex == 0 ? "이전 화면으로 돌아갑니다" : "이전 글자로 이동합니다",
-                onNext: { goNext() },
-                onBack: { goPrevious() }
+                onNext: { handleNextButton() },
+                onBack: { handleBackButton() }
             )
         }
         .accessibilityAction(.escape) {
@@ -103,21 +109,44 @@ struct CurriculumPracticeView: View {
         }
         .onAppear {
             currentIndex = 0
-            // 헤더 자동 포커스는 curriculumStepHeader modifier 가 처리.
+        }
+        .alert("학습 완료", isPresented: $showCompleteAlert) {
+            Button("완료하기") { onNext() }
+            Button("취소", role: .cancel) { }
+        } message: {
+            Text("학습을 완료하시겠습니까?")
         }
     }
 
-    // MARK: - Navigation
+    // MARK: - 스와이프 핸들러
 
-    private func goNext() {
+    private func handleSwipeNext() {
         if isLast {
-            onNext()
+            if !isFinalPractice {
+                // 중간 실습 단계: 바로 다음으로
+                onNext()
+                return
+            }
+            if UIAccessibility.isVoiceOverRunning {
+                let message = "마지막 부분입니다. 화면 하단에 있는 학습완료 버튼을 눌러 학습을 완료해 주세요"
+                let attributed = NSMutableAttributedString(string: message)
+                attributed.addAttribute(
+                    .accessibilitySpeechQueueAnnouncement,
+                    value: true,
+                    range: NSRange(location: 0, length: message.count)
+                )
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    UIAccessibility.post(notification: .announcement, argument: attributed)
+                }
+            } else {
+                showCompleteAlert = true
+            }
         } else {
             moveTo(currentIndex + 1)
         }
     }
 
-    private func goPrevious() {
+    private func handleSwipePrevious() {
         if currentIndex > 0 {
             moveTo(currentIndex - 1)
         } else {
@@ -125,10 +154,36 @@ struct CurriculumPracticeView: View {
         }
     }
 
+    // MARK: - 버튼 핸들러
+
+    private func handleNextButton() {
+        if isLast {
+            if !isFinalPractice {
+                onNext()
+                return
+            }
+            if UIAccessibility.isVoiceOverRunning {
+                onNext()
+            } else {
+                showCompleteAlert = true
+            }
+        } else {
+            moveTo(currentIndex + 1)
+        }
+    }
+
+    private func handleBackButton() {
+        if currentIndex > 0 {
+            moveTo(currentIndex - 1)
+        } else {
+            onBack()
+        }
+    }
+
+    // MARK: - Navigation
+
     private func moveTo(_ index: Int) {
         withAnimation(.easeInOut(duration: 0.2)) { currentIndex = index }
-        // 2단계 전략: 진입 시에는 헤더 전체(진행도+상태+글자+힌트)가 자동 포커스로 읽히고,
-        // 글자 이동 시에는 포커스를 흔들지 않고 간결한 announcement만 내보내서 사용자 피로를 줄인다.
         let item = items[index]
         let message = "\(items.count)개 중 \(index + 1)번째, \(item.name), \(item.dotLabel)".toAccessibilityPronunciation()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {

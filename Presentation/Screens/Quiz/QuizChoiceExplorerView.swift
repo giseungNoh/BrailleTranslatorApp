@@ -84,7 +84,8 @@ struct QuizChoiceExplorerView: View {
                     useChosungForm: !isJongseong,
                     isInteracting: $isInteracting,
                     maxCellWidth: 120,
-                    accessibilityLabelOverride: "보기 \(viewModel.currentChoiceIndex + 1)번 점자 터치 영역",
+                    accessibilityLabelOverride: "보기 \(choices.count)개 중 \(viewModel.currentChoiceIndex + 1)번째".toAccessibilityPronunciation(),
+                    accessibilityHintOverride: "",
                     hideLabels: true,
                     enableOneFingerSwipe: true,
                     rawDotPatterns: choice.rawDots.map { dotsStr in
@@ -186,11 +187,7 @@ struct QuizChoiceExplorerView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             viewModel.currentChoiceIndex += 1
         }
-
-        let message = "보기 \(choices.count)개 중 \(viewModel.currentChoiceIndex + 1)번째"
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            UIAccessibility.post(notification: .announcement, argument: message)
-        }
+        // UIAccessibility Announcement 제거 (점자 터치 영역의 Label이 자동 읽히도록 위임)
     }
 
     private func goPreviousChoice() {
@@ -198,9 +195,6 @@ struct QuizChoiceExplorerView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             viewModel.currentChoiceIndex -= 1
         }
-        let message = "보기 \(choices.count)개 중 \(viewModel.currentChoiceIndex + 1)번째"
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            UIAccessibility.post(notification: .announcement, argument: message)
-        }
+        // UIAccessibility Announcement 제거 (점자 터치 영역의 Label이 자동 읽히도록 위임)
     }
 }

@@ -4,6 +4,7 @@ import SwiftUI
 struct Day13IntroView: View {
     let onStart: () -> Void
     let onBack: () -> Void
+    @State private var showBackAlert = false
 
     @AccessibilityFocusState private var focusedElement: AccessibilityFocus?
 
@@ -49,8 +50,14 @@ struct Day13IntroView: View {
                 nextHint: "이중 탭하면 학습을 시작합니다",
                 backHint: "커리큘럼 목록으로 돌아갑니다",
                 onNext: onStart,
-                onBack: onBack
+                onBack: { showBackAlert = true }
             )
+        }
+        .alert("돌아가기", isPresented: $showBackAlert) {
+            Button("돌아가기", role: .destructive) { onBack() }
+            Button("취소", role: .cancel) { }
+        } message: {
+            Text("커리큘럼 탭으로 돌아가시겠습니까?")
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

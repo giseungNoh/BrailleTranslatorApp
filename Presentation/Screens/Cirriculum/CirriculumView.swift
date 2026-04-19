@@ -76,8 +76,9 @@ struct CirriculumView: View {
                             .padding(.vertical, 15)
                             .background(
                                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .fill(Color.secondary.opacity(0.1))
+                                    .fill(Color.white)
                             )
+
 
                             if searchText.isEmpty {
                                 // 기본 화면: 학습 현황 + 섹션별 리스트
@@ -161,6 +162,7 @@ struct CirriculumView: View {
                                         title: "1주차: 점자의 기초와 기본 자모음",
                                         subtitle: "촉각 훈련, 초성 자음과 기본 모음 완성",
                                         items: filteredItems.filter { (1...5).contains($0.day) },
+                                        lastStudiedDay: lastStudiedDay,
                                         focusedDay: $focusedDay
                                     )
 
@@ -168,6 +170,7 @@ struct CirriculumView: View {
                                         title: "2주차: 받침, 복모음, 그리고 숫자",
                                         subtitle: "모아쓰기 구조와 실생활 숫자 읽기",
                                         items: filteredItems.filter { (6...10).contains($0.day) },
+                                        lastStudiedDay: lastStudiedDay,
                                         focusedDay: $focusedDay
                                     )
 
@@ -175,6 +178,7 @@ struct CirriculumView: View {
                                         title: "3주차: 핵심 약자와 약어",
                                         subtitle: "점자 읽기 속도를 높이는 필수 규칙",
                                         items: filteredItems.filter { (11...15).contains($0.day) },
+                                        lastStudiedDay: lastStudiedDay,
                                         focusedDay: $focusedDay
                                     )
 
@@ -182,6 +186,7 @@ struct CirriculumView: View {
                                         title: "4주차: 영어 알파벳과 실생활 읽기",
                                         subtitle: "알파벳 기초부터 실생활 점자 완전 정복",
                                         items: filteredItems.filter { (16...20).contains($0.day) },
+                                        lastStudiedDay: lastStudiedDay,
                                         focusedDay: $focusedDay
                                     )
                                 }
@@ -205,7 +210,7 @@ struct CirriculumView: View {
                                         NavigationLink {
                                             PracticeView(item: item)
                                         } label: {
-                                            CurriculumDayRow(item: item)
+                                            CurriculumDayRow(item: item, isLastStudied: item.day == lastStudiedDay)
                                         }
                                         .buttonStyle(.plain)
                                         .id(item.day)
@@ -271,6 +276,7 @@ private struct CurriculumSectionView: View {
     let title: String
     var subtitle: String = ""
     let items: [LearningItem]
+    let lastStudiedDay: Int
     var focusedDay: AccessibilityFocusState<Int?>.Binding
 
     var body: some View {
@@ -294,7 +300,7 @@ private struct CurriculumSectionView: View {
                     NavigationLink {
                         PracticeView(item: item)
                     } label: {
-                        CurriculumDayRow(item: item)
+                        CurriculumDayRow(item: item, isLastStudied: item.day == lastStudiedDay)
                     }
                     .buttonStyle(.plain)
                     .id(item.day)
@@ -310,6 +316,7 @@ private struct CurriculumSectionView: View {
 
 private struct CurriculumDayRow: View {
     let item: LearningItem
+    let isLastStudied: Bool
 
     private var statusColor: Color {
         if item.isCompleted { return Color.green }
@@ -359,10 +366,14 @@ private struct CurriculumDayRow: View {
             }
             .padding(.vertical, 2)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(item.day)일차, \(item.title), \(item.subtitle), \(statusLabel)".toAccessibilityPronunciation())
-            .accessibilityHint("두번 탭하여 연습 화면으로 이동")
+            .accessibilityLabel("\(item.day)일차, \(item.title), \(item.subtitle), \(statusLabel)\(isLastStudied ? ", 최근 학습함" : "")".toAccessibilityPronunciation())
+            .accessibilityHint(isLastStudied ? "방금 학습한 위치입니다. 두번 탭하여 연습 화면으로 이동" : "두번 탭하여 연습 화면으로 이동")
             .accessibilityAddTraits(.isButton)
         }
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(isLastStudied ? Color.appSubColor : Color.clear, lineWidth: 2.5)
+        )
     }
 }
 

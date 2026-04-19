@@ -30,6 +30,7 @@ let day5SingleCellPracticeItems: [BrailleLetterItem] = [
 
 /// 설명2: 두 칸 이중 모음 (다이어그램 표시용)
 let day5TwoCellVowelItems: [BrailleLetterItem] = [
+    BrailleLetterItem(name: "ㅣ(딴이)", letter: "ㅣ(딴이)", dotLabel: "딴이(1·2·3·5점)", cellsPerLine: 1, voiceOverName: "딴이 입니다."),
     BrailleLetterItem(name: "얘", letter: "ㅒ", dotLabel: "ㅑ(3·4·5점) + 딴이(1·2·3·5점)", cellsPerLine: 2, voiceOverName: "얘, 얘기할때 얘 입니다."),
     BrailleLetterItem(name: "왜", letter: "ㅙ", dotLabel: "ㅘ(1·2·3·6점) + 딴이(1·2·3·5점)", cellsPerLine: 2, voiceOverName: "왜, 왜? 할때 왜 입니다."),
     BrailleLetterItem(name: "웨", letter: "ㅞ", dotLabel: "ㅝ(1·2·3·4점) + 딴이(1·2·3·5점)", cellsPerLine: 2, voiceOverName: "웨, 웨딩할때 웨 입니다."),
@@ -42,6 +43,7 @@ let day5TwoCellExplanationDescription = "'ㅒ, ㅙ, ㅞ, ㅟ'처럼 복잡한 �
 
 /// 실습2: 두 칸 이중 모음 (딴이 결합)
 let day5TwoCellPracticeItems: [BrailleLetterItem] = [
+    BrailleLetterItem(name: "ㅣ(딴이)", letter: "ㅣ(딴이)", dotLabel: "딴이(1·2·3·5점)", cellsPerLine: 1, rawDots: "1235", voiceOverName: "딴이 입니다."),
     BrailleLetterItem(name: "얘", letter: "얘", dotLabel: "ㅑ(3·4·5점) + 딴이(1·2·3·5점)", voiceOverName: "얘, 얘기할때 얘 입니다."),
     BrailleLetterItem(name: "왜", letter: "왜", dotLabel: "ㅘ(1·2·3·6점) + 딴이(1·2·3·5점)", voiceOverName: "왜, 왜? 할때 왜 입니다."),
     BrailleLetterItem(name: "웨", letter: "웨", dotLabel: "ㅝ(1·2·3·4점) + 딴이(1·2·3·5점)", voiceOverName: "웨, 웨딩할때 웨 입니다."),

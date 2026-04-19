@@ -73,15 +73,17 @@ struct QuizSolvingView: View {
             viewModel.goTo(.categorySelection)
         }
         .onChange(of: viewModel.currentQuestionIndex) {
+            // OX 문제는 QuizOXView가 포커스 관리
+            guard viewModel.currentQuestion?.type != .oxQuestion else { return }
             isQuestionFocused = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                UIAccessibility.post(notification: .screenChanged, argument: nil)
                 isQuestionFocused = true
             }
         }
         .onAppear {
+            // OX 문제는 QuizOXView.onAppear가 포커스 관리
+            guard viewModel.currentQuestion?.type != .oxQuestion else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                UIAccessibility.post(notification: .screenChanged, argument: nil)
                 isQuestionFocused = true
             }
         }
@@ -93,7 +95,7 @@ struct QuizSolvingView: View {
                     ? (question.isCorrectPairing == true ? "O" : "X")
                     : question.correctItem.letter
                 let dotLabel: String = isOX
-                    ? (question.isCorrectPairing == true ? "맞는 설명입니다" : "틀린 설명입니다")
+                    ? (question.isCorrectPairing == true ? "맞는 설명" : "틀린 설명")
                     : question.correctItem.dotLabel
 
                 QuizResultSheet(

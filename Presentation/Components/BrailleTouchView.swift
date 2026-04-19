@@ -169,6 +169,14 @@ class BrailleTouchCanvasView: UIView {
     var onSwipePrevious: (() -> Void)?
     // VoiceOver accessibilityLabel 오버라이드 (nil이면 기본값 사용)
     var accessibilityLabelOverride: String? = nil
+    // VoiceOver accessibilityHint 오버라이드 (nil이면 기본값, ""이면 힌트 숨김)
+    var accessibilityHintOverride: String? = nil {
+        didSet {
+            if let hint = accessibilityHintOverride {
+                self.accessibilityHint = hint.isEmpty ? nil : hint
+            }
+        }
+    }
     // 셀 아래 레이블 숨기기 (SwiftUI에서 별도 표시할 때 사용)
     var hideLabels: Bool = false
     // VoiceOver OFF 시 1손가락 스와이프 허용 여부 (넘길 콘텐츠가 있을 때만 true)
@@ -237,7 +245,11 @@ class BrailleTouchCanvasView: UIView {
         self.accessibilityTraits = .allowsDirectInteraction
         self.isAccessibilityElement = true
         self.accessibilityLabel = "점자 터치 영역"
-        self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다. 두 손가락으로 좌우 스와이프하면 이전 또는 다음으로 이동합니다."
+        if let hintOverride = accessibilityHintOverride {
+            self.accessibilityHint = hintOverride.isEmpty ? nil : hintOverride
+        } else {
+            self.accessibilityHint = "손가락으로 문지르면 점자를 느낄 수 있습니다. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다. 두 손가락으로 좌우 스와이프하면 이전 또는 다음으로 이동합니다."
+        }
         setupSwipeGestures()
     }
 

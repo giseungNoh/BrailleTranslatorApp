@@ -110,7 +110,7 @@ struct TranslatorView: View {
                                     }) {
                                         Image(systemName: "xmark.circle.fill")
                                             .font(.title3)
-                                            .foregroundColor(.gray.opacity(0.6))
+                                            .foregroundColor(.white)
                                     }
                                     .accessibilityLabel("입력 텍스트 지우기".toAccessibilityPronunciation())
                                     .accessibilityHint("이중 탭하면 입력된 텍스트를 모두 지웁니다")

@@ -154,6 +154,25 @@ struct SettingView: View {
 
                         Divider().padding(.leading, 16)
 
+                        // 문의하기 버튼
+                        Link(destination: URL(string: "mailto:juks8666@gmail.com")!) {
+                            HStack {
+                                Text("문의하기")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.appTextColor)
+                                Spacer()
+                                Image(systemName: "envelope")
+                                    .font(.caption)
+                                    .foregroundColor(.appTextSubColor)
+                            }
+                            .padding(.horizontal, 16)
+                            .frame(height: 52)
+                        }
+                        .accessibilityLabel("문의하기".toAccessibilityPronunciation())
+                        .accessibilityHint("개발자에게 문의 메일을 보냅니다")
+
+                        Divider().padding(.leading, 16)
+
                         HStack {
                             Text("버전 정보")
                                 .font(.subheadline.bold())
