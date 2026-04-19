@@ -4,6 +4,7 @@ import SwiftData
 /// 퀴즈 카테고리 선택 리스트
 struct QuizCategoryListView: View {
     @ObservedObject var viewModel: QuizViewModel
+    var selectedTab: Int = 2
     @Query(filter: #Predicate<QuizAttempt> {
         !$0.isCorrect
         && $0.isOXQuestion == false
@@ -248,24 +249,14 @@ struct QuizCategoryListView: View {
         }
             .meshBackground()
         .onAppear {
-            print("🟢 [QuizCategoryListView] onAppear fired")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                print("🟢 [QuizCategoryListView] onAppear → isTitleFocused=true")
                 isTitleFocused = true
-                print("🟢 [QuizCategoryListView] after set: isTitleFocused=\(isTitleFocused)")
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
-            print("🟢 [QuizCategoryListView] TabSwitched received: object=\(String(describing: notification.object))")
-            if let tab = notification.object as? Int, tab == 2 {
-                print("🟢 [QuizCategoryListView] tab==2, resetting focus")
-                isTitleFocused = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    UIAccessibility.post(notification: .screenChanged, argument: nil)
-                    print("🟢 [QuizCategoryListView] TabSwitched → isTitleFocused=true")
-                    isTitleFocused = true
-                    print("🟢 [QuizCategoryListView] after set: isTitleFocused=\(isTitleFocused)")
-                }
+        .onChange(of: selectedTab) { _, newTab in
+            guard newTab == 2 else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isTitleFocused = true
             }
         }
     }

@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct CirriculumView: View {
+    var selectedTab: Int = 0
+
     @Query(sort: \LearningItem.day, order: .forward) var items: [LearningItem]
     @State private var searchText: String = ""
     @AppStorage("lastStudiedDay") private var lastStudiedDay: Int = 0
@@ -236,26 +238,23 @@ struct CirriculumView: View {
             .toolbar(.hidden, for: .navigationBar)
             .onTapGesture { isSearchFocused = false }
             .onAppear {
-                // 최초 진입은 포커스 변경 없음. 학습 화면에서 복귀(중도 이탈/학습 완료) 시
-                // 방금 학습한 일차 카드로 포커스를 이동시킨다.
-                if hasAppearedOnce, lastStudiedDay > 0 {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                        focusedDay = lastStudiedDay
-                    }
-                } else {
+                if !hasAppearedOnce {
+                    // 앱 최초 진입: 타이틀에 포커스
                     hasAppearedOnce = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         isTitleFocused = true
                     }
+                } else if lastStudiedDay > 0 {
+                    // PracticeView에서 복귀: 방금 학습한 일차 카드로 포커스
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        focusedDay = lastStudiedDay
+                    }
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
-                if let tab = notification.object as? Int, tab == 0 {
-                    isTitleFocused = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        UIAccessibility.post(notification: .screenChanged, argument: nil)
-                        isTitleFocused = true
-                    }
+            .onChange(of: selectedTab) { _, newTab in
+                guard newTab == 0 else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isTitleFocused = true
                 }
             }
             .navigationDestination(isPresented: $navigateToContinue) {

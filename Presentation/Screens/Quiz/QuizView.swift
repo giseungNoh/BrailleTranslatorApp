@@ -2,6 +2,8 @@ import SwiftUI
 
 /// 퀴즈 탭 루트 — State enum 기반 네비게이션
 struct QuizView: View {
+    var selectedTab: Int = 2
+
     @StateObject private var viewModel = QuizViewModel()
     @Environment(\.modelContext) private var modelContext
 
@@ -9,7 +11,7 @@ struct QuizView: View {
         Group {
             switch viewModel.currentStep {
             case .categorySelection:
-                QuizCategoryListView(viewModel: viewModel)
+                QuizCategoryListView(viewModel: viewModel, selectedTab: selectedTab)
 
             case .solving:
                 QuizSolvingView(viewModel: viewModel)

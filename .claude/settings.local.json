@@ -15,7 +15,9 @@
       "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build)",
       "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17' -quiet build)",
       "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'generic/platform=iOS Simulator' -quiet build)",
-      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'generic/platform=iOS Simulator' build)"
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'generic/platform=iOS Simulator' build)",
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' build)",
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17' build)"
     ]
   }
 }

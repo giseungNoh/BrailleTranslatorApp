@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SettingView: View {
+    var selectedTab: Int = 3
+
     @StateObject private var settings = BrailleSettings()
     @Environment(\.dismiss) private var dismiss
     @State private var showResetConfirm = false
@@ -179,13 +181,10 @@ struct SettingView: View {
                 isTitleFocused = true
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
-            if let tab = notification.object as? Int, tab == 3 {
-                isTitleFocused = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    UIAccessibility.post(notification: .screenChanged, argument: nil)
-                    isTitleFocused = true
-                }
+        .onChange(of: selectedTab) { _, newTab in
+            guard newTab == 3 else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isTitleFocused = true
             }
         }
     }

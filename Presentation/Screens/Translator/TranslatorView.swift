@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct TranslatorView: View {
+    var selectedTab: Int = 1
+
     @StateObject private var viewModel = TranslatorViewModel()
     @FocusState private var isFocused: Bool
     @State private var isBrailleInteracting: Bool = false
@@ -188,13 +190,10 @@ struct TranslatorView: View {
                     isTitleFocused = true
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
-                if let tab = notification.object as? Int, tab == 1 {
-                    isTitleFocused = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        UIAccessibility.post(notification: .screenChanged, argument: nil)
-                        isTitleFocused = true
-                    }
+            .onChange(of: selectedTab) { _, newTab in
+                guard newTab == 1 else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isTitleFocused = true
                 }
             }
         }
