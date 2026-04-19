@@ -70,7 +70,7 @@ struct QuizChoiceExplorerView: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 8)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("보기 \(viewModel.currentChoiceIndex + 1)번, \(choices.count)개 중")
+            .accessibilityLabel("보기 \(choices.count)개 중 \(viewModel.currentChoiceIndex + 1)번째".toAccessibilityPronunciation())
 
             // MARK: 점자 캔버스 (전체 화면)
             if let choice = currentChoice {
@@ -124,7 +124,7 @@ struct QuizChoiceExplorerView: View {
                             )
                     }
                     .disabled(isFirst)
-                    .accessibilityLabel("이전 보기")
+                    .accessibilityLabel("이전 보기".toAccessibilityPronunciation())
                     .accessibilityHint(isFirst ? "첫 번째 보기입니다" : "이전 보기로 이동합니다")
 
                     // 다음 보기 보조 버튼 (아웃라인)
@@ -142,7 +142,7 @@ struct QuizChoiceExplorerView: View {
                             )
                     }
                     .disabled(isLast)
-                    .accessibilityLabel("다음 보기")
+                    .accessibilityLabel("다음 보기".toAccessibilityPronunciation())
                     .accessibilityHint(isLast ? "마지막 보기입니다" : "다음 보기로 이동합니다")
                 }
 
@@ -158,8 +158,7 @@ struct QuizChoiceExplorerView: View {
                         .background(Color.appSubColor)
                         .cornerRadius(16)
                 }
-                .accessibilityLabel("이 점자 선택")
-                .accessibilityHint("현재 보기를 정답으로 선택합니다")
+                .accessibilityLabel("이 점자 선택".toAccessibilityPronunciation())
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 16)
@@ -168,14 +167,30 @@ struct QuizChoiceExplorerView: View {
     }
 
     private func goNextChoice() {
-        guard !isLast else { return }
+        // 1. 마지막인 경우 처리 (이곳이 핵심입니다)
+        if isLast {
+            let lastMessage = "마지막 보기입니다. 정답을 선택하려면 화면 하단에 있는 점자 선택 버튼을 눌러주세요."
+
+            // 큐에 쌓아서 시스템 효과음(스와이프 소리) 뒤에 확실히 들리게 함
+            let announcement = NSMutableAttributedString(string: lastMessage)
+            announcement.addAttribute(.accessibilitySpeechQueueAnnouncement, value: true, range: NSRange(location: 0, length: lastMessage.count))
+
+            // 애니메이션 없이 즉각적인 피드백을 위해 0.1~0.2초 정도만 딜레이
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                UIAccessibility.post(notification: .announcement, argument: announcement)
+            }
+            return
+        }
+
+        // 2. 마지막이 아닐 때 (기존 로직)
         withAnimation(.easeInOut(duration: 0.2)) {
             viewModel.currentChoiceIndex += 1
         }
-        UIAccessibility.post(
-            notification: .announcement,
-            argument: "보기 \(viewModel.currentChoiceIndex + 1)번, \(choices.count)개 중"
-        )
+
+        let message = "보기 \(choices.count)개 중 \(viewModel.currentChoiceIndex + 1)번째"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
     }
 
     private func goPreviousChoice() {
@@ -183,9 +198,9 @@ struct QuizChoiceExplorerView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             viewModel.currentChoiceIndex -= 1
         }
-        UIAccessibility.post(
-            notification: .announcement,
-            argument: "보기 \(viewModel.currentChoiceIndex + 1)번, \(choices.count)개 중"
-        )
+        let message = "보기 \(choices.count)개 중 \(viewModel.currentChoiceIndex + 1)번째"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
     }
 }

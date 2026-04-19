@@ -30,7 +30,7 @@ struct WrongAnswerOXDetailView: View {
                         .font(.title3)
                         .foregroundColor(.appTextColor)
                 }
-                .accessibilityLabel("뒤로 가기")
+                .accessibilityLabel("뒤로 가기".toAccessibilityPronunciation())
             } trailing: {
                 if attempt != nil {
                     Button {
@@ -40,7 +40,8 @@ struct WrongAnswerOXDetailView: View {
                             .font(.title3)
                             .foregroundColor(.gray)
                     }
-                    .accessibilityLabel("삭제")
+                    .accessibilityLabel("삭제".toAccessibilityPronunciation())
+                    .accessibilityHint("두번 탭하면 이 오답 기록이 삭제됩니다")
                 }
             }
 
@@ -48,34 +49,36 @@ struct WrongAnswerOXDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
 
-                        // MARK: 카테고리 뱃지
-                        if let category = category {
-                            Text(category.title)
-                                .font(.caption.bold())
-                                .foregroundColor(.appAccentBlue)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Color.appAccentBlue.opacity(0.12))
-                                .clipShape(Capsule())
-                                .padding(.horizontal, 20)
-                                .padding(.top, 16)
-                                .padding(.bottom, 8)
-                        }
+                        // MARK: 카테고리 뱃지 + 문제 (그룹)
+                        VStack(alignment: .leading, spacing: 0) {
+                            if let category = category {
+                                Text(category.title)
+                                    .font(.caption.bold())
+                                    .foregroundColor(.appAccentBlue)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 4)
+                                    .background(Color.appAccentBlue.opacity(0.12))
+                                    .clipShape(Capsule())
+                                    .padding(.top, 16)
+                                    .padding(.bottom, 8)
+                            }
 
-                        // MARK: 문제
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("문제")
-                                .font(.caption.bold())
-                                .foregroundColor(.appTextSubColor)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("문제")
+                                    .font(.caption.bold())
+                                    .foregroundColor(.appTextSubColor)
 
-                            Text(attempt.questionText)
-                                .font(.headline)
-                                .foregroundColor(.appTextColor)
-                                .lineSpacing(4)
+                                Text(attempt.questionText)
+                                    .font(.headline)
+                                    .foregroundColor(.appTextColor)
+                                    .lineSpacing(4)
+                            }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityFocused($isHeaderFocused)
+                            .padding(.bottom, 16)
                         }
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 16)
-                        .accessibilityFocused($isHeaderFocused)
+
 
                         // MARK: 내 답 vs 정답
                         HStack(alignment: .top, spacing: 12) {
@@ -139,7 +142,7 @@ struct WrongAnswerOXDetailView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 40)
-                        .accessibilityLabel("이전으로")
+                        .accessibilityLabel("이전으로".toAccessibilityPronunciation())
                         .accessibilityHint("오답 노트 목록 화면으로 돌아갑니다")
                     }
                 }
@@ -180,7 +183,7 @@ struct WrongAnswerOXDetailView: View {
                 .strokeBorder((isCorrectSide ? Color.appSubColor : Color.red).opacity(0.15), lineWidth: 1)
         )
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(label): \(value)")
+        .accessibilityLabel("\(label): \(value)".toAccessibilityPronunciation())
     }
 
     private func deleteAndGoBack() {

@@ -38,7 +38,7 @@ struct Day14IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("14일차, 묶음 약자 2와 특수 약자 총정리. 오늘의 목표: 나머지 묶음 약자 옥에서 인까지와 특수 약자 것, 받침 쌍시옷을 익히고, 오독을 막아주는 띄어쓰기 규칙과 된소리 예외 규칙을 3단계로 깔끔하게 마스터합니다.")
+            .accessibilityLabel("14일차, 묶음 약자 2와 특수 약자 총정리. 오늘의 목표: 나머지 묶음 약자 옥에서 인까지와 특수 약자 것, 받침 쌍시옷을 익히고, 오독을 막아주는 띄어쓰기 규칙과 된소리 예외 규칙을 3단계로 깔끔하게 마스터합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

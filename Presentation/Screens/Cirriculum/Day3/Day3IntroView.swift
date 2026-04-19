@@ -38,7 +38,7 @@ struct Day3IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("3일차, 기본 자음 2. 오늘의 목표: 1, 2, 4, 5점을 중심으로 만들어지는 나머지 첫소리 글자 키읔, 티읕, 피읖, 히읗을 익히고, 글자를 강하게 만드는 된소리표 6점의 원리를 이해합니다.")
+            .accessibilityLabel("3일차, 기본 자음 2. 오늘의 목표: 1, 2, 4, 5점을 중심으로 만들어지는 나머지 첫소리 글자 키읔, 티읕, 피읖, 히읗을 익히고, 글자를 강하게 만드는 된소리표 6점의 원리를 이해합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

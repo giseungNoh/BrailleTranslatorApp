@@ -38,7 +38,7 @@ struct Day5IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("5일차, 이중 모음과 붙임표. 오늘의 목표: 한 칸과 두 칸으로 이루어진 이중 모음의 원리를 익히고, 점자의 충돌을 막아주는 딴이와 붙임표의 핵심 규칙을 완벽하게 이해합니다.")
+            .accessibilityLabel("5일차, 이중 모음과 붙임표. 오늘의 목표: 한 칸과 두 칸으로 이루어진 이중 모음의 원리를 익히고, 점자의 충돌을 막아주는 딴이와 붙임표의 핵심 규칙을 완벽하게 이해합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

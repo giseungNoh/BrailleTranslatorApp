@@ -36,7 +36,7 @@ struct Day1Learning3View: View {
                 .font(.title2.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 20)
-                .accessibilityLabel("온점과 빈점 느끼기")
+                .accessibilityLabel("온점과 빈점 느끼기".toAccessibilityPronunciation())
                 .accessibilityHint("화면 가운데에 점자가 있습니다. 손가락으로 문질러 보세요. 점이 있는 곳은 강한 진동, 없는 곳은 약한 진동이 느껴집니다.")
                 .accessibilityFocused($isHeaderFocused)
 
@@ -87,7 +87,7 @@ struct Day1Learning3View: View {
             }
             .padding(.top, 8)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("설정 탭에서 온표와 빈칸의 진동 세기를 조절할 수 있습니다")
+            .accessibilityLabel("설정 탭에서 온표와 빈칸의 진동 세기를 조절할 수 있습니다".toAccessibilityPronunciation())
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 20)

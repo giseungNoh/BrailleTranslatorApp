@@ -13,7 +13,9 @@
       "Bash(grep -l \"DayProgressBar\\\\|Day1ProgressBar\\\\|Day2ProgressBar\\\\|ProgressBar: View\" Presentation/Screens/Cirriculum/Day*/Day*View.swift)",
       "Bash(grep -c \"CurriculumProgressBar\" Presentation/Screens/Cirriculum/Day*/Day*View.swift)",
       "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build)",
-      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17' -quiet build)"
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17' -quiet build)",
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'generic/platform=iOS Simulator' -quiet build)",
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'generic/platform=iOS Simulator' build)"
     ]
   }
 }

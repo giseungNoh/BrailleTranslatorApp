@@ -10,16 +10,7 @@ struct QuizSolvingView: View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션
             CommonNavigationBar(title: "퀴즈") {
-                Button {
-                    viewModel.goTo(.categorySelection)
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.title3)
-                        .foregroundColor(.appTextColor)
-                }
-                .accessibilityLabel("퀴즈 그만두기")
-                .accessibilityHint("카테고리 선택으로 돌아갑니다")
-            } trailing: {
+                //(왼쪽 배치)
                 Button {
                     viewModel.goToPreviousQuestion()
                 } label: {
@@ -28,28 +19,44 @@ struct QuizSolvingView: View {
                         .foregroundColor(viewModel.isFirstQuestion ? .gray.opacity(0.3) : .appTextColor)
                 }
                 .disabled(viewModel.isFirstQuestion)
-                .accessibilityLabel("이전 문제")
+                .accessibilityLabel("이전 문제".toAccessibilityPronunciation())
                 .accessibilityHint(viewModel.isFirstQuestion ? "첫 번째 문제입니다" : "이전 문제로 돌아갑니다")
+
+            } trailing: {
+                Button {
+                    viewModel.goTo(.categorySelection)
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title3)
+                        .foregroundColor(.appTextColor)
+                }
+                .accessibilityLabel("퀴즈 그만두기".toAccessibilityPronunciation())
+                .accessibilityHint("카테고리 선택으로 돌아갑니다")
             }
 
             if let question = viewModel.currentQuestion {
                 let isOXType = question.type == .oxQuestion
 
-                // MARK: 진행률 (공통)
-                progressBar
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("\(viewModel.questions.count)문제 중 \(viewModel.currentQuestionIndex + 1)번째")
-
                 if !isOXType {
-                    // MARK: 객관식 전용 — 문제 텍스트
-                    Text(question.questionText)
-                        .font(.title3.bold())
-                        .foregroundColor(.appTextColor)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 8)
-                        .accessibilityFocused($isQuestionFocused)
-                        .accessibilityLabel(question.questionText)
+                    // MARK: 객관식 — 진행률 + 문제 텍스트 그룹
+                    VStack(spacing: 8) {
+                        progressBar
+                        Text(question.questionText)
+                            .font(.title3.bold())
+                            .foregroundColor(.appTextColor)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 8)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(viewModel.questions.count)문제 중 \(viewModel.currentQuestionIndex + 1)번째. \(question.questionText)".toAccessibilityPronunciation())
+                    .accessibilityHint("화면 중간에 있는 보기를 두손가락으로 스와이프하여 보기를 선택하세요")
+                    .accessibilityFocused($isQuestionFocused)
+                } else {
+                    // MARK: OX — 진행률만 (문제 텍스트는 QuizOXView가 포커스 관리)
+                    progressBar
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("\(viewModel.questions.count)문제 중 \(viewModel.currentQuestionIndex + 1)번째".toAccessibilityPronunciation())
                 }
 
                 // MARK: 보기 영역
@@ -66,12 +73,15 @@ struct QuizSolvingView: View {
             viewModel.goTo(.categorySelection)
         }
         .onChange(of: viewModel.currentQuestionIndex) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            isQuestionFocused = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                UIAccessibility.post(notification: .screenChanged, argument: nil)
                 isQuestionFocused = true
             }
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                UIAccessibility.post(notification: .screenChanged, argument: nil)
                 isQuestionFocused = true
             }
         }

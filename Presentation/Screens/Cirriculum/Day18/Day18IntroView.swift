@@ -38,7 +38,7 @@ struct Day18IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("18일차, 필수 문장 부호 익히기 마침표부터 괄호까지. 오늘의 목표: 글의 의미를 명확하게 해주는 기본 문장 부호와 쌍으로 이루어진 묶음 부호의 재미있는 대칭 점형을 손끝으로 익힙니다.")
+            .accessibilityLabel("18일차, 필수 문장 부호 익히기 마침표부터 괄호까지. 오늘의 목표: 글의 의미를 명확하게 해주는 기본 문장 부호와 쌍으로 이루어진 묶음 부호의 재미있는 대칭 점형을 손끝으로 익힙니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

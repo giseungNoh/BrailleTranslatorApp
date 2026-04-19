@@ -38,7 +38,7 @@ struct Day7IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("7일차, 겹받침소리 글자, 나란히 이어 적기. 오늘의 목표: 두 개의 홑받침을 차례대로 나란히 적어 겹받침을 만드는 원리를 이해하고, 쌍받침의 특별한 예외 규칙을 완벽히 익힙니다.")
+            .accessibilityLabel("7일차, 겹받침소리 글자, 나란히 이어 적기. 오늘의 목표: 두 개의 홑받침을 차례대로 나란히 적어 겹받침을 만드는 원리를 이해하고, 쌍받침의 특별한 예외 규칙을 완벽히 익힙니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

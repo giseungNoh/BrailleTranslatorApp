@@ -18,6 +18,7 @@ struct QuizOXView: View {
                     .padding(.horizontal, 24)
                     .accessibilityFocused($isStatementFocused)
                     .accessibilityLabel(question.questionText)
+                    .accessibilityHint("이 문제는 오 엑스 퀴즈입니다.")
             }
 
             Spacer()
@@ -41,6 +42,12 @@ struct QuizOXView: View {
                 isStatementFocused = true
             }
         }
+        .onChange(of: viewModel.currentQuestionIndex) {
+            isStatementFocused = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isStatementFocused = true
+            }
+        }
     }
 }
 
@@ -56,6 +63,7 @@ private struct OXButton: View {
 
     private var title: String { type == .o ? "O" : "X" }
     private var color: Color { type == .o ? .blue : .red }
+    private var voiceLabel: String { type == .o ? "정답" : "오답" }
 
     var body: some View {
         Button(action: onTap) {
@@ -67,7 +75,7 @@ private struct OXButton: View {
                 .background(color)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
-        .accessibilityLabel(title)
+        .accessibilityLabel(voiceLabel)
         .accessibilityHint(type == .o ? "맞다고 답합니다" : "틀리다고 답합니다")
         .accessibilityAddTraits(.isButton)
     }

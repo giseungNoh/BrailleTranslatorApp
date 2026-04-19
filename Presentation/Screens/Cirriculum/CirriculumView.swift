@@ -8,6 +8,7 @@ struct CirriculumView: View {
     @State private var navigateToContinue: Bool = false
     @FocusState private var isSearchFocused: Bool
     @AccessibilityFocusState private var focusedDay: Int?
+    @AccessibilityFocusState private var isTitleFocused: Bool
     @State private var hasAppearedOnce: Bool = false
 
     private var totalCount: Int { items.count }
@@ -36,7 +37,7 @@ struct CirriculumView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                CommonNavigationBar(title: "학습")
+                CommonNavigationBar(title: "학습", titleFocus: $isTitleFocused)
 
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -66,7 +67,7 @@ struct CirriculumView: View {
                                         Image(systemName: "xmark.circle.fill")
                                             .foregroundColor(.appTextSecondary)
                                     }
-                                    .accessibilityLabel("검색어 지우기")
+                                    .accessibilityLabel("검색어 지우기".toAccessibilityPronunciation())
                                 }
                             }
                             .padding(.horizontal, 15)
@@ -100,7 +101,7 @@ struct CirriculumView: View {
                                             }
                                         }
                                         .accessibilityElement(children: .ignore)
-                                        .accessibilityLabel("나의 학습 현황. \(totalCount)일 중 \(completedCount)일 완료. \(Int(progress * 100))퍼센트")
+                                        .accessibilityLabel("나의 학습 현황. \(totalCount)일 중 \(completedCount)일 완료. \(Int(progress * 100))퍼센트".toAccessibilityPronunciation())
 
                                         // 이어하기 섹션
                                         if let current = lastStudiedItem {
@@ -138,7 +139,7 @@ struct CirriculumView: View {
                                                         .background(Color.appSubColor)
                                                         .cornerRadius(10)
                                                 }
-                                                .accessibilityLabel("\(current.day)일차 \(current.title) 이어서 학습하기")
+                                                .accessibilityLabel("\(current.day)일차 \(current.title) 이어서 학습하기".toAccessibilityPronunciation())
                                                 .accessibilityHint("\(current.subtitle)를 이어서 학습합니다")
                                             }
                                         }
@@ -191,7 +192,7 @@ struct CirriculumView: View {
                                         .foregroundColor(.appTextSubColor)
                                         .frame(maxWidth: .infinity, alignment: .center)
                                         .padding(.top, 40)
-                                        .accessibilityLabel("검색 결과가 없습니다")
+                                        .accessibilityLabel("검색 결과가 없습니다".toAccessibilityPronunciation())
                                 } else {
                                     Text("검색 결과 \(filteredItems.count)건")
                                         .font(.subheadline)
@@ -243,6 +244,18 @@ struct CirriculumView: View {
                     }
                 } else {
                     hasAppearedOnce = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        isTitleFocused = true
+                    }
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
+                if let tab = notification.object as? Int, tab == 0 {
+                    isTitleFocused = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        UIAccessibility.post(notification: .screenChanged, argument: nil)
+                        isTitleFocused = true
+                    }
                 }
             }
             .navigationDestination(isPresented: $navigateToContinue) {
@@ -347,7 +360,7 @@ private struct CurriculumDayRow: View {
             }
             .padding(.vertical, 2)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(item.day)일차, \(item.title), \(item.subtitle), \(statusLabel)")
+            .accessibilityLabel("\(item.day)일차, \(item.title), \(item.subtitle), \(statusLabel)".toAccessibilityPronunciation())
             .accessibilityHint("두번 탭하여 연습 화면으로 이동")
             .accessibilityAddTraits(.isButton)
         }

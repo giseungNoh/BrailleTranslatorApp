@@ -53,7 +53,7 @@ struct QuizSessionCompleteView: View {
                 }
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(resultAccessibilityLabel)
+            .accessibilityLabel(resultAccessibilityLabel.toAccessibilityPronunciation())
             .accessibilityFocused($isResultFocused)
 
             Spacer()

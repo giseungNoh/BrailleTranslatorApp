@@ -283,7 +283,6 @@ class QuizViewModel: ObservableObject {
         } else {
             currentQuestionIndex += 1
             saveSession()
-            UIAccessibility.post(notification: .screenChanged, argument: nil)
         }
     }
 
@@ -296,7 +295,6 @@ class QuizViewModel: ObservableObject {
             sessionResults.removeLast()
         }
         saveSession()
-        UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 
     /// 카테고리 탭 — 진행 중인 세션이 있으면 이어풀기 Alert 표시

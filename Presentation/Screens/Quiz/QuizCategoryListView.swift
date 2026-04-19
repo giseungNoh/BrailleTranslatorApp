@@ -17,6 +17,7 @@ struct QuizCategoryListView: View {
     @Query(filter: #Predicate<QuizAttempt> { $0.isCorrect })
     private var correctAnswers: [QuizAttempt]
     @AccessibilityFocusState private var isTitleFocused: Bool
+    @AccessibilityFocusState private var focusedCategoryId: String?
     @State private var selectedSection: Int = 0 // 0 = 전체
 
     /// 카테고리별 정답 수 (객관식: 고유 글자 기준, OX: 고유 questionText 기준)
@@ -71,11 +72,23 @@ struct QuizCategoryListView: View {
         }
     }
 
+    private var firstVisibleCategoryId: String? {
+        allGroupedCategories
+            .first(where: { selectedSection == 0 || $0.section == selectedSection })?
+            .categories.first?.id
+    }
+
     private var sectionFilterButton: some View {
         Menu {
             ForEach(sectionOptions, id: \.id) { option in
                 Button {
                     selectedSection = option.id
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                        if let firstId = firstVisibleCategoryId {
+                            focusedCategoryId = firstId
+                        }
+                    }
                 } label: {
                     if option.id == selectedSection {
                         Label(option.name, systemImage: "checkmark")
@@ -105,14 +118,13 @@ struct QuizCategoryListView: View {
             }
             .frame(width: 36, height: 36)
         }
-        .accessibilityLabel("섹션 필터. 현재 \(sectionOptions.first(where: { $0.id == selectedSection })?.name ?? "전체")")
+        .accessibilityLabel("섹션 필터. 현재 \(sectionOptions.first(where: { $0.id == selectedSection })?.name ?? "전체")".toAccessibilityPronunciation())
         .accessibilityHint("두번 탭하여 섹션을 선택합니다")
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            CommonNavigationBar(title: "퀴즈")
-                .accessibilityFocused($isTitleFocused)
+            CommonNavigationBar(title: "퀴즈", titleFocus: $isTitleFocused)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -153,7 +165,7 @@ struct QuizCategoryListView: View {
                     .padding(.top, 16)
                     .padding(.bottom, 12)
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("전체 진행률. \(totalQuestions)문제 중 \(totalSolved)문제 완료")
+                    .accessibilityLabel("전체 진행률. \(totalQuestions)문제 중 \(totalSolved)문제 완료".toAccessibilityPronunciation())
 
                     // MARK: 이어서하기 카드
                     if viewModel.hasActiveSession,
@@ -196,9 +208,9 @@ struct QuizCategoryListView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 8)
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("퀴즈. 퀴즈테마를 선택하여 점자를 직접만지고 문제를 풀어보세요")
+                    .accessibilityLabel("퀴즈. 퀴즈테마를 선택하여 점자를 직접만지고 문제를 풀어보세요".toAccessibilityPronunciation())
 
-                    // MARK: 카테고리 카드 목록
+                    //응
                     VStack(spacing: 24) {
                         ForEach(allGroupedCategories, id: \.section) { group in
                             if selectedSection == 0 || group.section == selectedSection {
@@ -223,6 +235,7 @@ struct QuizCategoryListView: View {
                                             ) {
                                                 viewModel.handleCategoryTap(category: category)
                                             }
+                                            .accessibilityFocused($focusedCategoryId, equals: category.id)
                                         }
                                     }
                                 }
@@ -235,16 +248,23 @@ struct QuizCategoryListView: View {
         }
             .meshBackground()
         .onAppear {
+            print("🟢 [QuizCategoryListView] onAppear fired")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                print("🟢 [QuizCategoryListView] onAppear → isTitleFocused=true")
                 isTitleFocused = true
+                print("🟢 [QuizCategoryListView] after set: isTitleFocused=\(isTitleFocused)")
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
+            print("🟢 [QuizCategoryListView] TabSwitched received: object=\(String(describing: notification.object))")
             if let tab = notification.object as? Int, tab == 2 {
+                print("🟢 [QuizCategoryListView] tab==2, resetting focus")
                 isTitleFocused = false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     UIAccessibility.post(notification: .screenChanged, argument: nil)
+                    print("🟢 [QuizCategoryListView] TabSwitched → isTitleFocused=true")
                     isTitleFocused = true
+                    print("🟢 [QuizCategoryListView] after set: isTitleFocused=\(isTitleFocused)")
                 }
             }
         }
@@ -357,7 +377,7 @@ private struct QuizCategoryCard: View {
         .padding(.horizontal, 20)
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(category.title). \(category.subtitle). \(category.questionCount)문제. \(solvedCount)문제 정답")
+        .accessibilityLabel("\(category.title). \(category.subtitle). \(category.questionCount)문제. \(solvedCount)문제 정답".toAccessibilityPronunciation())
         .accessibilityHint("두번 탭하여 퀴즈를 시작합니다")
         .accessibilityAddTraits(.isButton)
     }
@@ -435,7 +455,7 @@ private struct ResumeCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("이어서 풀기. \(categoryTitle). \(totalCount)문제 중 \(answeredCount)문제 완료")
+        .accessibilityLabel("이어서 풀기. \(categoryTitle). \(totalCount)문제 중 \(answeredCount)문제 완료".toAccessibilityPronunciation())
         .accessibilityHint("두번 탭하여 이어서 풀기로 이동합니다")
         .accessibilityAddTraits(.isButton)
     }

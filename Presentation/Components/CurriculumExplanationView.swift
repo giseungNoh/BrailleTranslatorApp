@@ -42,8 +42,6 @@ struct CurriculumExplanationView: View {
                 // MARK: 그룹 규칙 설명 카드 (칠판 디자인 적용)
                 ExplanationChalkboardCard(description: description, isCompact: isCompact)
                     .padding(.horizontal, 20)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(description.replacingOccurrences(of: "\n", with: " "))
 
                 Spacer(minLength: isCompact ? 10 : 16)
 
@@ -77,7 +75,6 @@ struct CurriculumExplanationView: View {
             }
         }
         .accessibilityAction(.escape) { onBack() }
-        .curriculumReplayable(focus: $isTitleFocused)
     }
 }
 
@@ -119,7 +116,7 @@ private struct LetterRowCard: View {
         .padding(.vertical, isCompact ? 10 : 14)
         .appCard(cornerRadius: 14)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(cardAccessibilityLabel)
+        .accessibilityLabel(cardAccessibilityLabel.toAccessibilityPronunciation())
     }
 
     // MARK: - 카드 B (수직 구분 레이아웃)
@@ -146,7 +143,7 @@ private struct LetterRowCard: View {
         }
         .appCard(cornerRadius: 14)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(cardAccessibilityLabel)
+        .accessibilityLabel(cardAccessibilityLabel.toAccessibilityPronunciation())
     }
 
     // MARK: - 공용 서브뷰
@@ -330,7 +327,7 @@ struct BrailleDotDiagram: View {
 
     private func dotCircle(_ number: Int) -> some View {
         Circle()
-            .fill(activeDots.contains(number) ? Color.appSubColor : Color.gray.opacity(0.2))
+            .fill(activeDots.contains(number) ? Color.black : Color.gray.opacity(0.2))
             .frame(width: dotSize, height: dotSize)
     }
 }

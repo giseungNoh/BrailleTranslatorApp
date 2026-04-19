@@ -130,7 +130,7 @@ struct CurriculumPracticeView: View {
         // 2단계 전략: 진입 시에는 헤더 전체(진행도+상태+글자+힌트)가 자동 포커스로 읽히고,
         // 글자 이동 시에는 포커스를 흔들지 않고 간결한 announcement만 내보내서 사용자 피로를 줄인다.
         let item = items[index]
-        let message = "\(items.count)개 중 \(index + 1)번째, \(item.name), \(item.dotLabel)"
+        let message = "\(items.count)개 중 \(index + 1)번째, \(item.name), \(item.dotLabel)".toAccessibilityPronunciation()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             UIAccessibility.post(notification: .announcement, argument: message)
         }

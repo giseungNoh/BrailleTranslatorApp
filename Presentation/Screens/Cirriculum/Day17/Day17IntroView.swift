@@ -38,7 +38,7 @@ struct Day17IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("17일차, 알파벳 점 추가 원리 k부터 z와 대문자 기호. 오늘의 목표: 어제 배운 a부터 j 점형에 특정 점을 추가하여 나머지 알파벳을 만드는 원리를 두 단계로 나누어 깨우치고, 대문자를 표기하는 3가지 마법의 기호 6점, 6 6점, 6 6 6점을 완벽히 마스터합니다.")
+            .accessibilityLabel("17일차, 알파벳 점 추가 원리 k부터 z와 대문자 기호. 오늘의 목표: 어제 배운 a부터 j 점형에 특정 점을 추가하여 나머지 알파벳을 만드는 원리를 두 단계로 나누어 깨우치고, 대문자를 표기하는 3가지 마법의 기호 6점, 6 6점, 6 6 6점을 완벽히 마스터합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

@@ -24,7 +24,7 @@ struct LearningButtonSection: View {
                     .background(Color.appSubColor)
                     .cornerRadius(16)
             }
-            .accessibilityLabel(nextTitle)
+            .accessibilityLabel(nextTitle.toAccessibilityPronunciation())
             .accessibilityHint(nextHint)
 
             // 보조 버튼 (아웃라인)
@@ -39,7 +39,7 @@ struct LearningButtonSection: View {
                             .stroke(Color.appSubColor, lineWidth: 1.5)
                     )
             }
-            .accessibilityLabel(backTitle)
+            .accessibilityLabel(backTitle.toAccessibilityPronunciation())
             .accessibilityHint(backHint)
         }
         .padding(.horizontal, 20)

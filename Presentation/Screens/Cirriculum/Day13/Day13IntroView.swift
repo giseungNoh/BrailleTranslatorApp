@@ -38,7 +38,7 @@ struct Day13IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("13일차, 묶음 약자 1, 억, 언, 얼, 연, 열, 영. 오늘의 목표: ㅓ와 ㅕ 계열의 모음과 받침이 하나로 합쳐진 묶음 약자를 익히고, 특정 자음 뒤에서 영이 엉으로 소리가 바뀌는 점자만의 신기한 마법 규칙을 이해합니다.")
+            .accessibilityLabel("13일차, 묶음 약자 1, 억, 언, 얼, 연, 열, 영. 오늘의 목표: ㅓ와 ㅕ 계열의 모음과 받침이 하나로 합쳐진 묶음 약자를 익히고, 특정 자음 뒤에서 영이 엉으로 소리가 바뀌는 점자만의 신기한 마법 규칙을 이해합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

@@ -14,7 +14,7 @@ struct Day5SeparatorRuleView: View {
                 .font(.title3.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 16)
-                .accessibilityLabel("마법의 방지턱, 붙임표")
+                .accessibilityLabel("마법의 방지턱, 붙임표".toAccessibilityPronunciation())
                 .accessibilityHint("딴이와 모음 애의 점형이 같아서 생기는 충돌을 막는 규칙입니다.")
                 .accessibilityFocused($isHeaderFocused)
 
@@ -122,7 +122,7 @@ struct Day5SeparatorRuleView: View {
         }
         .padding(.horizontal, 20)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("비교: 왜는 이중 모음으로 와 더하기 딴이, 2칸입니다. 와애는 두 글자로 와 더하기 붙임표 더하기 애, 3칸입니다.")
+        .accessibilityLabel("비교: 왜는 이중 모음으로 와 더하기 딴이, 2칸입니다. 와애는 두 글자로 와 더하기 붙임표 더하기 애, 3칸입니다.".toAccessibilityPronunciation())
     }
 }
 

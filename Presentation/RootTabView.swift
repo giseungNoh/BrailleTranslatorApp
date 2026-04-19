@@ -24,11 +24,21 @@ struct RootTabView: View {
         Binding(
             get: { self.selectedTab },
             set: { newTab in
+                print("🔵 [RootTabView] binding.set called: oldTab=\(self.selectedTab), newTab=\(newTab)")
                 if newTab == self.selectedTab && newTab == 2 {
+                    print("🔵 [RootTabView] posting ResetQuizTab")
                     NotificationCenter.default.post(name: Notification.Name("ResetQuizTab"), object: nil)
                 }
+                let isActualSwitch = newTab != self.selectedTab
                 self.selectedTab = newTab
-                            }
+                if isActualSwitch {
+                    print("🔵 [RootTabView] posting TabSwitched(object: \(newTab))")
+                    NotificationCenter.default.post(
+                        name: Notification.Name("TabSwitched"),
+                        object: newTab
+                    )
+                }
+            }
         )
     }
 
@@ -37,22 +47,18 @@ struct RootTabView: View {
             CirriculumView()
                 .tag(0)
                 .tabItem { Label("학습", systemImage: "dot.square") }
-                .accessibilityLabel("학습 탭, 커리큘럼")
 
             TranslatorView()
                 .tag(1)
                 .tabItem { Label("점자번역", systemImage: "pencil") }
-                .accessibilityLabel("점자번역 탭")
 
             QuizView()
                 .tag(2)
                 .tabItem { Label("퀴즈", systemImage: "questionmark") }
-                .accessibilityLabel("퀴즈 탭")
 
             SettingView()
                 .tag(3)
                 .tabItem { Label("설정", systemImage: "gearshape") }
-                .accessibilityLabel("설정 탭")
         }
         .modifier(DynamicTypeModifier(size: dynamicTypeSize))
     }

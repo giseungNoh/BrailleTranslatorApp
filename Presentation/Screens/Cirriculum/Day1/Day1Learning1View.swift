@@ -15,7 +15,7 @@ struct Day1Learning1View: View {
                 .font(.title2.bold())
                 .foregroundColor(.appTextColor)
                 .padding(.top, 20)
-                .accessibilityLabel("점자 6점 구조")
+                .accessibilityLabel("점자 6점 구조".toAccessibilityPronunciation())
                 .accessibilityHint("점자는 세로 3개, 가로 2개, 총 6개의 점으로 이루어집니다. 왼쪽 위부터 아래로 1, 2, 3점, 오른쪽 위부터 아래로 4, 5, 6점입니다. 화면 중앙을 터치하면서 점을 탐색해보세요")
                 .accessibilityFocused($isTitleFocused)
 

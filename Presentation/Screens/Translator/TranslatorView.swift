@@ -20,8 +20,7 @@ struct TranslatorView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // 상단 네비게이션 바 (기존 유지)
-                CommonNavigationBar(title: "점자 변환기")
-                    .accessibilityFocused($isTitleFocused)
+                CommonNavigationBar(title: "점자 변환기", titleFocus: $isTitleFocused)
                 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -111,7 +110,7 @@ struct TranslatorView: View {
                                             .font(.title3)
                                             .foregroundColor(.gray.opacity(0.6))
                                     }
-                                    .accessibilityLabel("입력 텍스트 지우기")
+                                    .accessibilityLabel("입력 텍스트 지우기".toAccessibilityPronunciation())
                                     .accessibilityHint("이중 탭하면 입력된 텍스트를 모두 지웁니다")
                                 }
                             }

@@ -38,7 +38,7 @@ struct Day4IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("4일차, 기본 모음, 모음의 대칭 구조 이해. 오늘의 목표: 기본 모음 10개의 점형을 익히고, 거울처럼 서로 마주 보거나 위아래가 뒤집히는 대칭의 조형 원리를 직관적으로 이해합니다. 참고: 기본 모음의 점형은 모두 세 점으로 이루어져 있습니다.")
+            .accessibilityLabel("4일차, 기본 모음, 모음의 대칭 구조 이해. 오늘의 목표: 기본 모음 10개의 점형을 익히고, 거울처럼 서로 마주 보거나 위아래가 뒤집히는 대칭의 조형 원리를 직관적으로 이해합니다. 참고: 기본 모음의 점형은 모두 세 점으로 이루어져 있습니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

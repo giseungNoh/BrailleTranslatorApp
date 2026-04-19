@@ -78,7 +78,7 @@ struct CurriculumStepHeaderModifier: ViewModifier {
         if let subtitle, !subtitle.isEmpty {
             parts.append(subtitle)
         }
-        return parts.joined(separator: ", ")
+        return parts.joined(separator: ", ").toAccessibilityPronunciation()
     }
 
     private var combinedHint: String {
@@ -110,25 +110,6 @@ extension View {
             isReplayable: isReplayable,
             focus: focus
         ))
-    }
-}
-
-// MARK: - 다시듣기 (Magic Tap)
-
-extension View {
-    /// 두 손가락 한 번 탭(매직 탭) 시 헤더 포커스를 토글하여 VoiceOver가 헤더를 다시 읽게 한다.
-    /// 실습 뷰처럼 직접 터치 영역과 충돌하는 화면에는 적용하지 않는다.
-    func curriculumReplayable(focus: AccessibilityFocusState<Bool>.Binding) -> some View {
-        #if os(iOS)
-        accessibilityAction(.magicTap) {
-            focus.wrappedValue = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                focus.wrappedValue = true
-            }
-        }
-        #else
-        self
-        #endif
     }
 }
 

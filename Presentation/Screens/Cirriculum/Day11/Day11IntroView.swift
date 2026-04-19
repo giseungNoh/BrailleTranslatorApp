@@ -38,7 +38,7 @@ struct Day11IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("11일차, 마법의 줄임말 약자 1, 고유 약자와 ㅏ 생략. 오늘의 목표: 글자의 부피를 확 줄여주는 점자만의 고유한 약자 가, 사, 까, 싸를 익히고, 모음 ㅏ를 과감히 생략하는 마법의 약자 원리를 이해합니다.")
+            .accessibilityLabel("11일차, 마법의 줄임말 약자 1, 고유 약자와 ㅏ 생략. 오늘의 목표: 글자의 부피를 확 줄여주는 점자만의 고유한 약자 가, 사, 까, 싸를 익히고, 모음 ㅏ를 과감히 생략하는 마법의 약자 원리를 이해합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

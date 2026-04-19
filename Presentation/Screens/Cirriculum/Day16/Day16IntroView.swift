@@ -38,7 +38,7 @@ struct Day16IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("16일차, 영어 알파벳 1 a부터 j. 오늘의 목표: 영어 알파벳 a부터 j까지의 점형이 숫자 0에서 9까지 완벽하게 똑같다는 놀라운 비밀을 이해하고, 가장 쉽게 영어 점자에 입문합니다.")
+            .accessibilityLabel("16일차, 영어 알파벳 1 a부터 j. 오늘의 목표: 영어 알파벳 a부터 j까지의 점형이 숫자 0에서 9까지 완벽하게 똑같다는 놀라운 비밀을 이해하고, 가장 쉽게 영어 점자에 입문합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

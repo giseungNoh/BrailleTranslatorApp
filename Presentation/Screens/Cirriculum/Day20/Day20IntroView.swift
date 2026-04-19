@@ -38,7 +38,7 @@ struct Day20IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("20일차, 생활 속 점자 탐험과 실전 해독. 오늘의 목표: 의약품, 가전제품 등 우리 주변의 점자들을 읽어내며 자립 생활의 기초를 다지고, 실생활 점자를 읽을 때 흔히 실수하기 쉬운 점형의 함정들을 파악하여 실전 점자 읽기 능력을 완성합니다.")
+            .accessibilityLabel("20일차, 생활 속 점자 탐험과 실전 해독. 오늘의 목표: 의약품, 가전제품 등 우리 주변의 점자들을 읽어내며 자립 생활의 기초를 다지고, 실생활 점자를 읽을 때 흔히 실수하기 쉬운 점형의 함정들을 파악하여 실전 점자 읽기 능력을 완성합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

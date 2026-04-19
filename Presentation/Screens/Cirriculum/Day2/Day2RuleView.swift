@@ -24,7 +24,7 @@ struct Day2RuleView: View {
                 }
                 .padding(.top, isCompact ? 10 : 16)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("첫소리 이응 생략 원리, 가장 중요한 첫 번째 규칙")
+                .accessibilityLabel("첫소리 이응 생략 원리, 가장 중요한 첫 번째 규칙".toAccessibilityPronunciation())
                 .accessibilityHint("점자에서 첫소리 이응은 소리가 나지 않으므로 표기하지 않습니다.")
                 .accessibilityFocused($isHeaderFocused)
 
@@ -132,7 +132,7 @@ struct Day2RuleView: View {
         }
         .padding(.horizontal, 20)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("핵심 규칙: 첫소리 이응은 소리가 없으므로 적지 않고 모음만 적습니다. 예를 들어 아이에서 이응이 생략되어 모음만 표기됩니다. 안내: 모음 점자는 다음 시간에 배웁니다.")
+        .accessibilityLabel("핵심 규칙: 첫소리 이응은 소리가 없으므로 적지 않고 모음만 적습니다. 예를 들어 아이에서 이응이 생략되어 모음만 표기됩니다. 안내: 모음 점자는 다음 시간에 배웁니다.".toAccessibilityPronunciation())
     }
 
     private func letterColumn(_ syllable: String) -> some View {

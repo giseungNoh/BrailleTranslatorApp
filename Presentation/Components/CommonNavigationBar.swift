@@ -11,13 +11,17 @@ struct CommonNavigationBar<Leading: View, Trailing: View>: View {
     let title: String
     let leading: Leading
     let trailing: Trailing
+    var titleFocus: AccessibilityFocusState<Bool>.Binding?
+    @AccessibilityFocusState private var dummyFocus: Bool
 
     init(
         title: String,
+        titleFocus: AccessibilityFocusState<Bool>.Binding? = nil,
         @ViewBuilder leading: () -> Leading,
         @ViewBuilder trailing: () -> Trailing
     ) {
         self.title = title
+        self.titleFocus = titleFocus
         self.leading = leading()
         self.trailing = trailing()
     }
@@ -25,7 +29,6 @@ struct CommonNavigationBar<Leading: View, Trailing: View>: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                // 배경
                 Rectangle()
                     .fill(Color.clear)
                     .ignoresSafeArea(edges: .top)
@@ -38,6 +41,12 @@ struct CommonNavigationBar<Leading: View, Trailing: View>: View {
                     Text(title)
                         .font(.title.bold())
                         .foregroundStyle(.primary)
+                        .accessibilityAddTraits(.isHeader)
+                        .accessibilityLabel(title.toAccessibilityPronunciation())
+                        .accessibilityFocused(titleFocus ?? $dummyFocus)
+                        .onAppear {
+                            print("🟡 [CommonNavigationBar] title='\(title)' rendered, hasExternalBinding=\(titleFocus != nil), current=\((titleFocus ?? $dummyFocus).wrappedValue)")
+                        }
 
                     Spacer()
 
@@ -49,7 +58,6 @@ struct CommonNavigationBar<Leading: View, Trailing: View>: View {
             }
             .frame(height: 52)
 
-            // 하단 구분선
             Rectangle()
                 .fill(Color.black.opacity(0.2))
                 .frame(height: 0.5)
@@ -58,8 +66,8 @@ struct CommonNavigationBar<Leading: View, Trailing: View>: View {
 }
 
 extension CommonNavigationBar where Leading == EmptyView, Trailing == EmptyView {
-    init(title: String) {
-        self.init(title: title) {
+    init(title: String, titleFocus: AccessibilityFocusState<Bool>.Binding? = nil) {
+        self.init(title: title, titleFocus: titleFocus) {
             EmptyView()
         } trailing: {
             EmptyView()
@@ -68,8 +76,12 @@ extension CommonNavigationBar where Leading == EmptyView, Trailing == EmptyView 
 }
 
 extension CommonNavigationBar where Leading == EmptyView {
-    init(title: String, @ViewBuilder trailing: () -> Trailing) {
-        self.init(title: title) {
+    init(
+        title: String,
+        titleFocus: AccessibilityFocusState<Bool>.Binding? = nil,
+        @ViewBuilder trailing: () -> Trailing
+    ) {
+        self.init(title: title, titleFocus: titleFocus) {
             EmptyView()
         } trailing: {
             trailing()

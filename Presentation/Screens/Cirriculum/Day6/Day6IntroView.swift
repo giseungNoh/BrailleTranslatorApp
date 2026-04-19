@@ -38,7 +38,7 @@ struct Day6IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("6일차, 홑받침소리 글자 밀고 내리기 원리. 오늘의 목표: 첫소리의 점자 모양을 유지한 채, 점을 옆으로 밀 수 있으면 밀어서 만들고, 밀 수 없다면 아래로 내려서 홑받침을 만드는 조형 원리를 완벽히 이해합니다.")
+            .accessibilityLabel("6일차, 홑받침소리 글자 밀고 내리기 원리. 오늘의 목표: 첫소리의 점자 모양을 유지한 채, 점을 옆으로 밀 수 있으면 밀어서 만들고, 밀 수 없다면 아래로 내려서 홑받침을 만드는 조형 원리를 완벽히 이해합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

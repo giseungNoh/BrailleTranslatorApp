@@ -38,7 +38,7 @@ struct Day10IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("10일차, 2주차 총복습, 글자 완성 및 숫자 규칙. 오늘의 목표: 그동안 배운 자음, 모음, 받침을 합쳐 온전한 글자를 완성해 보고, 숫자와 한글이 만날 때의 핵심 띄어쓰기 규칙을 가볍게 복습합니다.")
+            .accessibilityLabel("10일차, 2주차 총복습, 글자 완성 및 숫자 규칙. 오늘의 목표: 그동안 배운 자음, 모음, 받침을 합쳐 온전한 글자를 완성해 보고, 숫자와 한글이 만날 때의 핵심 띄어쓰기 규칙을 가볍게 복습합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

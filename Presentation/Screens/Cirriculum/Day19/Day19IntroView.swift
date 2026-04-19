@@ -38,7 +38,7 @@ struct Day19IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("19일차, 연산 기호와 단독 자음 표기법. 오늘의 목표: 수학에 쓰이는 필수 연산 기호 다섯 가지, 더하기, 빼기, 곱하기, 나누기, 등호를 익히고, 자음이 홀로 쓰일 때의 예외 규칙인 온표를 배워 실전 문장을 완벽하게 해독합니다.")
+            .accessibilityLabel("19일차, 연산 기호와 단독 자음 표기법. 오늘의 목표: 수학에 쓰이는 필수 연산 기호 다섯 가지, 더하기, 빼기, 곱하기, 나누기, 등호를 익히고, 자음이 홀로 쓰일 때의 예외 규칙인 온표를 배워 실전 문장을 완벽하게 해독합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

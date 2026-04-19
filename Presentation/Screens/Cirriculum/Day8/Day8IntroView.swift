@@ -30,7 +30,7 @@ struct Day8IntroView: View {
                     .foregroundColor(.appTextSubColor)
                     .padding(.top, 12)
 
-                Text("숫자의 시작을 알리는 마법의 기호\n'수표(3-4-5-6점)'의 개념을 이해하고,\n1부터 0까지 한 자리 숫자의\n점형 규칙을 손끝으로 익힙니다.")
+                Text("숫자의 시작을 알리는 마법의 기호\n'수표(3·4·5·6점)'의 개념을 이해하고,\n0부터 9까지 한 자리 숫자의\n점형 규칙을 손끝으로 익힙니다.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.appTextSubColor)
@@ -38,7 +38,7 @@ struct Day8IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("8일차, 숫자 익히기 1, 수표와 1~0. 오늘의 목표: 숫자의 시작을 알리는 마법의 기호 수표(3-4-5-6점)의 개념을 이해하고, 1부터 0까지 한 자리 숫자의 점형 규칙을 손끝으로 익힙니다.")
+            .accessibilityLabel("8일차, 숫자 익히기 1, 수표와 0~9. 오늘의 목표: 숫자의 시작을 알리는 마법의 기호 수표(3·4·5·6점)의 개념을 이해하고, 0부터 9까지 한 자리 숫자의 점형 규칙을 손끝으로 익힙니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

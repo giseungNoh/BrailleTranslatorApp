@@ -11,10 +11,11 @@ struct SettingView: View {
     @StateObject private var settings = BrailleSettings()
     @Environment(\.dismiss) private var dismiss
     @State private var showResetConfirm = false
+    @AccessibilityFocusState private var isTitleFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
-            CommonNavigationBar(title: "설정")
+            CommonNavigationBar(title: "설정", titleFocus: $isTitleFocused)
 
             ScrollView {
                 VStack(spacing: 20) {
@@ -138,7 +139,7 @@ struct SettingView: View {
                             .padding(.horizontal, 16)
                             .frame(height: 52)
                         }
-                        .accessibilityLabel("설정 초기화")
+                        .accessibilityLabel("설정 초기화".toAccessibilityPronunciation())
                         .accessibilityHint("모든 설정을 기본값으로 되돌립니다")
                         .alert("설정 초기화", isPresented: $showResetConfirm) {
                             Button("취소", role: .cancel) { }
@@ -163,7 +164,7 @@ struct SettingView: View {
                         .padding(.horizontal, 16)
                         .frame(height: 52)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("버전 정보, 1.0.0")
+                        .accessibilityLabel("버전 정보, 1.0.0".toAccessibilityPronunciation())
                     }
                 }
                 .padding(.horizontal, 16)
@@ -173,6 +174,20 @@ struct SettingView: View {
         }
         .meshBackground()
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isTitleFocused = true
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("TabSwitched"))) { notification in
+            if let tab = notification.object as? Int, tab == 3 {
+                isTitleFocused = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    UIAccessibility.post(notification: .screenChanged, argument: nil)
+                    isTitleFocused = true
+                }
+            }
+        }
     }
 
     private var fontSizeLabel: String {

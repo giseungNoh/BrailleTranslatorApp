@@ -12,7 +12,7 @@ extension Color {
     static let appMainColor = Color(.systemBackground)
 
     /// 서브/보조 컬러
-    static let appSubColor = Color(hex: "4F46E5")//Color(.appSecondary)
+    static let appSubColor = Color(hex: "D4AF37") //Color(hex: "FBC02D")//Color(hex: "4F46E5")//Color(.appSecondary)
 
     /// 기본 배경 컬러
     static let appBackgroundColor = Color("AppBackground")

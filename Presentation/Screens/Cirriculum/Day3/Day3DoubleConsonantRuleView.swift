@@ -25,7 +25,7 @@ struct Day3DoubleConsonantRuleView: View {
                 }
                 .padding(.top, isCompact ? 10 : 16)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("된소리 마법 깨치기")
+                .accessibilityLabel("된소리 마법 깨치기".toAccessibilityPronunciation())
                 .accessibilityHint("점자에서 된소리는 자음 앞에 된소리표 6점을 붙여 만듭니다.")
                 .accessibilityFocused($isHeaderFocused)
 
@@ -131,7 +131,7 @@ struct Day3DoubleConsonantRuleView: View {
         }
         .padding(.horizontal, 20)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("핵심 규칙: 점자에서 된소리, 쌍자음은 자음 앞에 된소리표 6점을 붙여 만듭니다. 예를 들어 묵자 쌍기역은 점자에서 된소리표와 기역으로 표기됩니다. 안내: 된소리표는 6점 하나로 이루어져 있습니다.")
+        .accessibilityLabel("핵심 규칙: 점자에서 된소리, 쌍자음은 자음 앞에 된소리표 6점을 붙여 만듭니다. 예를 들어 묵자 쌍기역은 점자에서 된소리표와 기역으로 표기됩니다. 안내: 된소리표는 6점 하나로 이루어져 있습니다.".toAccessibilityPronunciation())
     }
 
 }

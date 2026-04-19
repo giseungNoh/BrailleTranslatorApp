@@ -38,7 +38,7 @@ struct Day15IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("15일차, 마법의 접속사 약어 7개. 오늘의 목표: 모두 1점으로 시작하는 7개의 약어 그래서, 그러나 등을 익히고, 약어 앞뒤에 다른 글자가 붙을 때의 규칙을 완벽하게 마스터합니다.")
+            .accessibilityLabel("15일차, 마법의 접속사 약어 7개. 오늘의 목표: 모두 1점으로 시작하는 7개의 약어 그래서, 그러나 등을 익히고, 약어 앞뒤에 다른 글자가 붙을 때의 규칙을 완벽하게 마스터합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

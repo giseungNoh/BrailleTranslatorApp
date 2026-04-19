@@ -38,7 +38,7 @@ struct Day1IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("1일차, 점자의 기초와 촉각 훈련. 오늘의 목표, 점자의 6점 구조를 이해하고, 가로 선을 따라가며 빈칸을 구별하는 연습을 합니다.")
+            .accessibilityLabel("1일차, 점자의 기초와 촉각 훈련. 오늘의 목표, 점자의 6점 구조를 이해하고, 가로 선을 따라가며 빈칸을 구별하는 연습을 합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

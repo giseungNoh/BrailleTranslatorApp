@@ -75,7 +75,7 @@ struct WrongAnswerDetailView: View {
                         .font(.title3)
                         .foregroundColor(.appTextColor)
                 }
-                .accessibilityLabel("뒤로 가기")
+                .accessibilityLabel("뒤로 가기".toAccessibilityPronunciation())
                 .accessibilityHint("오답 노트 목록으로 돌아갑니다")
             } trailing: {
                 if attempt != nil {
@@ -86,7 +86,8 @@ struct WrongAnswerDetailView: View {
                             .font(.title3)
                             .foregroundColor(.gray)
                     }
-                    .accessibilityLabel("오답 기록 삭제")
+                    .accessibilityLabel("오답 기록 삭제".toAccessibilityPronunciation())
+                    .accessibilityHint("두번 탭하면 이 오답 기록이 삭제됩니다")
                 }
             }
 
@@ -114,8 +115,8 @@ struct WrongAnswerDetailView: View {
                         .padding(.top, 16)
                         .padding(.bottom, 16)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(category?.title ?? ""), 정답: \(attempt.correctLetter)")
-                        .accessibilityFocused($isHeaderFocused)
+                        .accessibilityLabel("\(category?.title ?? "".toAccessibilityPronunciation()), 정답: \(attempt.correctLetter)".toAccessibilityPronunciation())
+
 
                         // MARK: 문제
                         VStack(alignment: .leading, spacing: 8) {
@@ -127,6 +128,8 @@ struct WrongAnswerDetailView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.appTextColor)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityFocused($isHeaderFocused)
                         .padding(.horizontal, 20)
                         .padding(.bottom, 16)
 
@@ -196,7 +199,7 @@ struct WrongAnswerDetailView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 12)
-                        .accessibilityLabel("점자 비교하며 만져보기")
+                        .accessibilityLabel("점자 비교하며 만져보기".toAccessibilityPronunciation())
                         .accessibilityHint("정답과 내 답의 점자를 직접 만져볼 수 있습니다")
 
                         // MARK: 이전으로 버튼 (추가됨)
@@ -215,7 +218,7 @@ struct WrongAnswerDetailView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 40)
-                        .accessibilityLabel("이전으로")
+                        .accessibilityLabel("이전으로".toAccessibilityPronunciation())
                         .accessibilityHint("오답 노트 목록 화면으로 돌아갑니다")
                     }
                 }
@@ -264,7 +267,7 @@ struct WrongAnswerDetailView: View {
                 .strokeBorder(color.opacity(0.15), lineWidth: 1)
         )
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(label): \(letter)\(dotLabel.map { ", \($0)" } ?? "")")
+        .accessibilityLabel("\(label): \(letter)\(dotLabel.map { ", \($0)" } ?? "".toAccessibilityPronunciation())".toAccessibilityPronunciation())
     }
 
     // MARK: - 삭제
@@ -341,9 +344,13 @@ private struct WrongAnswerTouchView: View {
                     Image(systemName: "chevron.left")
                         .font(.title3)
                         .foregroundColor(.appTextColor)
-                }
-                .accessibilityLabel("뒤로 가기")
+                } 
+                .accessibilityLabel("뒤로 가기".toAccessibilityPronunciation())
                 .accessibilityHint("오답 복습으로 돌아갑니다")
+            }  trailing: {
+                // Trailing: 비어있어도 Spacer를 주거나 아주 작은 공간을 줍니다.
+                // 이렇게 하면 왼쪽 버튼이 왼쪽 끝으로 밀착됩니다.
+                Spacer().frame(width: 24)
             }
 
             // 현재 표시 중인 글자 정보
@@ -360,7 +367,7 @@ private struct WrongAnswerTouchView: View {
             .padding(.vertical, 8)
             .accessibilityFocused($isLabelFocused)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(showingCorrect ? "정답" : "내 답"): \(currentLetter), \(currentDotLabel)")
+            .accessibilityLabel("\(showingCorrect ? "정답" : "내 답".toAccessibilityPronunciation()): \(currentLetter), \(currentDotLabel)".toAccessibilityPronunciation())
 
             // 점자 캔버스
             let isJongseong = Self.jongseongCategories.contains(attempt.categoryId)
@@ -434,7 +441,7 @@ private struct WrongAnswerTouchView: View {
                         .background(Color.appSubColor)
                         .cornerRadius(16)
                 }
-                .accessibilityLabel("돌아가기")
+                .accessibilityLabel("돌아가기".toAccessibilityPronunciation())
                 .accessibilityHint("오답 복습 화면으로 돌아갑니다")
             }
             .padding(.horizontal, 20)

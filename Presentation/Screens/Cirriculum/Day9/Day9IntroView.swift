@@ -38,7 +38,7 @@ struct Day9IntroView: View {
             }
             .padding(.horizontal, 20)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("9일차, 숫자 익히기 2, 두 자리 이상과 수표의 효력. 오늘의 목표: 두 자리 이상의 숫자를 적는 원리를 배우고, 수표의 효력이 언제 유지되고 언제 끝나는지 점자만의 세밀한 규칙을 완벽하게 이해합니다.")
+            .accessibilityLabel("9일차, 숫자 익히기 2, 두 자리 이상과 수표의 효력. 오늘의 목표: 두 자리 이상의 숫자를 적는 원리를 배우고, 수표의 효력이 언제 유지되고 언제 끝나는지 점자만의 세밀한 규칙을 완벽하게 이해합니다.".toAccessibilityPronunciation())
             .accessibilityFocused($focusedElement, equals: .intro)
 
             Spacer(minLength: 40)

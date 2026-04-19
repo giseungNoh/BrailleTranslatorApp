@@ -34,6 +34,13 @@ struct ExplanationChalkboardCard: View {
                 }
                 .padding(.vertical, isCompact ? 12 : 16)
                 .padding(.horizontal, 16)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(
+                    sections[index]
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .replacingOccurrences(of: "\n", with: " ")
+                        .toAccessibilityPronunciation()
+                )
             }
         }
         .background(
@@ -44,8 +51,6 @@ struct ExplanationChalkboardCard: View {
             RoundedRectangle(cornerRadius: 18)
                 .stroke(Color.white.opacity(0.6), lineWidth: 1.5)
         )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(description)
     }
 
     /// 작은따옴표(')로 감싸진 텍스트를 강조(노란색)하여 반환
@@ -56,7 +61,7 @@ struct ExplanationChalkboardCard: View {
         for (index, part) in parts.enumerated() {
             if index % 2 == 1 {
                 // 강조 텍스트 (작은따옴표 포함)
-                result = result + Text("'\(part)'").foregroundColor(.appSubColor)
+                result = result + Text("'\(part)'").foregroundColor(Color(hex: "FFF59D"))
             } else {
                 // 일반 텍스트
                 result = result + Text(part).foregroundColor(.white)
