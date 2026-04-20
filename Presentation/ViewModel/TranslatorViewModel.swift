@@ -107,7 +107,10 @@ class TranslatorViewModel: NSObject, ObservableObject {
                 self.audioEngine.stop()
                 inputNode.removeTap(onBus: 0)
                 self.cleanupRecognitionTask()
-                
+
+                // 오디오 세션 해제 (다른 앱 오디오 복원)
+                try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+
                 Task { @MainActor in
                      self.isRecording = false
                      self.silenceTimer?.invalidate()

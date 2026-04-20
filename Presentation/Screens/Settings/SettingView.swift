@@ -61,17 +61,28 @@ struct SettingView: View {
                                 title: "비활성화된 점 진동 세기",
                                 value: "\(Int(settings.inactiveDotIntensity * 100))%",
                                 onDecrement: {
-                                    if settings.inactiveDotIntensity > 0.15 {
-                                        settings.inactiveDotIntensity = max(0.1, settings.inactiveDotIntensity - 0.1)
+                                    // 현재 값이 0.99(99%)라면 바로 0.9(90%)로 내려오게 처리
+                                    if settings.inactiveDotIntensity > 0.98 {
+                                        settings.inactiveDotIntensity = 0.9
+                                    } else if settings.inactiveDotIntensity > 0.15 {
+                                        // 일반적인 10% 감소 (반올림으로 오차 방지)
+                                        let nextValue = (settings.inactiveDotIntensity * 10).rounded() / 10 - 0.1
+                                        settings.inactiveDotIntensity = max(0.1, nextValue)
                                     }
                                 },
                                 onIncrement: {
-                                    if settings.inactiveDotIntensity < 0.95 {
-                                        settings.inactiveDotIntensity = min(1.0, settings.inactiveDotIntensity + 0.1)
+                                    // 0.8(80%)에서 증가시킬 때 0.9(90%)가 되도록 처리
+                                    // 0.9(90%)에서 증가시킬 때 0.99(99%)가 되도록 처리
+                                    if settings.inactiveDotIntensity < 0.85 {
+                                        let nextValue = (settings.inactiveDotIntensity * 10).rounded() / 10 + 0.1
+                                        settings.inactiveDotIntensity = min(0.9, nextValue)
+                                    } else if settings.inactiveDotIntensity < 0.95 {
+                                        // 90% 근처일 때 누르면 정확히 0.99로 설정
+                                        settings.inactiveDotIntensity = 0.90
                                     }
                                 },
                                 isDecrementDisabled: settings.inactiveDotIntensity <= 0.15,
-                                isIncrementDisabled: settings.inactiveDotIntensity >= 0.95
+                                isIncrementDisabled: settings.inactiveDotIntensity >= 0.90 // 99%에서 버튼 비활성화
                             )
                         }
                     }
@@ -333,7 +344,7 @@ struct SettingAdjustmentRow: View {
                         .foregroundColor(isIncrementDisabled ? Color(.systemGray4) : .appSubColor)
                 }
                 .disabled(isIncrementDisabled)
-                .accessibilityLabel(isDecrementDisabled ? "최댓값입니다 현재 \(value)" : "\(title) 늘리기 현재 \(value)")
+                .accessibilityLabel(isIncrementDisabled ? "최댓값입니다 현재 \(value)" : "\(title) 늘리기 현재 \(value)")
             }
         }
         .padding(.horizontal, 16)

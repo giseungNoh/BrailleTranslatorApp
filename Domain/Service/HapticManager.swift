@@ -20,19 +20,19 @@ final class HapticManager {
         }
         
         // 백그라운드 등 이유로 엔진이 멈췄을 때 재시작 로직
-        engine?.stoppedHandler = { reason in
+        engine?.stoppedHandler = { [weak self] reason in
             print("Haptic Engine Stopped: \(reason)")
             do {
-                try self.engine?.start()
+                try self?.engine?.start()
             } catch {
                 print("Failed to restart Haptic Engine: \(error)")
             }
         }
-        
-        engine?.resetHandler = {
+
+        engine?.resetHandler = { [weak self] in
             print("Haptic Engine Reset")
             do {
-                try self.engine?.start()
+                try self?.engine?.start()
             } catch {
                 print("Failed to restart Haptic Engine: \(error)")
             }

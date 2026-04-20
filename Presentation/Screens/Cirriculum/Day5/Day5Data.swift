@@ -19,11 +19,11 @@ let day5ExplanationDescription = "점자에서 'ㅐ, ㅔ, ㅖ, ㅘ, ㅚ, ㅝ, �
 
 /// 실습1: 한 칸 이중 모음
 let day5SingleCellPracticeItems: [BrailleLetterItem] = [
-    BrailleLetterItem(name: "ㅐ", letter: "ㅐ", dotLabel: "1·2·3·5점", cellsPerLine: 1),
-    BrailleLetterItem(name: "ㅔ", letter: "ㅔ", dotLabel: "1·3·4·5점", cellsPerLine: 1),
-    BrailleLetterItem(name: "ㅖ", letter: "ㅖ", dotLabel: "3·4점", cellsPerLine: 1),
+    BrailleLetterItem(name: "ㅐ", letter: "ㅐ", dotLabel: "1·2·3·5점", cellsPerLine: 1, voiceOverName: "애, 애인할때의 애 입니다."),
+    BrailleLetterItem(name: "ㅔ", letter: "ㅔ", dotLabel: "1·3·4·5점", cellsPerLine: 1, voiceOverName: "에, 에너지할때 에 입니다."),
+    BrailleLetterItem(name: "ㅖ", letter: "ㅖ", dotLabel: "3·4점", cellsPerLine: 1, voiceOverName: "예, 예의할때 예 입니다."),
     BrailleLetterItem(name: "ㅘ", letter: "ㅘ", dotLabel: "1·2·3·6점", cellsPerLine: 1),
-    BrailleLetterItem(name: "ㅚ", letter: "ㅚ", dotLabel: "1·3·4·5·6점", cellsPerLine: 1),
+    BrailleLetterItem(name: "ㅚ", letter: "ㅚ", dotLabel: "1·3·4·5·6점", cellsPerLine: 1, voiceOverName: "외, 외투할때 외 입니다."),
     BrailleLetterItem(name: "ㅝ", letter: "ㅝ", dotLabel: "1·2·3·4점", cellsPerLine: 1),
     BrailleLetterItem(name: "ㅢ", letter: "ㅢ", dotLabel: "2·4·5·6점", cellsPerLine: 1),
 ]

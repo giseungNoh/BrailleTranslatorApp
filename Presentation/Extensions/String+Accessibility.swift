@@ -32,7 +32,11 @@ extension String {
         result = result.replacingOccurrences(of: "ㅀ", with: "리을 히읗")
         result = result.replacingOccurrences(of: "ㅄ", with: "비읍 시옷")
 
-        // 4) 중복 낭독 방지: "이응(o)" 또는 "기역(ㄱ)" 형태에서 괄호 부분 제거
+        // 4) 단독 모음 발음 오류 보정 (VoiceOver가 단독 자모 모음을 잘못 읽는 문제)
+        result = result.replacingOccurrences(of: "ㅑ", with: "야")
+        result = result.replacingOccurrences(of: "ㅓ", with: "어")
+
+        // 5) 중복 낭독 방지: "이응(o)" 또는 "기역(ㄱ)" 형태에서 괄호 부분 제거
         // 한글 단어 이름 뒤에 시각적 확인용으로 붙은 한 글자(영문, 자모 등) 괄호는 보이스오버에서 중복으로 읽으므로 삭제합니다.
         let pattern = "([가-힣]+)\\s*\\(([a-zA-Zㄱ-ㅎㅏ-ㅣ])\\)"
         if let regex = try? NSRegularExpression(pattern: pattern) {

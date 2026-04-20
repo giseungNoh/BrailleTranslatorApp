@@ -16,7 +16,6 @@ struct BrailleApp: App {
             container = try ModelContainer(for: schema, configurations: [modelConfiguration])
 
             checkAndSeedData()
-            purgeLegacyBookmarksIfNeeded()
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
@@ -30,28 +29,10 @@ struct BrailleApp: App {
         .modelContainer(container)
     }
 
-    // 현재 커리큘럼 버전 (내용 변경 시 올리면 자동 업데이트)
-    private static let curriculumVersion = 4
+    private static let curriculumVersion = 5
 
-    private static let legacyBookmarkPurgeKey = "legacyBookmarkPurgeDone"
 
-    /// 과거 "북마크" 마법 문자열로 QuizAttempt에 섞여 저장됐던 레코드 1회성 삭제
-    @MainActor
-    private func purgeLegacyBookmarksIfNeeded() {
-        guard !UserDefaults.standard.bool(forKey: Self.legacyBookmarkPurgeKey) else { return }
 
-        let context = container.mainContext
-        let descriptor = FetchDescriptor<QuizAttempt>(
-            predicate: #Predicate { $0.userSelectedLetter == "북마크" }
-        )
-        if let legacy = try? context.fetch(descriptor) {
-            for item in legacy {
-                context.delete(item)
-            }
-            try? context.save()
-        }
-        UserDefaults.standard.set(true, forKey: Self.legacyBookmarkPurgeKey)
-    }
 
     @MainActor
     private func checkAndSeedData() {

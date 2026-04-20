@@ -56,7 +56,7 @@ struct CurriculumPracticeView: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
             .curriculumStepHeader(
-                title: current.name,
+                title: current.voiceOverName ?? current.name,
                 subtitle: current.dotLabel,
                 hint: CurriculumA11yStrings.swipeNavigationHint,
                 extraLabel: "\(items.count)개 중 \(currentIndex + 1)번째",
@@ -185,7 +185,8 @@ struct CurriculumPracticeView: View {
     private func moveTo(_ index: Int) {
         withAnimation(.easeInOut(duration: 0.2)) { currentIndex = index }
         let item = items[index]
-        let message = "\(items.count)개 중 \(index + 1)번째, \(item.name), \(item.dotLabel)".toAccessibilityPronunciation()
+        let spokenName = item.voiceOverName ?? item.name
+        let message = "\(items.count)개 중 \(index + 1)번째, \(spokenName), \(item.dotLabel)".toAccessibilityPronunciation()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             UIAccessibility.post(notification: .announcement, argument: message)
         }
