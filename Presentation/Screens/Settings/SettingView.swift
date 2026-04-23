@@ -189,7 +189,7 @@ struct SettingView: View {
                                 .font(.subheadline.bold())
                                 .foregroundColor(.appTextColor)
                             Spacer()
-                            Text("1.0.0 (v24)")
+                            Text("v 1.0.0")
                                 .font(.subheadline)
                                 .foregroundColor(.appTextSubColor)
                         }

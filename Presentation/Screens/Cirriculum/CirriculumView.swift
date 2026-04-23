@@ -225,9 +225,6 @@ struct CirriculumView: View {
                     }
                     .onChange(of: searchText) { _, newValue in
                         if !newValue.isEmpty, let first = filteredItems.first {
-                            withAnimation {
-                                proxy.scrollTo(first.day, anchor: .top)
-                            }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 focusedDay = first.day
                             }
