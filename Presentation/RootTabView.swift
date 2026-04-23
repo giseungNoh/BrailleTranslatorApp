@@ -40,7 +40,7 @@ struct RootTabView: View {
 
             TranslatorView(selectedTab: selectedTab)
                 .tag(1)
-                .tabItem { Label("점자번역", systemImage: "pencil") }
+                .tabItem { Label("점자변환", systemImage: "pencil") }
 
             QuizView(selectedTab: selectedTab)
                 .tag(2)
