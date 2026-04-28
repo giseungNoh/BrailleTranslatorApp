@@ -17,7 +17,12 @@
       "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'generic/platform=iOS Simulator' -quiet build)",
       "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'generic/platform=iOS Simulator' build)",
       "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' build)",
-      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17' build)"
+      "Bash(xcodebuild -project BrailleTranslatorApp.xcodeproj -scheme BrailleTranslatorApp -destination 'platform=iOS Simulator,name=iPhone 17' build)",
+      "Bash(cp /Users/juks86/.claude/image-cache/b375cd3b-e81d-442c-84d4-8d574660cfea/1.png \"/Users/juks86/Desktop/untitled folder/practice/BrailleTranslatorApp/docs/screenshots/app-icon.png\")",
+      "Bash(cp /Users/juks86/.claude/image-cache/b375cd3b-e81d-442c-84d4-8d574660cfea/2.png \"/Users/juks86/Desktop/untitled folder/practice/BrailleTranslatorApp/docs/screenshots/curriculum.png\")",
+      "Bash(cp /Users/juks86/.claude/image-cache/b375cd3b-e81d-442c-84d4-8d574660cfea/3.png \"/Users/juks86/Desktop/untitled folder/practice/BrailleTranslatorApp/docs/screenshots/translator.png\")",
+      "Bash(cp /Users/juks86/.claude/image-cache/b375cd3b-e81d-442c-84d4-8d574660cfea/4.png \"/Users/juks86/Desktop/untitled folder/practice/BrailleTranslatorApp/docs/screenshots/quiz.png\")",
+      "Bash(cp /Users/juks86/.claude/image-cache/b375cd3b-e81d-442c-84d4-8d574660cfea/5.png \"/Users/juks86/Desktop/untitled folder/practice/BrailleTranslatorApp/docs/screenshots/settings.png\")"
     ]
   }
 }
