@@ -7,7 +7,7 @@
 </div>
 
 시각장애인 사용자를 1순위 사용자로 가정하고 설계된 한글 점자 학습/번역 앱입니다.
-CoreHaptics 기반 햅틱 피드백, VoiceOver 완전 지원, 2024 개정 한국 점자 규정에 따른 번역 로직을 갖추고 있습니다.
+CoreHaptics 기반 햅틱 피드백, VoiceOver 지원, 2024 개정 한국 점자 규정에 따른 번역 로직을 갖추고 있습니다.
 
 ---
 
@@ -49,7 +49,7 @@ CoreHaptics 기반 햅틱 피드백, VoiceOver 완전 지원, 2024 개정 한국
 - **UI**: SwiftUI (메인) + UIKit (`BrailleTouchView` 6점 셀)
 - **데이터**: SwiftData (`@Model`) + `@AppStorage` (UserDefaults)
 - **햅틱**: CoreHaptics (`HapticManager` 싱글톤)
-- **음성**: Speech (`SFSpeechRecognizer`) + AVFoundation
+- **음성**: Speech (`SFSpeechRecognizer`)
 - **아키텍처**: MVVM (선택적 적용 — 로직이 있는 화면에만 ViewModel)
 
 ---
@@ -347,4 +347,5 @@ open BrailleTranslatorApp.xcodeproj
 
 ## 라이선스 / 크레딧
 - 점자 규정: **2024 개정 한국 점자 규정** (국립국어원)
+- 교육 자료: 한글점자 기초교육 지도안 (www.sesang-file.com)
 - 개발: 노기승
