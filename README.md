@@ -194,15 +194,7 @@ Schema([
 | `lastStepLabel` | `String?` | 마지막 학습 step 표시 텍스트 |
 
 > 시딩: `BrailleTranslatorAppApp.curriculumData` → 첫 실행 또는 `curriculumVersion` 상승 시 자동 업데이트.
-
-#### `SavedWord` — 번역기 저장 단어
-| 필드 | 타입 | 설명 |
-|---|---|---|
-| `id` | `UUID` | 고유 식별자 |
-| `text` | `String` | 사용자 입력 한글 |
-| `braille` | `String` | 변환된 점자 문자열 |
-| `timestamp` | `Date` | 저장 시각 (최신순 정렬) |
-
+> 
 #### `QuizAttempt` — 퀴즈 시도/오답
 | 필드 | 타입 | 설명 |
 |---|---|---|
