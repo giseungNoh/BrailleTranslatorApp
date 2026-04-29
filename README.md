@@ -172,12 +172,11 @@ BrailleTranslatorApp/
 ### 영속 모델 (SwiftData `@Model`)
 
 앱 시작 시 `BrailleTranslatorAppApp.init`에서 `ModelContainer`를 만들고
-스키마에 등록되는 영속 엔터티는 다음 3개입니다.
+스키마에 등록되는 영속 엔터티는 다음 2개입니다.
 
 ```swift
 Schema([
     LearningItem.self,
-    SavedWord.self,
     QuizAttempt.self
 ])
 ```
@@ -307,7 +306,7 @@ DayN/
 ## 접근성 원칙
 
 1. **모든 인터랙티브 요소에 `accessibilityLabel` 필수**
-2. **VoiceOver ON 시 두 손가락 스와이프**, OFF 시 한 손가락 스와이프
+2. **VoiceOver ON 시 두 손가락 스와이프**, 
 3. **Dynamic Type 지원** + 자체 `appFontSize` 4단계
 4. **점자 셀은 직접 터치 제스처** 우선 (`.allowsDirectInteraction`)
 5. **점 번호 음성 안내** 토글 가능
