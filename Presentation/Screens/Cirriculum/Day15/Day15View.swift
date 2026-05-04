@@ -48,7 +48,7 @@ struct Day15View: View {
                     subtitle: day15AbbrIntroSubtitle,
                     description: day15AbbrIntroDescription,
                     items: day15AbbrIntroItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "7개 약어 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceAbbrIntro) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day15View: View {
                     subtitle: day15AbbrTailSubtitle,
                     description: day15AbbrTailDescription,
                     items: day15AbbrTailItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "약어 뒤 결합 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceAbbrTail) },
                     onBack: { goTo(.practiceAbbrIntro) }
@@ -90,7 +90,7 @@ struct Day15View: View {
                     subtitle: day15AbbrTrapSubtitle,
                     description: day15AbbrTrapDescription,
                     items: day15AbbrTrapItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "그리고와 수그리고 구별 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceAbbrTrap) },
                     onBack: { goTo(.practiceAbbrTail) }

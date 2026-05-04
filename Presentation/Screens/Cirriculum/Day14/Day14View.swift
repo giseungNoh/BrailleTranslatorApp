@@ -48,7 +48,7 @@ struct Day14View: View {
                     subtitle: day14AbbrOhSubtitle,
                     description: day14AbbrOhDescription,
                     items: day14AbbrOhItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "옥, 온, 옹 약자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceAbbrOh) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day14View: View {
                     subtitle: day14AbbrUEuInSubtitle,
                     description: day14AbbrUEuInDescription,
                     items: day14AbbrUEuInItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "운, 울, 은, 을, 인 약자와 띄어쓰기 구별 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceAbbrUEuIn) },
                     onBack: { goTo(.practiceAbbrOh) }
@@ -90,7 +90,7 @@ struct Day14View: View {
                     subtitle: day14SpecialAbbrSubtitle,
                     description: day14SpecialAbbrDescription,
                     items: day14SpecialAbbrItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "것과 받침 쌍시옷 약자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceSpecialAbbr) },
                     onBack: { goTo(.practiceAbbrUEuIn) }

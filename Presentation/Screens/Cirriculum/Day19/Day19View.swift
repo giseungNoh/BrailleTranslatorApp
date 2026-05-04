@@ -48,7 +48,7 @@ struct Day19View: View {
                     subtitle: day19OperatorsSubtitle,
                     description: day19OperatorsDescription,
                     items: day19OperatorsItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "5가지 연산 기호 촉각 훈련 화면으로 이동합니다",
                     onNext: { goTo(.practiceOperators) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day19View: View {
                     subtitle: day19SpacingSubtitle,
                     description: day19SpacingDescription,
                     items: day19SpacingItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "붙임 vs 띄움 공간감 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceSpacing) },
                     onBack: { goTo(.practiceOperators) }

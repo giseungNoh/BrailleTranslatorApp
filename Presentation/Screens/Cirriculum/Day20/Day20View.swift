@@ -48,7 +48,7 @@ struct Day20View: View {
                     subtitle: day20ArrowSubtitle,
                     description: day20ArrowDescription,
                     items: day20ArrowItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "엘리베이터 화살표 촉각 훈련 화면으로 이동합니다",
                     onNext: { goTo(.practiceArrow) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day20View: View {
                     subtitle: day20CanSubtitle,
                     description: day20CanDescription,
                     items: day20CanItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "캔 음료 점자 구별 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceCan) },
                     onBack: { goTo(.practiceArrow) }
@@ -90,7 +90,7 @@ struct Day20View: View {
                     subtitle: day20TrapSubtitle,
                     description: day20TrapDescription,
                     items: day20TrapItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "받침 ㅌ과 물음표 구별 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceTrap) },
                     onBack: { goTo(.practiceCan) }

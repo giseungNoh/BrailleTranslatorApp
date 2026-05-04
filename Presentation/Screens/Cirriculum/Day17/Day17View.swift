@@ -52,7 +52,7 @@ struct Day17View: View {
                     subtitle: day17KTSubtitle,
                     description: day17KTDescription,
                     items: day17KTItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "k부터 t까지 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceKT) },
                     onBack: { goTo(.intro) }
@@ -73,7 +73,7 @@ struct Day17View: View {
                     subtitle: day17UZSubtitle,
                     description: day17UZDescription,
                     items: day17UZItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "u부터 z까지 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceUZ) },
                     onBack: { goTo(.practiceKT) }
@@ -94,7 +94,7 @@ struct Day17View: View {
                     subtitle: day17CapitalSubtitle,
                     description: day17CapitalDescription,
                     items: day17CapitalItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "소문자와 대문자 비교 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceCapital) },
                     onBack: { goTo(.practiceUZ) }
@@ -115,7 +115,7 @@ struct Day17View: View {
                     subtitle: day17PhraseSubtitle,
                     description: day17PhraseDescription,
                     items: day17PhraseItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "대문자 구절표와 종료표 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practicePhrase) },
                     onBack: { goTo(.practiceCapital) }

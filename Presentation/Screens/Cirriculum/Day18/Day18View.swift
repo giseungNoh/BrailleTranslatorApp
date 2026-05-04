@@ -44,7 +44,7 @@ struct Day18View: View {
                     subtitle: day18BasicPuncSubtitle,
                     description: day18BasicPuncDescription,
                     items: day18BasicPuncItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "기본 문장 부호 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceBasic) },
                     onBack: { goTo(.intro) }
@@ -65,7 +65,7 @@ struct Day18View: View {
                     subtitle: day18PairPuncSubtitle,
                     description: day18PairPuncDescription,
                     items: day18PairPuncItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "묶음 부호 대칭 구조 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practicePair) },
                     onBack: { goTo(.practiceBasic) }

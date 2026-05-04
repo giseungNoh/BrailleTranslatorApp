@@ -44,7 +44,7 @@ struct Day11View: View {
                     subtitle: day11UniqueAbbrSubtitle,
                     description: day11UniqueAbbrDescription,
                     items: day11UniqueAbbrItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "고유 약자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceUniqueAbbr) },
                     onBack: { goTo(.intro) }
@@ -64,7 +64,7 @@ struct Day11View: View {
                     subtitle: day11AomitSubtitle,
                     description: day11AomitDescription,
                     items: day11AomitItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "ㅏ 생략 약자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceAomit) },
                     onBack: { goTo(.practiceUniqueAbbr) }

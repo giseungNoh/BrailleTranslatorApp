@@ -48,7 +48,7 @@ struct Day13View: View {
                     subtitle: day13EoSeriesSubtitle,
                     description: day13EoSeriesDescription,
                     items: day13EoSeriesItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "억, 언, 얼 약자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceEoSeries) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day13View: View {
                     subtitle: day13YeoSeriesSubtitle,
                     description: day13YeoSeriesDescription,
                     items: day13YeoSeriesItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "연, 열, 영 약자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceYeoSeries) },
                     onBack: { goTo(.practiceEoSeries) }
@@ -90,7 +90,7 @@ struct Day13View: View {
                     subtitle: day13YeongMagicSubtitle,
                     description: day13YeongMagicDescription,
                     items: day13YeongMagicItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "성과 병 비교 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceYeongMagic) },
                     onBack: { goTo(.practiceYeoSeries) }

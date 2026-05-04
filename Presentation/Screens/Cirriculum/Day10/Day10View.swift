@@ -48,7 +48,7 @@ struct Day10View: View {
                     subtitle: day10NoJongSubtitle,
                     description: day10NoJongDescription,
                     items: day10NoJongItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "받침 없는 글자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceNoJong) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day10View: View {
                     subtitle: day10WithJongSubtitle,
                     description: day10WithJongDescription,
                     items: day10WithJongItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "받침 있는 글자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceWithJong) },
                     onBack: { goTo(.practiceNoJong) }
@@ -90,7 +90,7 @@ struct Day10View: View {
                     subtitle: day10NumberSubtitle,
                     description: day10NumberDescription,
                     items: day10NumberItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "숫자와 한글 띄어쓰기 비교 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceNumber) },
                     onBack: { goTo(.practiceWithJong) }

@@ -48,7 +48,7 @@ struct Day16View: View {
                     subtitle: day16AlphaAESubtitle,
                     description: day16AlphaAEDescription,
                     items: day16AlphaAEItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "a부터 e까지 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceAE) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day16View: View {
                     subtitle: day16AlphaFJSubtitle,
                     description: day16AlphaFJDescription,
                     items: day16AlphaFJItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "f부터 j까지 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceFJ) },
                     onBack: { goTo(.practiceAE) }
@@ -90,7 +90,7 @@ struct Day16View: View {
                     subtitle: day16RomanIndicatorSubtitle,
                     description: day16RomanIndicatorDescription,
                     items: day16RomanIndicatorItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "로마자표와 수표를 비교하며 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceIndicator) },
                     onBack: { goTo(.practiceFJ) }

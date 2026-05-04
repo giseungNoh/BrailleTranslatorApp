@@ -44,7 +44,7 @@ struct Day9View: View {
                     subtitle: day9MultiDigitSubtitle,
                     description: day9MultiDigitDescription,
                     items: day9MultiDigitItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "두 자리 이상 숫자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceMultiDigit) },
                     onBack: { goTo(.intro) }
@@ -64,7 +64,7 @@ struct Day9View: View {
                     subtitle: day9EffectEndSubtitle,
                     description: day9EffectEndDescription,
                     items: day9EffectEndItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "숫자와 한글 띄어쓰기 비교 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceEffectEnd) },
                     onBack: { goTo(.practiceMultiDigit) }

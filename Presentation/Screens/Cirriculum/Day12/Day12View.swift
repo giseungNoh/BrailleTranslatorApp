@@ -44,7 +44,7 @@ struct Day12View: View {
                     subtitle: day12RaChaSubtitle,
                     description: day12RaChaDescription,
                     items: day12RaChaItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "라와 차 정자 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceRaCha) },
                     onBack: { goTo(.intro) }
@@ -65,7 +65,7 @@ struct Day12View: View {
                     subtitle: day12VowelExceptionSubtitle,
                     description: day12VowelExceptionDescription,
                     items: day12VowelExceptionItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "니와 나이 비교 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceVowelException) },
                     onBack: { goTo(.practiceRaCha) }

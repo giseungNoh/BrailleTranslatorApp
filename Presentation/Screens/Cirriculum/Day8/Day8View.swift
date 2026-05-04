@@ -48,7 +48,7 @@ struct Day8View: View {
                     subtitle: day8NumberSignSubtitle,
                     description: day8NumberSignDescription,
                     items: day8NumberSignItems,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "수표 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceNumberSign) },
                     onBack: { goTo(.intro) }
@@ -69,7 +69,7 @@ struct Day8View: View {
                     subtitle: day8NumberSubtitle2,
                     description: day8NumberDescription2,
                     items: day8NumberItems2,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "숫자 1~4, 0 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceNumbers2) },
                     onBack: { goTo(.practiceNumberSign) }
@@ -90,7 +90,7 @@ struct Day8View: View {
                     subtitle: day8NumberSubtitle3,
                     description: day8NumberDescription3,
                     items: day8NumberItems3,
-                    nextTitle: "만져보기",
+                    nextTitle: "실습하기",
                     nextHint: "숫자 5~9 점자 터치 실습 화면으로 이동합니다",
                     onNext: { goTo(.practiceNumbers3) },
                     onBack: { goTo(.practiceNumbers2) }
