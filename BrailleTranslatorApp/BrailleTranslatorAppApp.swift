@@ -9,7 +9,7 @@ struct BrailleApp: App {
         do {
             let schema = Schema([
                 LearningItem.self,
-                SavedWord.self,
+                SavedWord.self,//추후 번역된 결과 저장로직 추가 예정
                 QuizAttempt.self
             ])
             let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
