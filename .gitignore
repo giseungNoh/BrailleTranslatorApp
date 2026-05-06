@@ -19,3 +19,7 @@ DerivedData/
 
 # User-specific
 xcuserdata/
+
+# App-specific
+.serena/
+docs/
