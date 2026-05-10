@@ -52,7 +52,17 @@
       "Bash(xcodebuild -project /Users/juks86/BrailleTranslatorApp/BrailleTranslatorApp.xcodeproj -list)",
       "Bash(xcrun simctl *)",
       "Bash(xcodebuild test *)",
-      "Bash(xcrun xcresulttool *)"
+      "Bash(xcrun xcresulttool *)",
+      "mcp__plugin_serena_serena__list_dir",
+      "mcp__plugin_serena_serena__list_memories",
+      "mcp__plugin_serena_serena__get_symbols_overview",
+      "mcp__plugin_serena_serena__read_file",
+      "Bash(gh api *)",
+      "Bash(gunzip -c \"/Users/juks86/.claude/projects/-Users-juks86-BrailleTranslatorApp/b41793b8-db78-4793-a8a4-9f7379f1b9be/tool-results/webfetch-1778412815560-y6j2b8.bin\")",
+      "Read(//tmp/**)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(tar -x -C /tmp/portfolio_bundle)"
     ]
   }
 }
