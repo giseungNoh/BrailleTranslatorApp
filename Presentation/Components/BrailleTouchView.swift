@@ -272,6 +272,7 @@ class BrailleTouchCanvasView: UIView {
     }
 
     @objc private func handleTwoFingerSwipe(_ gesture: UISwipeGestureRecognizer) {
+        guard UIAccessibility.isVoiceOverRunning else { return }
         guard lastFeedbackID == nil else { return } // 점자 터치 중에는 무시
 
         switch gesture.direction {

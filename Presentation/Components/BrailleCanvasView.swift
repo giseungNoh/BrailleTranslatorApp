@@ -35,7 +35,7 @@ struct BrailleCanvasView: View {
         self.onSwipeNext = onSwipeNext
         self.onSwipePrevious = onSwipePrevious
     }
-
+    
     var body: some View {
         BrailleTouchCanvasViewRepresentable(
             text: text,

@@ -963,7 +963,6 @@ class BrailleTranslator {
         guard let scalar = char.unicodeScalars.first else { return [] }
         let value = scalar.value
         var dots: [String] = []
-
         // MARK: 단독 자음 (ㄱ~ㅎ): 온표 + 받침 형태
         if value >= 0x3131 && value <= 0x314E {
             let jamoList = ["ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄸ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅃ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]

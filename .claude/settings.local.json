@@ -62,7 +62,10 @@
       "Read(//tmp/**)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(tar -x -C /tmp/portfolio_bundle)"
+      "Bash(tar -x -C /tmp/portfolio_bundle)",
+      "Bash(git check-ignore *)",
+      "Bash(git -C book commit -m ' *)",
+      "Bash(git -C book status)"
     ]
   }
 }
