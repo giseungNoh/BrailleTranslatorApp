@@ -22,5 +22,6 @@ xcuserdata/
 
 # App-specific
 .serena/
-docs/
+docs/*
+!docs/screenshots/
 book/
